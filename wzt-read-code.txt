@@ -1,0 +1,9 @@
+
+train_llama.py:
+    用rlhf_engine.py 初始化engine
+    设置ppo_trainer
+    跑主循环
+        输入prompts
+        用trainer generate experience
+        循环ppo_epochs次
+            将exp输入给trainer

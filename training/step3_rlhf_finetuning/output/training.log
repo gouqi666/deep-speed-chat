@@ -1,0 +1,9 @@
+[2023-05-09 12:33:00,992] [WARNING] [runner.py:190:fetch_hostfile] Unable to find hostfile, will proceed with training with local resources only.
+Detected CUDA_VISIBLE_DEVICES=4,5,6,7: setting --include=localhost:4,5,6,7
+[2023-05-09 12:33:01,052] [INFO] [runner.py:540:main] cmd = /home/wzt/miniconda3/bin/python -u -m deepspeed.launcher.launch --world_info=eyJsb2NhbGhvc3QiOiBbNCwgNSwgNiwgN119 --master_addr=127.0.0.1 --master_port=12346 --enable_each_rank_log=None train_llama.py --data_path Dahoas/rm-static --data_split 2,4,4 --actor_model_name_or_path /nfs/wzt/models/llama --critic_model_name_or_path /home/wzt/data/DeepSpeedExamples/applications/DeepSpeed-Chat/output/reward-models/350m --num_padding_at_beginning 1 --per_device_train_batch_size 4 --per_device_mini_train_batch_size 4 --generation_batch_numbers 1 --ppo_epochs 1 --max_answer_seq_len 256 --max_prompt_seq_len 256 --actor_learning_rate 9.65e-6 --critic_learning_rate 5e-6 --actor_weight_decay 0.1 --critic_weight_decay 0.1 --num_train_epochs 1 --lr_scheduler_type cosine --gradient_accumulation_steps 1 --num_warmup_steps 100 --deepspeed --seed 1234 --enable_hybrid_engine --actor_zero_stage 3 --critic_zero_stage 3 --output_dir ./output
+[2023-05-09 12:33:02,957] [INFO] [launch.py:229:main] WORLD INFO DICT: {'localhost': [4, 5, 6, 7]}
+[2023-05-09 12:33:02,957] [INFO] [launch.py:235:main] nnodes=1, num_local_procs=4, node_rank=0
+[2023-05-09 12:33:02,957] [INFO] [launch.py:246:main] global_rank_mapping=defaultdict(<class 'list'>, {'localhost': [0, 1, 2, 3]})
+[2023-05-09 12:33:02,957] [INFO] [launch.py:247:main] dist_world_size=4
+[2023-05-09 12:33:02,957] [INFO] [launch.py:249:main] Setting CUDA_VISIBLE_DEVICES=4,5,6,7
+[2023-05-09 12:33:05,967] [INFO] [comm.py:586:init_distributed] Initializing TorchBackend in DeepSpeed with backend nccl
