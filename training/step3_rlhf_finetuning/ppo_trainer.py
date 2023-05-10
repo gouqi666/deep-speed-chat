@@ -66,12 +66,13 @@ class DeepSpeedPPOTrainer():
         self.gamma = 1.0
         self.lam = 0.95
 
-    def _generate_sequence(self, prompts):
+    def _generate_sequence(self, prompts,attention_mask):
 
         max_min_length = self.max_answer_seq_len + prompts.shape[1]
 
         with torch.no_grad():
             seq = self.actor_model.module.generate(prompts,
+                                                   attention_mask = attention_mask,
                                                    max_length=max_min_length,
                                                    min_length=max_min_length)
 
@@ -92,9 +93,9 @@ class DeepSpeedPPOTrainer():
 
         return out_seq
 
-    def generate_experience(self, prompts,args):
+    def generate_experience(self, prompts,attention_mask, args):
         self.eval()
-        seq = self._generate_sequence(prompts)
+        seq = self._generate_sequence(prompts,attention_mask)
         self.train()
 
         pad_token_id = self.tokenizer.pad_token_id
@@ -105,16 +106,23 @@ class DeepSpeedPPOTrainer():
         # because the actor model has a different tokenizer
         prompt_seq = seq[:, :self.prompt_length]
         ans_seq = seq[:, self.prompt_length:]
-        prompt_decoded = [self.reward_tokenizer.decode(item.tolist()) for item in prompt_seq]
-        ans_decoded = [self.reward_tokenizer.decode(item.tolist()) for item in ans_seq]
+        prompt_decoded = [self.tokenizer.decode(item.tolist(),skip_special_tokens=True) for item in prompt_seq]
+        ans_decoded = [self.tokenizer.decode(item.tolist()) for item in ans_seq]
+        ans_decoded = [sent.split(self.tokenizer.eos_token)[0].strip() for sent in ans_decoded]
 
-        prompt_reward_input = self.reward_tokenizer(prompt_decoded, return_tensors='pt', padding='max_length', max_length=self.prompt_length, truncation=True, add_special_tokens = False)
-        ans_reward_input = self.reward_tokenizer(ans_decoded, return_tensors='pt', padding='max_length', max_length=self.max_answer_seq_len, truncation=True, add_special_tokens = False)
 
-        reward_input = torch.cat([prompt_reward_input['input_ids'], ans_reward_input['input_ids']], dim=1)
-        reward_attention_mask = torch.cat([prompt_reward_input['attention_mask'], ans_reward_input['attention_mask']], dim=1)
+        # prompt_reward_input = self.reward_tokenizer(prompt_decoded, return_tensors='pt', padding='max_length', max_length=self.prompt_length, truncation=True, add_special_tokens = False)
+        # ans_reward_input = self.reward_tokenizer(ans_decoded, return_tensors='pt', padding='max_length', max_length=self.max_answer_seq_len, truncation=True, add_special_tokens = False)
+        reward_input = [ prompt + ans for prompt, ans in zip(prompt_decoded, ans_decoded)]
+        reward_input = self.reward_tokenizer(reward_input,
+                                             return_tensors='pt',
+                                             padding='max_length',
+                                             max_length=self.prompt_length + self.max_answer_seq_len,
+                                             truncation=True)
 
-        
+        reward_input_ids = reward_input['input_ids'].to(args.device)
+        reward_attention_mask = reward_input['attention_mask'].to(args.device)
+               
         
         # decoded = self.reward_tokenizer.decode(masked_seq.tolist())
 
@@ -122,15 +130,16 @@ class DeepSpeedPPOTrainer():
             output = self.actor_model(seq, attention_mask=attention_mask)
             output_ref = self.ref_model(seq, attention_mask=attention_mask)
             reward_score = self.reward_model.forward_value(
-                reward_input, reward_attention_mask,
+                reward_input_ids, reward_attention_mask,
                 prompt_length=self.prompt_length)['chosen_end_scores'].detach(
                 )
             values = self.critic_model.forward_value(
-                reward_input, reward_attention_mask, return_value_only=True).detach()[:, :-1]
+                reward_input_ids, reward_attention_mask, return_value_only=True).detach()[:, :-1]
 
-        if args.global_rank == 0:
-            # print(decoded)
-            from IPython import embed; embed(header = '')
+        # if args.global_rank == 0:
+        #     # print(decoded)
+        #     # from IPython import embed; embed(header = '')
+        #     import IPython;import sys; IPython.embed(header = f'file:\n{__file__}\nline:{sys._getframe().f_lineno}')
             
         logits = output.logits
         logits_ref = output_ref.logits

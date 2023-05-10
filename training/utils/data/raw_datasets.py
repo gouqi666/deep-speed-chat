@@ -5,10 +5,12 @@
 from datasets import load_dataset
 from torch.utils.data import Subset
 import re
-
+import os
 
 # The template prompt dataset class that all new dataset porting needs to
 # follow in order to have a unified API and unified data format.
+
+
 class PromptRawDataset(object):
 
     def __init__(self, output_path, seed, local_rank):
@@ -41,6 +43,41 @@ class PromptRawDataset(object):
     def get_prompt_and_rejected(self, sample):
         return
 
+class SingleTurnRLHFDataset(PromptRawDataset):
+
+    def __init__(self, output_path, seed, local_rank, local_path = None):
+        super().__init__(output_path, seed, local_rank)
+        self.dataset_name = "SingleTurnRLHF"
+        self.dataset_name_clean = "SingleTurnRLHF"
+        assert local_path
+        
+        train_path = os.path.join(local_path, "train.json")
+        test_path = os.path.join(local_path, "test.json")
+        self.raw_datasets = load_dataset("json", data_files={'train':train_path,'test':test_path})
+
+        self.sft_format = "Below is an instruction that describes a task. Write a response that appropriately completes the request.\n\n### Instruction:\n{}\n\n### Response:\n"
+
+    def get_train_data(self):
+        return self.raw_datasets["train"]
+
+    def get_eval_data(self):
+        return self.raw_datasets["test"]
+
+    def get_prompt(self, sample):
+        return self.sft_format.format(sample['prompt'])
+
+    def get_chosen(self, sample):
+        return sample['chosen']
+
+    def get_rejected(self, sample):
+        return sample['rejected']
+
+    def get_prompt_and_chosen(self, sample):
+        return self.get_prompt(sample) + self.get_chosen(sample)
+
+    def get_prompt_and_rejected(self, sample):
+        return self.get_prompt(sample) + self.get_rejected(sample)
+
 
 # English dataset
 class DahoasRmstaticDataset(PromptRawDataset):
@@ -71,6 +108,7 @@ class DahoasRmstaticDataset(PromptRawDataset):
 
     def get_prompt_and_rejected(self, sample):
         return sample['prompt'] + sample['rejected']
+
 
 
 # English dataset
@@ -159,6 +197,7 @@ class YitingxieRlhfrewarddatasetsDataset(PromptRawDataset):
         self.dataset_name = "yitingxie/rlhf-reward-datasets"
         self.dataset_name_clean = "yitingxie_rlhf_reward_datasets"
         self.raw_datasets = load_dataset("yitingxie/rlhf-reward-datasets")
+        
 
     def get_train_data(self):
         return self.raw_datasets["train"]

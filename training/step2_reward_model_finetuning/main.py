@@ -40,6 +40,9 @@ def parse_args():
                         help='Path to the training dataset. Accepted format:'
                         '1) a single data path, 2) multiple datasets in the'
                         'form: dataset1-path dataset2-path ...')
+    parser.add_argument('--local_data_files',
+                        default = "",
+                        type = str)
     parser.add_argument('--data_split',
                         type=str,
                         default='6,2,2',
@@ -217,7 +220,7 @@ def main():
     train_dataset, eval_dataset = create_prompt_dataset(
         args.local_rank, args.data_path, args.data_split,
         args.data_output_path, train_phase, args.seed, tokenizer,
-        args.max_seq_len)
+        args.max_seq_len, args = args)
 
     # DataLoaders creation:
     data_collator = DataCollatorReward()
@@ -299,7 +302,7 @@ def main():
     print_rank_0(
         f"***** Evaluating reward, Epoch {0}/{args.num_train_epochs} *****",
         args.global_rank)
-    # reward_score, acc = evaluation_reward(rm_model, eval_dataloader)
+    reward_score, acc = evaluation_reward(rm_model, eval_dataloader)
     print_rank_0(
         f"chosen_last_scores (higher is better) : {reward_score}, acc (higher is better) : {acc}",
         args.global_rank)

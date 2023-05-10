@@ -45,8 +45,6 @@ class DeepSpeedRLHFEngine():
         self.num_total_iters = num_total_iters
         self.actor_tokenizer = actor_tokenizer
         self.reward_tokenizer = reward_tokenizer
-        # from IPython import embed; embed(header = 'init rl engine')
-        # self.tokenizer = tokenizer
 
         self.actor = self._init_actor(
             actor_model_name_or_path=actor_model_name_or_path)

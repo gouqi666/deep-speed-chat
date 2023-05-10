@@ -3,10 +3,10 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # DeepSpeed Team
-export CUDA_VISIBLE_DEVICES=4,5,6,7
+export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 export TRAIN_LLAMA='1'
-ACTOR_MODEL_PATH="/nfs/wzt/models/llama"
-CRITIC_MODEL_PATH="/home/wzt/data/DeepSpeedExamples/applications/DeepSpeed-Chat/output/reward-models/350m"
+ACTOR_MODEL_PATH="/nfs2/wzt/models/llama-7b"
+CRITIC_MODEL_PATH="/nfs2/wzt/deep-speed-chat/training/step2_reward_model_finetuning/output"
 ACTOR_ZERO_STAGE=$3
 CRITIC_ZERO_STAGE=$4
 OUTPUT=$5
@@ -27,7 +27,8 @@ Actor_Lr=9.65e-6
 Critic_Lr=5e-6
 
 deepspeed --master_port 12346 train_llama.py \
-   --data_path Dahoas/rm-static \
+   --data_path single_turn_rlhf \
+   --local_data_files /nfs2/wzt/deep-speed-chat/datasets/single_turn_rlhf \
    --data_split 2,4,4 \
    --actor_model_name_or_path $ACTOR_MODEL_PATH \
    --critic_model_name_or_path $CRITIC_MODEL_PATH \
@@ -47,7 +48,6 @@ deepspeed --master_port 12346 train_llama.py \
    --gradient_accumulation_steps 1 \
    --num_warmup_steps 100 \
    --deepspeed --seed 1234 \
-   --enable_hybrid_engine \
    --actor_zero_stage $ACTOR_ZERO_STAGE \
    --critic_zero_stage $CRITIC_ZERO_STAGE \
    --output_dir $OUTPUT \

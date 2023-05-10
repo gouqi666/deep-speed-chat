@@ -16,8 +16,10 @@ from itertools import chain
 from . import raw_datasets
 
 
-def get_raw_dataset(dataset_name, output_path, seed, local_rank):
-    if dataset_name == "Dahoas/rm-static":
+def get_raw_dataset(dataset_name, output_path, seed, local_rank, local_path = None):
+    if dataset_name == "single_turn_rlhf":
+        return raw_datasets.SingleTurnRLHFDataset(output_path, seed, local_rank, local_path)
+    elif dataset_name == "Dahoas/rm-static":
         return raw_datasets.DahoasRmstaticDataset(output_path, seed,
                                                   local_rank)
     elif dataset_name == "Dahoas/full-hh-rlhf":
@@ -164,8 +166,8 @@ def create_dataset_split(current_dataset, raw_dataset, train_phase, tokenizer,
             reject_sentence = raw_dataset.get_prompt_and_rejected(
                 tmp_data)  # the accept response
             if chosen_sentence is not None and reject_sentence is not None:
-                chosen_sentence += end_of_conversation_token  # the accept response
-                reject_sentence += end_of_conversation_token
+                # chosen_sentence += end_of_conversation_token  # the accept response
+                # reject_sentence += end_of_conversation_token
                 chosen_token = tokenizer(chosen_sentence,
                                          max_length=max_seq_len,
                                          padding="max_length",
@@ -176,6 +178,8 @@ def create_dataset_split(current_dataset, raw_dataset, train_phase, tokenizer,
                                          padding="max_length",
                                          truncation=True,
                                          return_tensors="pt")
+                # if torch.distributed.get_rank()==0:
+                #     import IPython;import sys; IPython.embed(header = f'file:\n{__file__}\nline:{sys._getframe().f_lineno}')
                 chosen_token["input_ids"] = chosen_token["input_ids"]
                 chosen_token["attention_mask"] = chosen_token["attention_mask"]
                 chosen_dataset.append(chosen_token)
@@ -185,9 +189,8 @@ def create_dataset_split(current_dataset, raw_dataset, train_phase, tokenizer,
                 reject_dataset.append(reject_token)
 
     elif train_phase == 3:
-        PROMPT_LENGTH = 35
-        max_prompt_len = max_seq_len-PROMPT_LENGTH
-        # from IPython import embed; embed(header = '')
+        # PROMPT_LENGTH = 35
+        max_prompt_len = max_seq_len
         for i, tmp_data in enumerate(current_dataset):
             # tokenize the text
             prompt = raw_dataset.get_prompt(tmp_data)
@@ -197,8 +200,8 @@ def create_dataset_split(current_dataset, raw_dataset, train_phase, tokenizer,
                     prompt_ids = prompt_ids[-max_prompt_len:]
                 attention_mask = [1]*len(prompt_ids)
                 prompt_token = {}
-                prompt_token["input_ids"] = torch.LongTensor(prompt_ids).flip(0)
-                prompt_token["attention_mask"] = torch.LongTensor(attention_mask).flip(0)
+                prompt_token["input_ids"] = torch.LongTensor(prompt_ids).flip(-1)
+                prompt_token["attention_mask"] = torch.LongTensor(attention_mask).flip(-1)
                 prompt_dataset.append(prompt_token)
                 
     return PromptDataset(prompt_dataset, chosen_dataset, reject_dataset,
@@ -207,8 +210,8 @@ def create_dataset_split(current_dataset, raw_dataset, train_phase, tokenizer,
 
 def create_dataset(local_rank, dataset_name, data_split, output_path,
                    train_phase, seed, tokenizer, end_of_conversation_token,
-                   max_seq_len):
-    raw_dataset = get_raw_dataset(dataset_name, output_path, seed, local_rank)
+                   max_seq_len, args = None):
+    raw_dataset = get_raw_dataset(dataset_name, output_path, seed, local_rank, local_path=args.local_data_files)
     train_dataset = raw_dataset.get_train_data()
     train_index = get_raw_dataset_split_index(local_rank, output_path,
                                               raw_dataset.dataset_name_clean,
@@ -243,7 +246,8 @@ def create_prompt_dataset(local_rank,
                           tokenizer,
                           max_seq_len,
                           end_of_conversation_token="<|endoftext|>",
-                          sft_only_data_path=[]):
+                          sft_only_data_path=[],
+                          args = None):
     """
     Creates the prompt dataset
     """
@@ -272,7 +276,7 @@ def create_prompt_dataset(local_rank,
         if len(data_path) == 1:  # Single dataset.
             train_dataset, eval_dataset = create_dataset(
                 local_rank, data_path[0], data_split, output_path, train_phase,
-                seed, tokenizer, end_of_conversation_token, max_seq_len)
+                seed, tokenizer, end_of_conversation_token, max_seq_len, args = args)
         else:  # Blending datasets.
             train_datasets = []
             eval_datasets = []
@@ -348,13 +352,14 @@ class DataCollatorReward:
 
 class DataCollatorRLHF:
 
-    def __init__(self, max_token_len, inference_tp_size):
+    def __init__(self, max_token_len, inference_tp_size, tokenizer):
         self.max_token_len = max_token_len
         self.inference_tp_size = inference_tp_size
+        self.tokenizer = tokenizer
 
     def __call__(self, data):
         batch = {}
-        pad_token_id = data[-1][-1]
+        pad_token_id = self.tokenizer.pad_token_id
 
         prompt = pad_sequence([f[0] for f in data],
                               padding_value=pad_token_id,
@@ -367,19 +372,19 @@ class DataCollatorRLHF:
         length = prompt.size()[-1]
         pad_length = self.max_token_len - length
         if pad_length > 0:
-            batch["prompt"] = F.pad(prompt,
+            batch["prompt"] = F.pad(prompt.flip(-1),
                                     pad=(pad_length, 0),
                                     mode='constant',
                                     value=pad_token_id)
-            batch["prompt_att_mask"] = F.pad(prompt_mask,
+            batch["prompt_att_mask"] = F.pad(prompt_mask.flip(-1),
                                              pad=(pad_length, 0),
                                              mode='constant',
                                              value=0)
         else:
             batch["prompt"] = prompt
             batch["prompt_att_mask"] = prompt_mask
-        batch["prompt"] = batch["prompt"].flip(1)
-        batch["prompt_att_mask"] = batch["prompt_att_mask"].flip(1)
+        batch["prompt"] = batch["prompt"]
+        batch["prompt_att_mask"] = batch["prompt_att_mask"]
         return batch
 
 

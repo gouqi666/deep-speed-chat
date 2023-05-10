@@ -22,6 +22,7 @@ import random
 import torch
 from torch.utils.data import DataLoader, RandomSampler
 from torch.utils.data.distributed import DistributedSampler
+from torch.utils.tensorboard import SummaryWriter
 
 from transformers import (
     AutoTokenizer,
@@ -55,6 +56,9 @@ def parse_args():
         help=
         'Path to the training dataset. Accepted format: 1) a single data path, 2) multiple datasets in the form: dataset1-path dataset2-path ...'
     )
+    parser.add_argument('--local_data_files',
+                        default = "",
+                        type = str)
     parser.add_argument(
         '--data_split',
         type=str,
@@ -301,12 +305,12 @@ def parse_args():
     return args
 
 
-def create_datasets(args, tokenizer, train_phase=3):
+def create_datasets(args, tokenizer, train_phase=3 ):
     unsupervised_training_enabled = args.unsupervised_dataset_name and args.unsupervised_dataset_config_name
     prompt_train_dataset, _ = create_prompt_dataset(
         args.local_rank, args.data_path, args.data_split,
         args.data_output_path, train_phase, args.seed, tokenizer,
-        args.max_prompt_seq_len)
+        args.max_prompt_seq_len, args = args)
     if unsupervised_training_enabled:
         unsupervised_train_dataset = get_unsupervised_data(args, tokenizer)
     else:
@@ -314,7 +318,8 @@ def create_datasets(args, tokenizer, train_phase=3):
 
     # DataLoaders creation:
     data_collator = DataCollatorRLHF(args.max_prompt_seq_len,
-                                     args.inference_tp_size)
+                                     args.inference_tp_size,
+                                     tokenizer=tokenizer)
     if args.local_rank == -1:
         prompt_train_sampler = RandomSampler(prompt_train_dataset)
         if unsupervised_training_enabled:
@@ -358,8 +363,12 @@ def main():
         device = torch.device("cuda", args.local_rank)
         # Initializes the distributed backend which will take care of sychronizing nodes/GPUs
         deepspeed.init_distributed()
+    args.device = device
 
     args.global_rank = torch.distributed.get_rank()
+    import os
+    if args.global_rank == 0:
+        writer = SummaryWriter(log_dir= os.path.join(args.output_dir,'tensorboard'))
 
     assert not args.offload, "zero-offload is not currently supported but coming soon!"
 
@@ -382,10 +391,15 @@ def main():
     else:
         actor_tokenizer = AutoTokenizer.from_pretrained(args.actor_model_name_or_path,
                                               fast_tokenizer=True)
+    
+    actor_tokenizer.unk_token = '<unk>'
+    actor_tokenizer.bos_token = '<s>'
+    actor_tokenizer.eos_token = '</s>'
     actor_tokenizer.pad_token = actor_tokenizer.eos_token
 
     reward_tokenizer = AutoTokenizer.from_pretrained(args.critic_model_name_or_path,
                                                   fast_tokenizer=True)
+    reward_tokenizer.pad_token = reward_tokenizer.eos_token
 
     prompt_train_dataloader, unsupervised_train_dataloader, num_total_iters = create_datasets(
         args=args, tokenizer=actor_tokenizer, train_phase=3)
@@ -412,7 +426,7 @@ def main():
 
     # Train!
     print_rank_0("***** Running training *****", args.global_rank)
-
+    global_steps = 0
     for epoch in range(args.num_train_epochs):
         print_rank_0(
             f"Beginning of Epoch {epoch+1}/{args.num_train_epochs}, Total Generation Batches {min(len(prompt_train_dataloader), len(unsupervised_train_dataloader))}",
@@ -427,12 +441,13 @@ def main():
                 unsup_dataset = unsup_mini_dataset.add(
                     [[None] * args.per_device_train_batch_size])
             prompts = batch_prompt['prompt']
+            attention_mask = batch_prompt['prompt_att_mask']
             length = prompts.size(-1)
             if length > args.max_prompt_seq_len:
                 prompts = prompts[:, length - args.max_prompt_seq_len:]
                 raise ValueError("Prompt length is too long")
 
-            out = trainer.generate_experience(prompts,args)
+            out = trainer.generate_experience(prompts,attention_mask,args)
             exp_dataset = exp_mini_dataset.add(out)
 
             if exp_dataset is not None:
@@ -468,6 +483,10 @@ def main():
                 print_rank_0(
                     f'epoch: {epoch}|step: {step}|ppo_ep: {ppo_ep+1}|act_loss: {actor_loss/inner_iter}|cri_loss: {critic_loss/inner_iter}|unsuper_loss: {unsuper_loss/inner_iter}',
                     args.global_rank)
+                if args.global_rank==0:
+                    writer.add_scalar('actor_loss',actor_loss/inner_iter,global_steps)
+                    writer.add_scalar('critic_loss',critic_loss/inner_iter,global_steps)
+                    writer.add_scalar("average_reward_score", average_reward/inner_iter, global_steps)
                 average_reward = get_all_reduce_mean(average_reward).item()
                 print_rank_0(
                     f"average reward score: {average_reward/inner_iter}",
@@ -475,19 +494,19 @@ def main():
                 print_rank_0(
                     "-------------------------------------------------------------------------------------",
                     args.global_rank)
-
+            global_steps += 1
             if args.actor_gradient_checkpointing:
                 rlhf_engine.actor.gradient_checkpointing_disable()
 
     if args.output_dir is not None:
-        print_rank_0('saving model ...')
+        print_rank_0('saving model ...',rank = args.global_rank)
         rlhf_engine.actor = convert_lora_to_linear_layer(rlhf_engine.actor)
         rlhf_engine.critic = convert_lora_to_linear_layer(rlhf_engine.critic)
         if args.enable_ema:
             rlhf_engine.actor_ema = convert_lora_to_linear_layer(
                 rlhf_engine.actor_ema)
 
-        if torch.distributed.get_rank() == 0:
+        if args.global_rank == 0:
             save_hf_format(rlhf_engine.actor,
                            actor_tokenizer,
                            args,
