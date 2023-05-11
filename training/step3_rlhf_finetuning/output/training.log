@@ -1397,3 +1397,1702 @@ average reward score: 3.26953125
 epoch: 0|step: 107|ppo_ep: 1|act_loss: 0.427490234375|cri_loss: 0.32861328125|unsuper_loss: 0.0
 average reward score: 3.380859375
 -------------------------------------------------------------------------------------
+epoch: 0|step: 108|ppo_ep: 1|act_loss: 0.57177734375|cri_loss: 0.490234375|unsuper_loss: 0.0
+average reward score: 3.509765625
+-------------------------------------------------------------------------------------
+[2023-05-10 15:54:43,040] [INFO] [logging.py:96:log_dist] [Rank 0] step=110, skipped=6, lr=[9.648574771224896e-06], mom=[(0.9, 0.95)]
+[2023-05-10 15:54:43,041] [INFO] [timer.py:199:stop] epoch=0/micro_step=110/global_step=110, RunningAvgSamplesPerSec=39.782528791792274, CurrSamplesPerSec=40.761739318463846, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 15:54:43,461] [INFO] [logging.py:96:log_dist] [Rank 0] step=110, skipped=7, lr=[4.999584607018479e-06, 4.999584607018479e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 109|ppo_ep: 1|act_loss: 0.451171875|cri_loss: 0.546875|unsuper_loss: 0.0
+average reward score: 3.40625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 110|ppo_ep: 1|act_loss: 0.4951171875|cri_loss: 0.52001953125|unsuper_loss: 0.0
+average reward score: 3.4453125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 111|ppo_ep: 1|act_loss: 0.371337890625|cri_loss: 0.37451171875|unsuper_loss: 0.0
+average reward score: 3.6953125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 112|ppo_ep: 1|act_loss: 0.1865234375|cri_loss: 0.150146484375|unsuper_loss: 0.0
+average reward score: 3.171875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 113|ppo_ep: 1|act_loss: 0.17626953125|cri_loss: 0.184326171875|unsuper_loss: 0.0
+average reward score: 3.1953125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 114|ppo_ep: 1|act_loss: 0.2548828125|cri_loss: 0.264404296875|unsuper_loss: 0.0
+average reward score: 3.283203125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 115|ppo_ep: 1|act_loss: 0.18017578125|cri_loss: 0.2000732421875|unsuper_loss: 0.0
+average reward score: 3.291015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 116|ppo_ep: 1|act_loss: 0.332763671875|cri_loss: 0.28857421875|unsuper_loss: 0.0
+average reward score: 3.5234375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 117|ppo_ep: 1|act_loss: 0.1517333984375|cri_loss: 0.1536865234375|unsuper_loss: 0.0
+average reward score: 3.373046875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 118|ppo_ep: 1|act_loss: 0.318359375|cri_loss: 0.275390625|unsuper_loss: 0.0
+average reward score: 3.34375
+-------------------------------------------------------------------------------------
+[2023-05-10 16:03:24,877] [INFO] [logging.py:96:log_dist] [Rank 0] step=120, skipped=6, lr=[9.632550615549622e-06], mom=[(0.9, 0.95)]
+[2023-05-10 16:03:24,878] [INFO] [timer.py:199:stop] epoch=0/micro_step=120/global_step=120, RunningAvgSamplesPerSec=39.81588328917522, CurrSamplesPerSec=40.658301210348625, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 16:03:25,417] [INFO] [logging.py:96:log_dist] [Rank 0] step=120, skipped=7, lr=[4.992203682428646e-06, 4.992203682428646e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 119|ppo_ep: 1|act_loss: 0.3994140625|cri_loss: 0.322021484375|unsuper_loss: 0.0
+average reward score: 3.05078125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 120|ppo_ep: 1|act_loss: 0.370849609375|cri_loss: 0.2841796875|unsuper_loss: 0.0
+average reward score: 3.140625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 121|ppo_ep: 1|act_loss: 1.4736328125|cri_loss: 1.1572265625|unsuper_loss: 0.0
+average reward score: 3.46484375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 122|ppo_ep: 1|act_loss: 0.13134765625|cri_loss: 0.1685791015625|unsuper_loss: 0.0
+average reward score: 3.423828125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 123|ppo_ep: 1|act_loss: 0.455322265625|cri_loss: 0.44677734375|unsuper_loss: 0.0
+average reward score: 3.326171875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 124|ppo_ep: 1|act_loss: 0.0037841796875|cri_loss: 0.08477783203125|unsuper_loss: 0.0
+average reward score: 3.33984375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 125|ppo_ep: 1|act_loss: -0.028076171875|cri_loss: 0.112548828125|unsuper_loss: 0.0
+average reward score: 3.45703125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 126|ppo_ep: 1|act_loss: 0.144287109375|cri_loss: 0.17626953125|unsuper_loss: 0.0
+average reward score: 3.04296875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 127|ppo_ep: 1|act_loss: 0.327392578125|cri_loss: 0.277099609375|unsuper_loss: 0.0
+average reward score: 3.521484375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 128|ppo_ep: 1|act_loss: 0.345947265625|cri_loss: 0.3291015625|unsuper_loss: 0.0
+average reward score: 3.732421875
+-------------------------------------------------------------------------------------
+[2023-05-10 16:12:08,168] [INFO] [logging.py:96:log_dist] [Rank 0] step=130, skipped=6, lr=[9.598780116315124e-06], mom=[(0.9, 0.95)]
+[2023-05-10 16:12:08,168] [INFO] [timer.py:199:stop] epoch=0/micro_step=130/global_step=130, RunningAvgSamplesPerSec=39.88457998137896, CurrSamplesPerSec=40.381244877795176, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 16:12:08,505] [INFO] [logging.py:96:log_dist] [Rank 0] step=130, skipped=7, lr=[4.975623166133029e-06, 4.975623166133029e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 129|ppo_ep: 1|act_loss: 0.47265625|cri_loss: 0.52099609375|unsuper_loss: 0.0
+average reward score: 3.41015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 130|ppo_ep: 1|act_loss: 0.53173828125|cri_loss: 0.454833984375|unsuper_loss: 0.0
+average reward score: 3.38671875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 131|ppo_ep: 1|act_loss: 0.341796875|cri_loss: 0.260009765625|unsuper_loss: 0.0
+average reward score: 3.39453125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 132|ppo_ep: 1|act_loss: 0.2000732421875|cri_loss: 0.1937255859375|unsuper_loss: 0.0
+average reward score: 3.34375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 133|ppo_ep: 1|act_loss: 0.333740234375|cri_loss: 0.2406005859375|unsuper_loss: 0.0
+average reward score: 3.43359375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 134|ppo_ep: 1|act_loss: 1.0224609375|cri_loss: 1.2822265625|unsuper_loss: 0.0
+average reward score: 3.078125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 135|ppo_ep: 1|act_loss: 0.184326171875|cri_loss: 0.22216796875|unsuper_loss: 0.0
+average reward score: 3.486328125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 136|ppo_ep: 1|act_loss: 0.425537109375|cri_loss: 0.403564453125|unsuper_loss: 0.0
+average reward score: 3.173828125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 137|ppo_ep: 1|act_loss: 0.93212890625|cri_loss: 0.595703125|unsuper_loss: 0.0
+average reward score: 3.41796875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 138|ppo_ep: 1|act_loss: 0.5458984375|cri_loss: 0.427490234375|unsuper_loss: 0.0
+average reward score: 3.306640625
+-------------------------------------------------------------------------------------
+[2023-05-10 16:20:48,570] [INFO] [logging.py:96:log_dist] [Rank 0] step=140, skipped=6, lr=[9.547387932194706e-06], mom=[(0.9, 0.95)]
+[2023-05-10 16:20:48,570] [INFO] [timer.py:199:stop] epoch=0/micro_step=140/global_step=140, RunningAvgSamplesPerSec=39.810358440567825, CurrSamplesPerSec=40.58917537137063, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 16:20:48,898] [INFO] [logging.py:96:log_dist] [Rank 0] step=140, skipped=7, lr=[4.949904262591467e-06, 4.949904262591467e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 139|ppo_ep: 1|act_loss: 0.270751953125|cri_loss: 0.278076171875|unsuper_loss: 0.0
+average reward score: 3.89453125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 140|ppo_ep: 1|act_loss: 0.1060791015625|cri_loss: 0.1502685546875|unsuper_loss: 0.0
+average reward score: 3.3515625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 141|ppo_ep: 1|act_loss: 0.12237548828125|cri_loss: 0.1534423828125|unsuper_loss: 0.0
+average reward score: 3.50390625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 142|ppo_ep: 1|act_loss: 0.148681640625|cri_loss: 0.19287109375|unsuper_loss: 0.0
+average reward score: 3.6484375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 143|ppo_ep: 1|act_loss: -0.01318359375|cri_loss: 0.08282470703125|unsuper_loss: 0.0
+average reward score: 3.4765625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 144|ppo_ep: 1|act_loss: 0.2225341796875|cri_loss: 0.2213134765625|unsuper_loss: 0.0
+average reward score: 3.021484375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 145|ppo_ep: 1|act_loss: 0.11407470703125|cri_loss: 0.1552734375|unsuper_loss: 0.0
+average reward score: 3.490234375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 146|ppo_ep: 1|act_loss: 0.33251953125|cri_loss: 0.330810546875|unsuper_loss: 0.0
+average reward score: 3.0625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 147|ppo_ep: 1|act_loss: 0.09564208984375|cri_loss: 0.189453125|unsuper_loss: 0.0
+average reward score: 3.43359375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 148|ppo_ep: 1|act_loss: 0.3203125|cri_loss: 0.26806640625|unsuper_loss: 0.0
+average reward score: 3.4453125
+-------------------------------------------------------------------------------------
+[2023-05-10 16:29:24,010] [INFO] [logging.py:96:log_dist] [Rank 0] step=150, skipped=6, lr=[9.478563769637368e-06], mom=[(0.9, 0.95)]
+[2023-05-10 16:29:24,010] [INFO] [timer.py:199:stop] epoch=0/micro_step=150/global_step=150, RunningAvgSamplesPerSec=39.86916570836768, CurrSamplesPerSec=40.681407839381194, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 16:29:24,508] [INFO] [logging.py:96:log_dist] [Rank 0] step=150, skipped=7, lr=[4.915141909233582e-06, 4.915141909233582e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 149|ppo_ep: 1|act_loss: 0.25146484375|cri_loss: 0.2222900390625|unsuper_loss: 0.0
+average reward score: 3.625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 150|ppo_ep: 1|act_loss: 0.361328125|cri_loss: 0.240478515625|unsuper_loss: 0.0
+average reward score: 3.609375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 151|ppo_ep: 1|act_loss: 0.48193359375|cri_loss: 0.419921875|unsuper_loss: 0.0
+average reward score: 3.388671875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 152|ppo_ep: 1|act_loss: 0.44189453125|cri_loss: 0.343994140625|unsuper_loss: 0.0
+average reward score: 3.24609375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 153|ppo_ep: 1|act_loss: 0.6025390625|cri_loss: 0.439453125|unsuper_loss: 0.0
+average reward score: 2.80078125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 154|ppo_ep: 1|act_loss: 0.282958984375|cri_loss: 0.292236328125|unsuper_loss: 0.0
+average reward score: 3.38671875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 155|ppo_ep: 1|act_loss: 0.1796875|cri_loss: 0.1541748046875|unsuper_loss: 0.0
+average reward score: 3.009765625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 156|ppo_ep: 1|act_loss: 0.40673828125|cri_loss: 0.4111328125|unsuper_loss: 0.0
+average reward score: 3.5390625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 157|ppo_ep: 1|act_loss: 0.486328125|cri_loss: 0.447509765625|unsuper_loss: 0.0
+average reward score: 3.5234375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 158|ppo_ep: 1|act_loss: 0.324462890625|cri_loss: 0.306884765625|unsuper_loss: 0.0
+average reward score: 3.353515625
+-------------------------------------------------------------------------------------
+[2023-05-10 16:37:59,945] [INFO] [logging.py:96:log_dist] [Rank 0] step=160, skipped=6, lr=[9.392561682595233e-06], mom=[(0.9, 0.95)]
+[2023-05-10 16:37:59,945] [INFO] [timer.py:199:stop] epoch=0/micro_step=160/global_step=160, RunningAvgSamplesPerSec=39.85078548498199, CurrSamplesPerSec=38.32503676376107, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 16:38:00,274] [INFO] [logging.py:96:log_dist] [Rank 0] step=160, skipped=7, lr=[4.871464426011663e-06, 4.871464426011663e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 159|ppo_ep: 1|act_loss: 0.3896484375|cri_loss: 0.59716796875|unsuper_loss: 0.0
+average reward score: 2.93359375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 160|ppo_ep: 1|act_loss: 0.3056640625|cri_loss: 0.360107421875|unsuper_loss: 0.0
+average reward score: 3.609375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 161|ppo_ep: 1|act_loss: -0.13671875|cri_loss: 0.252197265625|unsuper_loss: 0.0
+average reward score: 3.025390625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 162|ppo_ep: 1|act_loss: -0.325927734375|cri_loss: 0.03125|unsuper_loss: 0.0
+average reward score: 3.369140625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 163|ppo_ep: 1|act_loss: -0.089111328125|cri_loss: 0.101806640625|unsuper_loss: 0.0
+average reward score: 3.2578125
+-------------------------------------------------------------------------------------
+[2023-05-10 16:42:17,080] [INFO] [loss_scaler.py:188:update_scale] [deepspeed] OVERFLOW! Rank 0 Skipping step. Attempted loss scale: 4096, but hysteresis is 2. Reducing hysteresis to 1
+epoch: 0|step: 164|ppo_ep: 1|act_loss: 0.0133056640625|cri_loss: 0.1014404296875|unsuper_loss: 0.0
+average reward score: 3.43359375
+-------------------------------------------------------------------------------------
+[2023-05-10 16:43:08,904] [INFO] [loss_scaler.py:181:update_scale] [deepspeed] OVERFLOW! Rank 0 Skipping step. Attempted loss scale: 4096, reducing to 2048
+epoch: 0|step: 165|ppo_ep: 1|act_loss: -0.047119140625|cri_loss: 0.1597900390625|unsuper_loss: 0.0
+average reward score: 3.3359375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 166|ppo_ep: 1|act_loss: -0.248779296875|cri_loss: 0.10107421875|unsuper_loss: 0.0
+average reward score: 3.55078125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 167|ppo_ep: 1|act_loss: 0.8125|cri_loss: 0.6865234375|unsuper_loss: 0.0
+average reward score: 3.732421875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 168|ppo_ep: 1|act_loss: 0.595703125|cri_loss: 0.61962890625|unsuper_loss: 0.0
+average reward score: 3.283203125
+-------------------------------------------------------------------------------------
+[2023-05-10 16:46:36,996] [INFO] [logging.py:96:log_dist] [Rank 0] step=170, skipped=8, lr=[9.311603141085488e-06], mom=[(0.9, 0.95)]
+[2023-05-10 16:46:36,996] [INFO] [timer.py:199:stop] epoch=0/micro_step=170/global_step=170, RunningAvgSamplesPerSec=39.87572896765309, CurrSamplesPerSec=40.77165753779614, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 16:46:37,328] [INFO] [logging.py:96:log_dist] [Rank 0] step=170, skipped=7, lr=[4.819033041727035e-06, 4.819033041727035e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 169|ppo_ep: 1|act_loss: 0.200439453125|cri_loss: 0.239990234375|unsuper_loss: 0.0
+average reward score: 3.55078125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 170|ppo_ep: 1|act_loss: 0.059814453125|cri_loss: 0.2130126953125|unsuper_loss: 0.0
+average reward score: 3.59765625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 171|ppo_ep: 1|act_loss: -0.11376953125|cri_loss: 0.029296875|unsuper_loss: 0.0
+average reward score: 3.353515625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 172|ppo_ep: 1|act_loss: -0.090087890625|cri_loss: 0.06005859375|unsuper_loss: 0.0
+average reward score: 3.63671875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 173|ppo_ep: 1|act_loss: 0.148681640625|cri_loss: 0.197265625|unsuper_loss: 0.0
+average reward score: 3.482421875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 174|ppo_ep: 1|act_loss: 0.09088134765625|cri_loss: 0.14404296875|unsuper_loss: 0.0
+average reward score: 3.365234375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 175|ppo_ep: 1|act_loss: 0.296630859375|cri_loss: 0.28662109375|unsuper_loss: 0.0
+average reward score: 3.14453125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 176|ppo_ep: 1|act_loss: -0.0513916015625|cri_loss: 0.087158203125|unsuper_loss: 0.0
+average reward score: 3.19140625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 177|ppo_ep: 1|act_loss: 0.12115478515625|cri_loss: 0.24267578125|unsuper_loss: 0.0
+average reward score: 3.576171875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 178|ppo_ep: 1|act_loss: 0.08740234375|cri_loss: 0.12451171875|unsuper_loss: 0.0
+average reward score: 3.3984375
+-------------------------------------------------------------------------------------
+[2023-05-10 16:55:11,310] [INFO] [logging.py:96:log_dist] [Rank 0] step=180, skipped=8, lr=[9.195522667467955e-06], mom=[(0.9, 0.95)]
+[2023-05-10 16:55:11,311] [INFO] [timer.py:199:stop] epoch=0/micro_step=180/global_step=180, RunningAvgSamplesPerSec=39.92397249485384, CurrSamplesPerSec=40.77166992310907, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 16:55:11,641] [INFO] [logging.py:96:log_dist] [Rank 0] step=180, skipped=7, lr=[4.7580412988784084e-06, 4.7580412988784084e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 179|ppo_ep: 1|act_loss: 0.239501953125|cri_loss: 0.293701171875|unsuper_loss: 0.0
+average reward score: 3.7734375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 180|ppo_ep: 1|act_loss: 0.291748046875|cri_loss: 0.25927734375|unsuper_loss: 0.0
+average reward score: 3.361328125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 181|ppo_ep: 1|act_loss: 0.40185546875|cri_loss: 0.2958984375|unsuper_loss: 0.0
+average reward score: 3.40234375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 182|ppo_ep: 1|act_loss: 0.1375732421875|cri_loss: 0.144287109375|unsuper_loss: 0.0
+average reward score: 3.724609375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 183|ppo_ep: 1|act_loss: 0.114990234375|cri_loss: 0.142333984375|unsuper_loss: 0.0
+average reward score: 3.419921875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 184|ppo_ep: 1|act_loss: 0.227783203125|cri_loss: 0.240234375|unsuper_loss: 0.0
+average reward score: 3.1796875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 185|ppo_ep: 1|act_loss: -0.105712890625|cri_loss: 0.0438232421875|unsuper_loss: 0.0
+average reward score: 3.6328125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 186|ppo_ep: 1|act_loss: 0.2607421875|cri_loss: 0.40966796875|unsuper_loss: 0.0
+average reward score: 3.21484375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 187|ppo_ep: 1|act_loss: -0.1427001953125|cri_loss: 0.0323486328125|unsuper_loss: 0.0
+average reward score: 3.408203125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 188|ppo_ep: 1|act_loss: 0.0833740234375|cri_loss: 0.14501953125|unsuper_loss: 0.0
+average reward score: 3.486328125
+-------------------------------------------------------------------------------------
+[2023-05-10 17:03:44,985] [INFO] [logging.py:96:log_dist] [Rank 0] step=190, skipped=8, lr=[9.063309072643251e-06], mom=[(0.9, 0.95)]
+[2023-05-10 17:03:44,985] [INFO] [timer.py:199:stop] epoch=0/micro_step=190/global_step=190, RunningAvgSamplesPerSec=39.916929385398824, CurrSamplesPerSec=40.692064215844404, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 17:03:45,312] [INFO] [logging.py:96:log_dist] [Rank 0] step=190, skipped=7, lr=[4.688714339229107e-06, 4.688714339229107e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 189|ppo_ep: 1|act_loss: 0.5537109375|cri_loss: 0.488037109375|unsuper_loss: 0.0
+average reward score: 3.359375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 190|ppo_ep: 1|act_loss: 0.476806640625|cri_loss: 0.337158203125|unsuper_loss: 0.0
+average reward score: 3.419921875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 191|ppo_ep: 1|act_loss: 1.056640625|cri_loss: 0.81787109375|unsuper_loss: 0.0
+average reward score: 3.259765625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 192|ppo_ep: 1|act_loss: 0.55859375|cri_loss: 0.371337890625|unsuper_loss: 0.0
+average reward score: 3.345703125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 193|ppo_ep: 1|act_loss: 0.3017578125|cri_loss: 0.2135009765625|unsuper_loss: 0.0
+average reward score: 3.400390625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 194|ppo_ep: 1|act_loss: 0.62744140625|cri_loss: 0.46875|unsuper_loss: 0.0
+average reward score: 3.689453125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 195|ppo_ep: 1|act_loss: 0.275390625|cri_loss: 0.321044921875|unsuper_loss: 0.0
+average reward score: 3.59765625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 196|ppo_ep: 1|act_loss: 0.25146484375|cri_loss: 0.2255859375|unsuper_loss: 0.0
+average reward score: 3.623046875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 197|ppo_ep: 1|act_loss: 0.3046875|cri_loss: 0.2391357421875|unsuper_loss: 0.0
+average reward score: 3.4375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 198|ppo_ep: 1|act_loss: 0.1361083984375|cri_loss: 0.1683349609375|unsuper_loss: 0.0
+average reward score: 3.537109375
+-------------------------------------------------------------------------------------
+[2023-05-10 17:12:18,972] [INFO] [logging.py:96:log_dist] [Rank 0] step=200, skipped=8, lr=[8.915450403033472e-06], mom=[(0.9, 0.95)]
+[2023-05-10 17:12:18,973] [INFO] [timer.py:199:stop] epoch=0/micro_step=200/global_step=200, RunningAvgSamplesPerSec=39.86258034856644, CurrSamplesPerSec=40.56700711853915, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 17:12:19,299] [INFO] [logging.py:96:log_dist] [Rank 0] step=200, skipped=7, lr=[4.611308072730425e-06, 4.611308072730425e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 199|ppo_ep: 1|act_loss: 0.26953125|cri_loss: 0.39453125|unsuper_loss: 0.0
+average reward score: 3.341796875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 200|ppo_ep: 1|act_loss: 0.025390625|cri_loss: 0.10211181640625|unsuper_loss: 0.0
+average reward score: 3.244140625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 201|ppo_ep: 1|act_loss: 0.07110595703125|cri_loss: 0.155029296875|unsuper_loss: 0.0
+average reward score: 3.54296875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 202|ppo_ep: 1|act_loss: 0.200927734375|cri_loss: 0.16162109375|unsuper_loss: 0.0
+average reward score: 3.177734375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 203|ppo_ep: 1|act_loss: 0.259765625|cri_loss: 0.22021484375|unsuper_loss: 0.0
+average reward score: 3.041015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 204|ppo_ep: 1|act_loss: -0.1256103515625|cri_loss: 0.0521240234375|unsuper_loss: 0.0
+average reward score: 3.2578125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 205|ppo_ep: 1|act_loss: -0.16162109375|cri_loss: 0.069580078125|unsuper_loss: 0.0
+average reward score: 3.19921875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 206|ppo_ep: 1|act_loss: -0.12841796875|cri_loss: 0.0474853515625|unsuper_loss: 0.0
+average reward score: 3.876953125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 207|ppo_ep: 1|act_loss: -0.03436279296875|cri_loss: 0.0338134765625|unsuper_loss: 0.0
+average reward score: 3.50390625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 208|ppo_ep: 1|act_loss: 0.136962890625|cri_loss: 0.1639404296875|unsuper_loss: 0.0
+average reward score: 3.328125
+-------------------------------------------------------------------------------------
+[2023-05-10 17:20:51,227] [INFO] [logging.py:96:log_dist] [Rank 0] step=210, skipped=8, lr=[8.752492456480168e-06], mom=[(0.9, 0.95)]
+[2023-05-10 17:20:51,228] [INFO] [timer.py:199:stop] epoch=0/micro_step=210/global_step=210, RunningAvgSamplesPerSec=39.90817629302904, CurrSamplesPerSec=40.820402395859375, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 17:20:51,554] [INFO] [logging.py:96:log_dist] [Rank 0] step=210, skipped=7, lr=[4.5261082328688635e-06, 4.5261082328688635e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 209|ppo_ep: 1|act_loss: 0.5693359375|cri_loss: 0.449951171875|unsuper_loss: 0.0
+average reward score: 3.54296875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 210|ppo_ep: 1|act_loss: 0.337646484375|cri_loss: 0.265625|unsuper_loss: 0.0
+average reward score: 3.5234375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 211|ppo_ep: 1|act_loss: 0.17333984375|cri_loss: 0.1593017578125|unsuper_loss: 0.0
+average reward score: 3.576171875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 212|ppo_ep: 1|act_loss: -0.05078125|cri_loss: 0.0478515625|unsuper_loss: 0.0
+average reward score: 3.572265625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 213|ppo_ep: 1|act_loss: 0.197509765625|cri_loss: 0.313720703125|unsuper_loss: 0.0
+average reward score: 3.03515625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 214|ppo_ep: 1|act_loss: 0.0673828125|cri_loss: 0.1678466796875|unsuper_loss: 0.0
+average reward score: 3.603515625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 215|ppo_ep: 1|act_loss: 0.05853271484375|cri_loss: 0.1455078125|unsuper_loss: 0.0
+average reward score: 3.630859375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 216|ppo_ep: 1|act_loss: 0.0233154296875|cri_loss: 0.097412109375|unsuper_loss: 0.0
+average reward score: 3.77734375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 217|ppo_ep: 1|act_loss: 0.58740234375|cri_loss: 0.422119140625|unsuper_loss: 0.0
+average reward score: 3.443359375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 218|ppo_ep: 1|act_loss: 0.458251953125|cri_loss: 0.321044921875|unsuper_loss: 0.0
+average reward score: 3.3984375
+-------------------------------------------------------------------------------------
+[2023-05-10 17:29:25,786] [INFO] [logging.py:96:log_dist] [Rank 0] step=220, skipped=8, lr=[8.575036767514431e-06], mom=[(0.9, 0.95)]
+[2023-05-10 17:29:25,787] [INFO] [timer.py:199:stop] epoch=0/micro_step=220/global_step=220, RunningAvgSamplesPerSec=39.94234876367576, CurrSamplesPerSec=40.50156402294584, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 17:29:26,114] [INFO] [logging.py:96:log_dist] [Rank 0] step=220, skipped=7, lr=[4.433429321924332e-06, 4.433429321924332e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 219|ppo_ep: 1|act_loss: 0.63134765625|cri_loss: 0.3984375|unsuper_loss: 0.0
+average reward score: 3.603515625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 220|ppo_ep: 1|act_loss: 0.12060546875|cri_loss: 0.2127685546875|unsuper_loss: 0.0
+average reward score: 3.595703125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 221|ppo_ep: 1|act_loss: 0.20458984375|cri_loss: 0.248779296875|unsuper_loss: 0.0
+average reward score: 3.40625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 222|ppo_ep: 1|act_loss: 0.11187744140625|cri_loss: 0.187744140625|unsuper_loss: 0.0
+average reward score: 3.60546875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 223|ppo_ep: 1|act_loss: 0.01318359375|cri_loss: 0.1575927734375|unsuper_loss: 0.0
+average reward score: 3.806640625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 224|ppo_ep: 1|act_loss: -0.061279296875|cri_loss: 0.16796875|unsuper_loss: 0.0
+average reward score: 3.546875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 225|ppo_ep: 1|act_loss: 0.2091064453125|cri_loss: 0.27392578125|unsuper_loss: 0.0
+average reward score: 3.60546875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 226|ppo_ep: 1|act_loss: 0.035888671875|cri_loss: 0.1781005859375|unsuper_loss: 0.0
+average reward score: 3.099609375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 227|ppo_ep: 1|act_loss: 0.3125|cri_loss: 0.28173828125|unsuper_loss: 0.0
+average reward score: 3.296875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 228|ppo_ep: 1|act_loss: 0.217041015625|cri_loss: 0.177001953125|unsuper_loss: 0.0
+average reward score: 3.2890625
+-------------------------------------------------------------------------------------
+[2023-05-10 17:37:56,127] [INFO] [logging.py:96:log_dist] [Rank 0] step=230, skipped=8, lr=[8.383738386883467e-06], mom=[(0.9, 0.95)]
+[2023-05-10 17:37:56,127] [INFO] [timer.py:199:stop] epoch=0/micro_step=230/global_step=230, RunningAvgSamplesPerSec=39.940751445177234, CurrSamplesPerSec=40.95002742862303, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 17:37:56,455] [INFO] [logging.py:96:log_dist] [Rank 0] step=230, skipped=7, lr=[4.33361345003271e-06, 4.33361345003271e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 229|ppo_ep: 1|act_loss: -0.0155029296875|cri_loss: 0.08660888671875|unsuper_loss: 0.0
+average reward score: 3.45703125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 230|ppo_ep: 1|act_loss: 0.119873046875|cri_loss: 0.1968994140625|unsuper_loss: 0.0
+average reward score: 3.48828125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 231|ppo_ep: 1|act_loss: -0.2861328125|cri_loss: -0.076904296875|unsuper_loss: 0.0
+average reward score: 3.53515625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 232|ppo_ep: 1|act_loss: 0.002197265625|cri_loss: 0.177490234375|unsuper_loss: 0.0
+average reward score: 3.416015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 233|ppo_ep: 1|act_loss: 0.1236572265625|cri_loss: 0.1358642578125|unsuper_loss: 0.0
+average reward score: 3.1875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 234|ppo_ep: 1|act_loss: 0.26220703125|cri_loss: 0.260498046875|unsuper_loss: 0.0
+average reward score: 3.755859375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 235|ppo_ep: 1|act_loss: 0.269287109375|cri_loss: 0.2177734375|unsuper_loss: 0.0
+average reward score: 3.3984375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 236|ppo_ep: 1|act_loss: 0.0950927734375|cri_loss: 0.1199951171875|unsuper_loss: 0.0
+average reward score: 3.501953125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 237|ppo_ep: 1|act_loss: 0.05517578125|cri_loss: 0.1796875|unsuper_loss: 0.0
+average reward score: 3.435546875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 238|ppo_ep: 1|act_loss: -0.0517578125|cri_loss: 0.0499267578125|unsuper_loss: 0.0
+average reward score: 3.734375
+-------------------------------------------------------------------------------------
+[2023-05-10 17:46:29,891] [INFO] [logging.py:96:log_dist] [Rank 0] step=240, skipped=8, lr=[8.17930346353015e-06], mom=[(0.9, 0.95)]
+[2023-05-10 17:46:29,892] [INFO] [timer.py:199:stop] epoch=0/micro_step=240/global_step=240, RunningAvgSamplesPerSec=39.93840047496459, CurrSamplesPerSec=40.62349986062108, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 17:46:30,227] [INFO] [logging.py:96:log_dist] [Rank 0] step=240, skipped=7, lr=[4.227029072338184e-06, 4.227029072338184e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 239|ppo_ep: 1|act_loss: 0.1666259765625|cri_loss: 0.185546875|unsuper_loss: 0.0
+average reward score: 3.228515625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 240|ppo_ep: 1|act_loss: 0.29443359375|cri_loss: 0.2607421875|unsuper_loss: 0.0
+average reward score: 3.52734375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 241|ppo_ep: 1|act_loss: 0.48046875|cri_loss: 0.50244140625|unsuper_loss: 0.0
+average reward score: 3.1953125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 242|ppo_ep: 1|act_loss: 0.1263427734375|cri_loss: 0.16552734375|unsuper_loss: 0.0
+average reward score: 3.76953125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 243|ppo_ep: 1|act_loss: 0.228759765625|cri_loss: 0.2408447265625|unsuper_loss: 0.0
+average reward score: 3.37890625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 244|ppo_ep: 1|act_loss: 0.12359619140625|cri_loss: 0.1334228515625|unsuper_loss: 0.0
+average reward score: 3.32421875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 245|ppo_ep: 1|act_loss: 0.67431640625|cri_loss: 0.7236328125|unsuper_loss: 0.0
+average reward score: 3.546875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 246|ppo_ep: 1|act_loss: 0.7998046875|cri_loss: 0.7587890625|unsuper_loss: 0.0
+average reward score: 3.369140625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 247|ppo_ep: 1|act_loss: 0.0811767578125|cri_loss: 0.1292724609375|unsuper_loss: 0.0
+average reward score: 3.705078125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 248|ppo_ep: 1|act_loss: 0.2484130859375|cri_loss: 0.2384033203125|unsuper_loss: 0.0
+average reward score: 3.66015625
+-------------------------------------------------------------------------------------
+[2023-05-10 17:55:05,547] [INFO] [logging.py:96:log_dist] [Rank 0] step=250, skipped=8, lr=[7.962486637951369e-06], mom=[(0.9, 0.95)]
+[2023-05-10 17:55:05,547] [INFO] [timer.py:199:stop] epoch=0/micro_step=250/global_step=250, RunningAvgSamplesPerSec=39.93388335107029, CurrSamplesPerSec=40.80919478161299, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 17:55:05,878] [INFO] [logging.py:96:log_dist] [Rank 0] step=250, skipped=7, lr=[4.114069628897006e-06, 4.114069628897006e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 249|ppo_ep: 1|act_loss: 0.27197265625|cri_loss: 0.271484375|unsuper_loss: 0.0
+average reward score: 3.30078125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 250|ppo_ep: 1|act_loss: 0.16552734375|cri_loss: 0.1571044921875|unsuper_loss: 0.0
+average reward score: 3.791015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 251|ppo_ep: 1|act_loss: 0.028564453125|cri_loss: 0.162353515625|unsuper_loss: 0.0
+average reward score: 3.115234375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 252|ppo_ep: 1|act_loss: 0.00634765625|cri_loss: 0.1058349609375|unsuper_loss: 0.0
+average reward score: 3.591796875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 253|ppo_ep: 1|act_loss: -0.0262451171875|cri_loss: 0.04327392578125|unsuper_loss: 0.0
+average reward score: 3.568359375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 254|ppo_ep: 1|act_loss: -0.1273193359375|cri_loss: 0.03076171875|unsuper_loss: 0.0
+average reward score: 3.546875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 255|ppo_ep: 1|act_loss: 0.480224609375|cri_loss: 0.53271484375|unsuper_loss: 0.0
+average reward score: 3.587890625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 256|ppo_ep: 1|act_loss: 0.034515380859375|cri_loss: 0.07763671875|unsuper_loss: 0.0
+average reward score: 3.49609375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 257|ppo_ep: 1|act_loss: -0.0218505859375|cri_loss: 0.06890869140625|unsuper_loss: 0.0
+average reward score: 3.083984375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 258|ppo_ep: 1|act_loss: 0.4921875|cri_loss: 0.398681640625|unsuper_loss: 0.0
+average reward score: 3.529296875
+-------------------------------------------------------------------------------------
+[2023-05-10 18:03:37,795] [INFO] [logging.py:96:log_dist] [Rank 0] step=260, skipped=8, lr=[7.734088256557143e-06], mom=[(0.9, 0.95)]
+[2023-05-10 18:03:37,795] [INFO] [timer.py:199:stop] epoch=0/micro_step=260/global_step=260, RunningAvgSamplesPerSec=39.9286184215863, CurrSamplesPerSec=40.72635293310867, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 18:03:38,204] [INFO] [logging.py:96:log_dist] [Rank 0] step=260, skipped=7, lr=[3.995152092353227e-06, 3.995152092353227e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 259|ppo_ep: 1|act_loss: 0.1748046875|cri_loss: 0.250244140625|unsuper_loss: 0.0
+average reward score: 3.6875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 260|ppo_ep: 1|act_loss: 0.039306640625|cri_loss: 0.10992431640625|unsuper_loss: 0.0
+average reward score: 3.34375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 261|ppo_ep: 1|act_loss: 0.190185546875|cri_loss: 0.1595458984375|unsuper_loss: 0.0
+average reward score: 3.490234375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 262|ppo_ep: 1|act_loss: 0.0323486328125|cri_loss: 0.05810546875|unsuper_loss: 0.0
+average reward score: 3.705078125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 263|ppo_ep: 1|act_loss: 0.040435791015625|cri_loss: 0.0831298828125|unsuper_loss: 0.0
+average reward score: 3.673828125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 264|ppo_ep: 1|act_loss: -0.15625|cri_loss: -0.012939453125|unsuper_loss: 0.0
+average reward score: 3.775390625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 265|ppo_ep: 1|act_loss: -0.005615234375|cri_loss: 0.06915283203125|unsuper_loss: 0.0
+average reward score: 3.603515625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 266|ppo_ep: 1|act_loss: -0.02001953125|cri_loss: 0.0960693359375|unsuper_loss: 0.0
+average reward score: 3.65234375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 267|ppo_ep: 1|act_loss: -0.0555419921875|cri_loss: 0.00811767578125|unsuper_loss: 0.0
+average reward score: 3.74609375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 268|ppo_ep: 1|act_loss: -0.01416015625|cri_loss: 0.056884765625|unsuper_loss: 0.0
+average reward score: 3.361328125
+-------------------------------------------------------------------------------------
+[2023-05-10 18:12:17,605] [INFO] [logging.py:96:log_dist] [Rank 0] step=270, skipped=8, lr=[7.494951417313302e-06], mom=[(0.9, 0.95)]
+[2023-05-10 18:12:17,606] [INFO] [timer.py:199:stop] epoch=0/micro_step=270/global_step=270, RunningAvgSamplesPerSec=39.966385302542044, CurrSamplesPerSec=41.1973297097568, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 18:12:17,994] [INFO] [logging.py:96:log_dist] [Rank 0] step=270, skipped=7, lr=[3.870715428747452e-06, 3.870715428747452e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 269|ppo_ep: 1|act_loss: 0.1112060546875|cri_loss: 0.1064453125|unsuper_loss: 0.0
+average reward score: 3.76171875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 270|ppo_ep: 1|act_loss: 0.253662109375|cri_loss: 0.2103271484375|unsuper_loss: 0.0
+average reward score: 3.765625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 271|ppo_ep: 1|act_loss: 0.293212890625|cri_loss: 0.20703125|unsuper_loss: 0.0
+average reward score: 3.5390625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 272|ppo_ep: 1|act_loss: 0.466796875|cri_loss: 0.3896484375|unsuper_loss: 0.0
+average reward score: 3.53515625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 273|ppo_ep: 1|act_loss: 0.2012939453125|cri_loss: 0.1639404296875|unsuper_loss: 0.0
+average reward score: 3.486328125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 274|ppo_ep: 1|act_loss: 0.22412109375|cri_loss: 0.17626953125|unsuper_loss: 0.0
+average reward score: 3.279296875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 275|ppo_ep: 1|act_loss: 0.07806396484375|cri_loss: 0.0806884765625|unsuper_loss: 0.0
+average reward score: 3.439453125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 276|ppo_ep: 1|act_loss: 0.00323486328125|cri_loss: 0.062347412109375|unsuper_loss: 0.0
+average reward score: 3.595703125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 277|ppo_ep: 1|act_loss: 0.355712890625|cri_loss: 0.39453125|unsuper_loss: 0.0
+average reward score: 3.42578125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 278|ppo_ep: 1|act_loss: 0.0919189453125|cri_loss: 0.155517578125|unsuper_loss: 0.0
+average reward score: 3.419921875
+-------------------------------------------------------------------------------------
+[2023-05-10 18:21:05,330] [INFO] [logging.py:96:log_dist] [Rank 0] step=280, skipped=8, lr=[7.245958857573285e-06], mom=[(0.9, 0.95)]
+[2023-05-10 18:21:05,331] [INFO] [timer.py:199:stop] epoch=0/micro_step=280/global_step=280, RunningAvgSamplesPerSec=39.95826380752432, CurrSamplesPerSec=40.93042137517809, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 18:21:05,741] [INFO] [logging.py:96:log_dist] [Rank 0] step=280, skipped=7, lr=[3.7412189771403178e-06, 3.7412189771403178e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 279|ppo_ep: 1|act_loss: 0.169921875|cri_loss: 0.255126953125|unsuper_loss: 0.0
+average reward score: 3.44921875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 280|ppo_ep: 1|act_loss: 0.0059814453125|cri_loss: 0.10186767578125|unsuper_loss: 0.0
+average reward score: 3.37109375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 281|ppo_ep: 1|act_loss: 0.0350341796875|cri_loss: 0.112548828125|unsuper_loss: 0.0
+average reward score: 3.66015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 282|ppo_ep: 1|act_loss: 0.1348876953125|cri_loss: 0.129638671875|unsuper_loss: 0.0
+average reward score: 3.349609375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 283|ppo_ep: 1|act_loss: -0.0224609375|cri_loss: 0.0589599609375|unsuper_loss: 0.0
+average reward score: 3.513671875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 284|ppo_ep: 1|act_loss: 0.12255859375|cri_loss: 0.2333984375|unsuper_loss: 0.0
+average reward score: 3.244140625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 285|ppo_ep: 1|act_loss: -0.0506591796875|cri_loss: 0.0443115234375|unsuper_loss: 0.0
+average reward score: 3.24609375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 286|ppo_ep: 1|act_loss: -0.038330078125|cri_loss: 0.04876708984375|unsuper_loss: 0.0
+average reward score: 3.181640625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 287|ppo_ep: 1|act_loss: -0.150634765625|cri_loss: 0.0245361328125|unsuper_loss: 0.0
+average reward score: 3.74609375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 288|ppo_ep: 1|act_loss: -0.347412109375|cri_loss: -0.0751953125|unsuper_loss: 0.0
+average reward score: 3.37890625
+-------------------------------------------------------------------------------------
+[2023-05-10 18:29:56,117] [INFO] [logging.py:96:log_dist] [Rank 0] step=290, skipped=8, lr=[6.98802969558715e-06], mom=[(0.9, 0.95)]
+[2023-05-10 18:29:56,117] [INFO] [timer.py:199:stop] epoch=0/micro_step=290/global_step=290, RunningAvgSamplesPerSec=39.976498153324584, CurrSamplesPerSec=40.81294237955463, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 18:29:56,446] [INFO] [logging.py:96:log_dist] [Rank 0] step=290, skipped=7, lr=[3.6071407540320534e-06, 3.6071407540320534e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 289|ppo_ep: 1|act_loss: -0.1971435546875|cri_loss: 0.0185546875|unsuper_loss: 0.0
+average reward score: 3.6015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 290|ppo_ep: 1|act_loss: -0.0167236328125|cri_loss: 0.10003662109375|unsuper_loss: 0.0
+average reward score: 3.505859375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 291|ppo_ep: 1|act_loss: -0.1016845703125|cri_loss: 0.0400390625|unsuper_loss: 0.0
+average reward score: 3.45703125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 292|ppo_ep: 1|act_loss: 0.12548828125|cri_loss: 0.1806640625|unsuper_loss: 0.0
+average reward score: 3.15625
+-------------------------------------------------------------------------------------
+[2023-05-10 18:33:26,297] [INFO] [loss_scaler.py:188:update_scale] [deepspeed] OVERFLOW! Rank 0 Skipping step. Attempted loss scale: 4096, but hysteresis is 2. Reducing hysteresis to 1
+epoch: 0|step: 293|ppo_ep: 1|act_loss: 0.197021484375|cri_loss: 0.19189453125|unsuper_loss: 0.0
+average reward score: 2.99609375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 294|ppo_ep: 1|act_loss: -0.00616455078125|cri_loss: 0.045867919921875|unsuper_loss: 0.0
+average reward score: 3.298828125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 295|ppo_ep: 1|act_loss: 0.1353759765625|cri_loss: 0.1044921875|unsuper_loss: 0.0
+average reward score: 3.953125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 296|ppo_ep: 1|act_loss: 0.011749267578125|cri_loss: 0.0662841796875|unsuper_loss: 0.0
+average reward score: 3.205078125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 297|ppo_ep: 1|act_loss: -0.05712890625|cri_loss: 0.0367431640625|unsuper_loss: 0.0
+average reward score: 3.5625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 298|ppo_ep: 1|act_loss: -0.0272216796875|cri_loss: 0.0985107421875|unsuper_loss: 0.0
+average reward score: 3.4375
+-------------------------------------------------------------------------------------
+[2023-05-10 18:38:35,558] [INFO] [logging.py:96:log_dist] [Rank 0] step=300, skipped=8, lr=[6.7221160377160326e-06], mom=[(0.9, 0.95)]
+[2023-05-10 18:38:35,558] [INFO] [timer.py:199:stop] epoch=0/micro_step=300/global_step=300, RunningAvgSamplesPerSec=39.94467218171874, CurrSamplesPerSec=40.094687438667265, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 18:38:35,974] [INFO] [logging.py:96:log_dist] [Rank 0] step=300, skipped=8, lr=[3.482961677573074e-06, 3.482961677573074e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 299|ppo_ep: 1|act_loss: 0.1533203125|cri_loss: 0.290771484375|unsuper_loss: 0.0
+average reward score: 3.416015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 300|ppo_ep: 1|act_loss: -0.0010986328125|cri_loss: 0.08154296875|unsuper_loss: 0.0
+average reward score: 3.560546875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 301|ppo_ep: 1|act_loss: 0.0701904296875|cri_loss: 0.1090087890625|unsuper_loss: 0.0
+average reward score: 3.62109375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 302|ppo_ep: 1|act_loss: 0.2041015625|cri_loss: 0.199462890625|unsuper_loss: 0.0
+average reward score: 3.443359375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 303|ppo_ep: 1|act_loss: 0.28271484375|cri_loss: 0.251953125|unsuper_loss: 0.0
+average reward score: 3.55859375
+-------------------------------------------------------------------------------------
+[2023-05-10 18:42:59,044] [INFO] [loss_scaler.py:188:update_scale] [deepspeed] OVERFLOW! Rank 0 Skipping step. Attempted loss scale: 4096, but hysteresis is 2. Reducing hysteresis to 1
+epoch: 0|step: 304|ppo_ep: 1|act_loss: 0.07745361328125|cri_loss: 0.126708984375|unsuper_loss: 0.0
+average reward score: 3.423828125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 305|ppo_ep: 1|act_loss: 0.141845703125|cri_loss: 0.114501953125|unsuper_loss: 0.0
+average reward score: 3.140625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 306|ppo_ep: 1|act_loss: -0.01007080078125|cri_loss: 0.03717041015625|unsuper_loss: 0.0
+average reward score: 3.595703125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 307|ppo_ep: 1|act_loss: 0.08795166015625|cri_loss: 0.06854248046875|unsuper_loss: 0.0
+average reward score: 3.453125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 308|ppo_ep: 1|act_loss: 0.132568359375|cri_loss: 0.11761474609375|unsuper_loss: 0.0
+average reward score: 3.365234375
+-------------------------------------------------------------------------------------
+[2023-05-10 18:47:22,565] [INFO] [logging.py:96:log_dist] [Rank 0] step=310, skipped=9, lr=[6.47677772655634e-06], mom=[(0.9, 0.95)]
+[2023-05-10 18:47:22,565] [INFO] [timer.py:199:stop] epoch=0/micro_step=310/global_step=310, RunningAvgSamplesPerSec=39.966101617768864, CurrSamplesPerSec=40.723189582065956, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 18:47:23,074] [INFO] [logging.py:96:log_dist] [Rank 0] step=310, skipped=8, lr=[3.3415541263606193e-06, 3.3415541263606193e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 309|ppo_ep: 1|act_loss: -0.0191650390625|cri_loss: 0.094482421875|unsuper_loss: 0.0
+average reward score: 3.275390625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 310|ppo_ep: 1|act_loss: -0.1177978515625|cri_loss: 0.0347900390625|unsuper_loss: 0.0
+average reward score: 3.662109375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 311|ppo_ep: 1|act_loss: 0.0093994140625|cri_loss: 0.08575439453125|unsuper_loss: 0.0
+average reward score: 3.5859375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 312|ppo_ep: 1|act_loss: 0.036865234375|cri_loss: 0.1707763671875|unsuper_loss: 0.0
+average reward score: 3.50390625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 313|ppo_ep: 1|act_loss: 0.063720703125|cri_loss: 0.1197509765625|unsuper_loss: 0.0
+average reward score: 3.3515625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 314|ppo_ep: 1|act_loss: -0.06982421875|cri_loss: 0.074462890625|unsuper_loss: 0.0
+average reward score: 3.609375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 315|ppo_ep: 1|act_loss: 0.3916015625|cri_loss: 0.35693359375|unsuper_loss: 0.0
+average reward score: 3.44921875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 316|ppo_ep: 1|act_loss: 0.236328125|cri_loss: 0.1829833984375|unsuper_loss: 0.0
+average reward score: 3.537109375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 317|ppo_ep: 1|act_loss: 0.334228515625|cri_loss: 0.24267578125|unsuper_loss: 0.0
+average reward score: 3.494140625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 318|ppo_ep: 1|act_loss: 0.360595703125|cri_loss: 0.302734375|unsuper_loss: 0.0
+average reward score: 3.14453125
+-------------------------------------------------------------------------------------
+[2023-05-10 18:56:08,636] [INFO] [logging.py:96:log_dist] [Rank 0] step=320, skipped=9, lr=[6.198419220809851e-06], mom=[(0.9, 0.95)]
+[2023-05-10 18:56:08,636] [INFO] [timer.py:199:stop] epoch=0/micro_step=320/global_step=320, RunningAvgSamplesPerSec=39.982172312645034, CurrSamplesPerSec=40.3121248081147, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 18:56:08,980] [INFO] [logging.py:96:log_dist] [Rank 0] step=320, skipped=8, lr=[3.1970401057951905e-06, 3.1970401057951905e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 319|ppo_ep: 1|act_loss: 0.1605224609375|cri_loss: 0.1605224609375|unsuper_loss: 0.0
+average reward score: 3.30859375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 320|ppo_ep: 1|act_loss: 0.2392578125|cri_loss: 0.160888671875|unsuper_loss: 0.0
+average reward score: 3.220703125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 321|ppo_ep: 1|act_loss: 0.09320068359375|cri_loss: 0.161865234375|unsuper_loss: 0.0
+average reward score: 3.060546875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 322|ppo_ep: 1|act_loss: -0.1632080078125|cri_loss: 0.0186767578125|unsuper_loss: 0.0
+average reward score: 3.234375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 323|ppo_ep: 1|act_loss: -0.08056640625|cri_loss: 0.09619140625|unsuper_loss: 0.0
+average reward score: 3.458984375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 324|ppo_ep: 1|act_loss: -0.1771240234375|cri_loss: -0.0517578125|unsuper_loss: 0.0
+average reward score: 3.294921875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 325|ppo_ep: 1|act_loss: -0.1087646484375|cri_loss: 0.05615234375|unsuper_loss: 0.0
+average reward score: 3.486328125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 326|ppo_ep: 1|act_loss: 0.0106201171875|cri_loss: 0.07562255859375|unsuper_loss: 0.0
+average reward score: 3.26953125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 327|ppo_ep: 1|act_loss: 0.1004638671875|cri_loss: 0.0802001953125|unsuper_loss: 0.0
+average reward score: 3.27734375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 328|ppo_ep: 1|act_loss: 0.140625|cri_loss: 0.159423828125|unsuper_loss: 0.0
+average reward score: 3.39453125
+-------------------------------------------------------------------------------------
+[2023-05-10 19:05:03,086] [INFO] [logging.py:96:log_dist] [Rank 0] step=330, skipped=9, lr=[5.914990946423903e-06], mom=[(0.9, 0.95)]
+[2023-05-10 19:05:03,086] [INFO] [timer.py:199:stop] epoch=0/micro_step=330/global_step=330, RunningAvgSamplesPerSec=39.936999384216875, CurrSamplesPerSec=40.197850328009466, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 19:05:03,427] [INFO] [logging.py:96:log_dist] [Rank 0] step=330, skipped=8, lr=[3.049953067453934e-06, 3.049953067453934e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 329|ppo_ep: 1|act_loss: 0.1875|cri_loss: 0.1343994140625|unsuper_loss: 0.0
+average reward score: 3.369140625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 330|ppo_ep: 1|act_loss: -0.0369873046875|cri_loss: 0.04180908203125|unsuper_loss: 0.0
+average reward score: 2.978515625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 331|ppo_ep: 1|act_loss: -0.0555419921875|cri_loss: 0.03826904296875|unsuper_loss: 0.0
+average reward score: 3.5
+-------------------------------------------------------------------------------------
+epoch: 0|step: 332|ppo_ep: 1|act_loss: 0.0472412109375|cri_loss: 0.11163330078125|unsuper_loss: 0.0
+average reward score: 3.58984375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 333|ppo_ep: 1|act_loss: -0.0670166015625|cri_loss: 0.0345458984375|unsuper_loss: 0.0
+average reward score: 3.408203125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 334|ppo_ep: 1|act_loss: -0.0631103515625|cri_loss: 0.00885009765625|unsuper_loss: 0.0
+average reward score: 3.35546875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 335|ppo_ep: 1|act_loss: -0.03515625|cri_loss: 0.073486328125|unsuper_loss: 0.0
+average reward score: 3.6640625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 336|ppo_ep: 1|act_loss: -0.09521484375|cri_loss: -0.00164794921875|unsuper_loss: 0.0
+average reward score: 3.197265625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 337|ppo_ep: 1|act_loss: -0.1353759765625|cri_loss: -0.039276123046875|unsuper_loss: 0.0
+average reward score: 3.42578125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 338|ppo_ep: 1|act_loss: 0.18310546875|cri_loss: 0.136962890625|unsuper_loss: 0.0
+average reward score: 3.419921875
+-------------------------------------------------------------------------------------
+[2023-05-10 19:13:53,906] [INFO] [logging.py:96:log_dist] [Rank 0] step=340, skipped=9, lr=[5.6275391358636035e-06], mom=[(0.9, 0.95)]
+[2023-05-10 19:13:53,907] [INFO] [timer.py:199:stop] epoch=0/micro_step=340/global_step=340, RunningAvgSamplesPerSec=39.91656529056067, CurrSamplesPerSec=40.30423213612743, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 19:13:54,244] [INFO] [logging.py:96:log_dist] [Rank 0] step=340, skipped=8, lr=[2.9008359608186644e-06, 2.9008359608186644e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 339|ppo_ep: 1|act_loss: 0.0760498046875|cri_loss: 0.10205078125|unsuper_loss: 0.0
+average reward score: 3.548828125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 340|ppo_ep: 1|act_loss: 0.13623046875|cri_loss: 0.1875|unsuper_loss: 0.0
+average reward score: 3.658203125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 341|ppo_ep: 1|act_loss: 0.25244140625|cri_loss: 0.23046875|unsuper_loss: 0.0
+average reward score: 3.306640625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 342|ppo_ep: 1|act_loss: 0.05535888671875|cri_loss: 0.0625|unsuper_loss: 0.0
+average reward score: 3.44140625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 343|ppo_ep: 1|act_loss: -0.078857421875|cri_loss: -0.00628662109375|unsuper_loss: 0.0
+average reward score: 3.595703125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 344|ppo_ep: 1|act_loss: 0.010986328125|cri_loss: 0.10455322265625|unsuper_loss: 0.0
+average reward score: 3.349609375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 345|ppo_ep: 1|act_loss: -0.0694580078125|cri_loss: 0.04486083984375|unsuper_loss: 0.0
+average reward score: 3.248046875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 346|ppo_ep: 1|act_loss: 0.309326171875|cri_loss: 0.3193359375|unsuper_loss: 0.0
+average reward score: 3.455078125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 347|ppo_ep: 1|act_loss: 0.1341552734375|cri_loss: 0.1553955078125|unsuper_loss: 0.0
+average reward score: 3.400390625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 348|ppo_ep: 1|act_loss: 0.0494384765625|cri_loss: 0.1121826171875|unsuper_loss: 0.0
+average reward score: 3.46484375
+-------------------------------------------------------------------------------------
+[2023-05-10 19:22:49,797] [INFO] [logging.py:96:log_dist] [Rank 0] step=350, skipped=9, lr=[5.337124873867286e-06], mom=[(0.9, 0.95)]
+[2023-05-10 19:22:49,798] [INFO] [timer.py:199:stop] epoch=0/micro_step=350/global_step=350, RunningAvgSamplesPerSec=39.93033442536629, CurrSamplesPerSec=40.68183941282824, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 19:22:50,202] [INFO] [logging.py:96:log_dist] [Rank 0] step=350, skipped=8, lr=[2.7502392290602463e-06, 2.7502392290602463e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 349|ppo_ep: 1|act_loss: 0.129638671875|cri_loss: 0.1124267578125|unsuper_loss: 0.0
+average reward score: 3.4140625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 350|ppo_ep: 1|act_loss: 0.01080322265625|cri_loss: 0.049560546875|unsuper_loss: 0.0
+average reward score: 3.001953125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 351|ppo_ep: 1|act_loss: 0.0980224609375|cri_loss: 0.10723876953125|unsuper_loss: 0.0
+average reward score: 3.15625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 352|ppo_ep: 1|act_loss: 0.1627197265625|cri_loss: 0.1396484375|unsuper_loss: 0.0
+average reward score: 3.31640625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 353|ppo_ep: 1|act_loss: 0.1898193359375|cri_loss: 0.2017822265625|unsuper_loss: 0.0
+average reward score: 3.126953125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 354|ppo_ep: 1|act_loss: 0.11962890625|cri_loss: 0.1397705078125|unsuper_loss: 0.0
+average reward score: 3.134765625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 355|ppo_ep: 1|act_loss: 0.06488037109375|cri_loss: 0.07940673828125|unsuper_loss: 0.0
+average reward score: 3.3359375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 356|ppo_ep: 1|act_loss: 0.08221435546875|cri_loss: 0.173095703125|unsuper_loss: 0.0
+average reward score: 3.25390625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 357|ppo_ep: 1|act_loss: -0.050048828125|cri_loss: 0.01654052734375|unsuper_loss: 0.0
+average reward score: 3.390625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 358|ppo_ep: 1|act_loss: 0.0228271484375|cri_loss: 0.1102294921875|unsuper_loss: 0.0
+average reward score: 3.35546875
+-------------------------------------------------------------------------------------
+[2023-05-10 19:31:37,264] [INFO] [logging.py:96:log_dist] [Rank 0] step=360, skipped=9, lr=[5.044820180613215e-06], mom=[(0.9, 0.95)]
+[2023-05-10 19:31:37,265] [INFO] [timer.py:199:stop] epoch=0/micro_step=360/global_step=360, RunningAvgSamplesPerSec=39.916097734749464, CurrSamplesPerSec=40.50388629024957, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 19:31:37,622] [INFO] [logging.py:96:log_dist] [Rank 0] step=360, skipped=8, lr=[2.5987187771611523e-06, 2.5987187771611523e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 359|ppo_ep: 1|act_loss: -0.115234375|cri_loss: -0.01727294921875|unsuper_loss: 0.0
+average reward score: 3.607421875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 360|ppo_ep: 1|act_loss: -0.1142578125|cri_loss: 0.010986328125|unsuper_loss: 0.0
+average reward score: 3.177734375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 361|ppo_ep: 1|act_loss: 0.3583984375|cri_loss: 0.258056640625|unsuper_loss: 0.0
+average reward score: 3.240234375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 362|ppo_ep: 1|act_loss: 0.073486328125|cri_loss: 0.11846923828125|unsuper_loss: 0.0
+average reward score: 3.412109375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 363|ppo_ep: 1|act_loss: 0.21923828125|cri_loss: 0.208251953125|unsuper_loss: 0.0
+average reward score: 3.203125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 364|ppo_ep: 1|act_loss: 0.227294921875|cri_loss: 0.24462890625|unsuper_loss: 0.0
+average reward score: 3.126953125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 365|ppo_ep: 1|act_loss: 0.07745361328125|cri_loss: 0.13134765625|unsuper_loss: 0.0
+average reward score: 3.3984375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 366|ppo_ep: 1|act_loss: 0.1793212890625|cri_loss: 0.1998291015625|unsuper_loss: 0.0
+average reward score: 3.38671875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 367|ppo_ep: 1|act_loss: 0.058349609375|cri_loss: 0.1640625|unsuper_loss: 0.0
+average reward score: 3.59375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 368|ppo_ep: 1|act_loss: 0.0179443359375|cri_loss: 0.08880615234375|unsuper_loss: 0.0
+average reward score: 3.263671875
+-------------------------------------------------------------------------------------
+[2023-05-10 19:40:32,475] [INFO] [logging.py:96:log_dist] [Rank 0] step=370, skipped=9, lr=[4.751704054519769e-06], mom=[(0.9, 0.95)]
+[2023-05-10 19:40:32,476] [INFO] [timer.py:199:stop] epoch=0/micro_step=370/global_step=370, RunningAvgSamplesPerSec=39.90954020556439, CurrSamplesPerSec=40.160046869141915, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 19:40:33,016] [INFO] [logging.py:96:log_dist] [Rank 0] step=370, skipped=8, lr=[2.4468339198765837e-06, 2.4468339198765837e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 369|ppo_ep: 1|act_loss: 0.025421142578125|cri_loss: 0.0645751953125|unsuper_loss: 0.0
+average reward score: 3.115234375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 370|ppo_ep: 1|act_loss: 0.131103515625|cri_loss: 0.202880859375|unsuper_loss: 0.0
+average reward score: 3.302734375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 371|ppo_ep: 1|act_loss: 0.11578369140625|cri_loss: 0.12646484375|unsuper_loss: 0.0
+average reward score: 3.3671875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 372|ppo_ep: 1|act_loss: 0.1575927734375|cri_loss: 0.1162109375|unsuper_loss: 0.0
+average reward score: 3.375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 373|ppo_ep: 1|act_loss: -0.0472412109375|cri_loss: 0.03973388671875|unsuper_loss: 0.0
+average reward score: 3.169921875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 374|ppo_ep: 1|act_loss: 0.45751953125|cri_loss: 0.35546875|unsuper_loss: 0.0
+average reward score: 3.26171875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 375|ppo_ep: 1|act_loss: 0.059722900390625|cri_loss: 0.11181640625|unsuper_loss: 0.0
+average reward score: 3.525390625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 376|ppo_ep: 1|act_loss: 0.034149169921875|cri_loss: 0.0635986328125|unsuper_loss: 0.0
+average reward score: 3.203125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 377|ppo_ep: 1|act_loss: -0.0980224609375|cri_loss: 0.0745849609375|unsuper_loss: 0.0
+average reward score: 3.38671875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 378|ppo_ep: 1|act_loss: -0.056396484375|cri_loss: 0.0687255859375|unsuper_loss: 0.0
+average reward score: 3.41796875
+-------------------------------------------------------------------------------------
+[2023-05-10 19:49:21,127] [INFO] [logging.py:96:log_dist] [Rank 0] step=380, skipped=9, lr=[4.458858489286522e-06], mom=[(0.9, 0.95)]
+[2023-05-10 19:49:21,128] [INFO] [timer.py:199:stop] epoch=0/micro_step=380/global_step=380, RunningAvgSamplesPerSec=39.881021176703605, CurrSamplesPerSec=40.48737953051099, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 19:49:21,465] [INFO] [logging.py:96:log_dist] [Rank 0] step=380, skipped=8, lr=[2.295145317108924e-06, 2.295145317108924e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 379|ppo_ep: 1|act_loss: 0.0057373046875|cri_loss: 0.10528564453125|unsuper_loss: 0.0
+average reward score: 3.20703125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 380|ppo_ep: 1|act_loss: 0.1513671875|cri_loss: 0.17822265625|unsuper_loss: 0.0
+average reward score: 3.59765625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 381|ppo_ep: 1|act_loss: 0.33642578125|cri_loss: 0.2822265625|unsuper_loss: 0.0
+average reward score: 3.138671875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 382|ppo_ep: 1|act_loss: 0.169677734375|cri_loss: 0.174560546875|unsuper_loss: 0.0
+average reward score: 3.33203125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 383|ppo_ep: 1|act_loss: 0.236328125|cri_loss: 0.2010498046875|unsuper_loss: 0.0
+average reward score: 3.462890625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 384|ppo_ep: 1|act_loss: 0.1226806640625|cri_loss: 0.1370849609375|unsuper_loss: 0.0
+average reward score: 3.529296875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 385|ppo_ep: 1|act_loss: 0.06103515625|cri_loss: 0.09796142578125|unsuper_loss: 0.0
+average reward score: 3.4453125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 386|ppo_ep: 1|act_loss: 0.041107177734375|cri_loss: 0.0718994140625|unsuper_loss: 0.0
+average reward score: 3.060546875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 387|ppo_ep: 1|act_loss: -0.0274658203125|cri_loss: 0.02191162109375|unsuper_loss: 0.0
+average reward score: 3.38671875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 388|ppo_ep: 1|act_loss: -0.0853271484375|cri_loss: 0.02777099609375|unsuper_loss: 0.0
+average reward score: 3.5390625
+-------------------------------------------------------------------------------------
+[2023-05-10 19:58:14,465] [INFO] [logging.py:96:log_dist] [Rank 0] step=390, skipped=9, lr=[4.167364479878687e-06], mom=[(0.9, 0.95)]
+[2023-05-10 19:58:14,465] [INFO] [timer.py:199:stop] epoch=0/micro_step=390/global_step=390, RunningAvgSamplesPerSec=39.84579749490512, CurrSamplesPerSec=40.559504598755694, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 19:58:14,808] [INFO] [logging.py:96:log_dist] [Rank 0] step=390, skipped=8, lr=[2.1442129043167877e-06, 2.1442129043167877e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 389|ppo_ep: 1|act_loss: 0.0050048828125|cri_loss: 0.0858154296875|unsuper_loss: 0.0
+average reward score: 3.685546875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 390|ppo_ep: 1|act_loss: 0.29345703125|cri_loss: 0.2353515625|unsuper_loss: 0.0
+average reward score: 3.265625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 391|ppo_ep: 1|act_loss: -0.247802734375|cri_loss: -0.07769775390625|unsuper_loss: 0.0
+average reward score: 3.427734375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 392|ppo_ep: 1|act_loss: 0.0262451171875|cri_loss: 0.096435546875|unsuper_loss: 0.0
+average reward score: 3.36328125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 393|ppo_ep: 1|act_loss: 0.083740234375|cri_loss: 0.170166015625|unsuper_loss: 0.0
+average reward score: 3.46875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 394|ppo_ep: 1|act_loss: 0.1414794921875|cri_loss: 0.17138671875|unsuper_loss: 0.0
+average reward score: 3.51171875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 395|ppo_ep: 1|act_loss: 0.0255126953125|cri_loss: 0.0831298828125|unsuper_loss: 0.0
+average reward score: 3.388671875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 396|ppo_ep: 1|act_loss: -0.06182861328125|cri_loss: 0.019775390625|unsuper_loss: 0.0
+average reward score: 3.330078125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 397|ppo_ep: 1|act_loss: 0.1114501953125|cri_loss: 0.117431640625|unsuper_loss: 0.0
+average reward score: 3.6875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 398|ppo_ep: 1|act_loss: 0.2333984375|cri_loss: 0.1883544921875|unsuper_loss: 0.0
+average reward score: 3.0703125
+-------------------------------------------------------------------------------------
+[2023-05-10 20:07:08,817] [INFO] [logging.py:96:log_dist] [Rank 0] step=400, skipped=9, lr=[3.878298032198248e-06], mom=[(0.9, 0.95)]
+[2023-05-10 20:07:08,818] [INFO] [timer.py:199:stop] epoch=0/micro_step=400/global_step=400, RunningAvgSamplesPerSec=39.86017821659554, CurrSamplesPerSec=40.479112882600745, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 20:07:09,153] [INFO] [logging.py:96:log_dist] [Rank 0] step=400, skipped=8, lr=[1.9945938255982465e-06, 1.9945938255982465e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 399|ppo_ep: 1|act_loss: 0.00408935546875|cri_loss: 0.048675537109375|unsuper_loss: 0.0
+average reward score: 3.51953125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 400|ppo_ep: 1|act_loss: -0.12939453125|cri_loss: -0.02203369140625|unsuper_loss: 0.0
+average reward score: 3.23828125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 401|ppo_ep: 1|act_loss: 0.1690673828125|cri_loss: 0.2069091796875|unsuper_loss: 0.0
+average reward score: 3.29296875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 402|ppo_ep: 1|act_loss: -0.0377197265625|cri_loss: 0.041259765625|unsuper_loss: 0.0
+average reward score: 3.591796875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 403|ppo_ep: 1|act_loss: 0.06793212890625|cri_loss: 0.08111572265625|unsuper_loss: 0.0
+average reward score: 3.33984375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 404|ppo_ep: 1|act_loss: -0.0546875|cri_loss: 0.04351806640625|unsuper_loss: 0.0
+average reward score: 3.123046875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 405|ppo_ep: 1|act_loss: 0.172119140625|cri_loss: 0.181884765625|unsuper_loss: 0.0
+average reward score: 3.640625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 406|ppo_ep: 1|act_loss: 0.140625|cri_loss: 0.2120361328125|unsuper_loss: 0.0
+average reward score: 3.4609375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 407|ppo_ep: 1|act_loss: -0.014404296875|cri_loss: 0.1297607421875|unsuper_loss: 0.0
+average reward score: 3.16015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 408|ppo_ep: 1|act_loss: -0.06494140625|cri_loss: 0.0360107421875|unsuper_loss: 0.0
+average reward score: 3.447265625
+-------------------------------------------------------------------------------------
+[2023-05-10 20:16:04,221] [INFO] [logging.py:96:log_dist] [Rank 0] step=410, skipped=9, lr=[3.5927261911714473e-06], mom=[(0.9, 0.95)]
+[2023-05-10 20:16:04,222] [INFO] [timer.py:199:stop] epoch=0/micro_step=410/global_step=410, RunningAvgSamplesPerSec=39.874822997636066, CurrSamplesPerSec=40.72830555910423, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 20:16:04,557] [INFO] [logging.py:96:log_dist] [Rank 0] step=410, skipped=8, lr=[1.8468403770779337e-06, 1.8468403770779337e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 409|ppo_ep: 1|act_loss: 0.09619140625|cri_loss: 0.111328125|unsuper_loss: 0.0
+average reward score: 3.197265625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 410|ppo_ep: 1|act_loss: 0.13623046875|cri_loss: 0.216064453125|unsuper_loss: 0.0
+average reward score: 3.5078125
+-------------------------------------------------------------------------------------
+[2023-05-10 20:17:50,579] [INFO] [loss_scaler.py:188:update_scale] [deepspeed] OVERFLOW! Rank 0 Skipping step. Attempted loss scale: 8192, but hysteresis is 2. Reducing hysteresis to 1
+epoch: 0|step: 411|ppo_ep: 1|act_loss: 0.07928466796875|cri_loss: 0.127197265625|unsuper_loss: 0.0
+average reward score: 3.34375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 412|ppo_ep: 1|act_loss: 0.049224853515625|cri_loss: 0.103515625|unsuper_loss: 0.0
+average reward score: 3.6640625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 413|ppo_ep: 1|act_loss: -0.0947265625|cri_loss: 0.0438232421875|unsuper_loss: 0.0
+average reward score: 3.4921875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 414|ppo_ep: 1|act_loss: 0.0054931640625|cri_loss: 0.12030029296875|unsuper_loss: 0.0
+average reward score: 3.412109375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 415|ppo_ep: 1|act_loss: 0.07000732421875|cri_loss: 0.1904296875|unsuper_loss: 0.0
+average reward score: 3.49609375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 416|ppo_ep: 1|act_loss: 0.0419921875|cri_loss: 0.10577392578125|unsuper_loss: 0.0
+average reward score: 3.583984375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 417|ppo_ep: 1|act_loss: 0.09552001953125|cri_loss: 0.093017578125|unsuper_loss: 0.0
+average reward score: 3.41015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 418|ppo_ep: 1|act_loss: 0.0648193359375|cri_loss: 0.09942626953125|unsuper_loss: 0.0
+average reward score: 3.4765625
+-------------------------------------------------------------------------------------
+[2023-05-10 20:25:00,168] [INFO] [logging.py:96:log_dist] [Rank 0] step=420, skipped=9, lr=[3.3117031019143684e-06], mom=[(0.9, 0.95)]
+[2023-05-10 20:25:00,168] [INFO] [timer.py:199:stop] epoch=0/micro_step=420/global_step=420, RunningAvgSamplesPerSec=39.8485153699747, CurrSamplesPerSec=33.03665673810782, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 20:25:00,503] [INFO] [logging.py:96:log_dist] [Rank 0] step=420, skipped=9, lr=[1.7159083429608125e-06, 1.7159083429608125e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 419|ppo_ep: 1|act_loss: 0.30126953125|cri_loss: 0.215087890625|unsuper_loss: 0.0
+average reward score: 3.544921875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 420|ppo_ep: 1|act_loss: 0.1695556640625|cri_loss: 0.1868896484375|unsuper_loss: 0.0
+average reward score: 3.1875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 421|ppo_ep: 1|act_loss: 0.1290283203125|cri_loss: 0.12469482421875|unsuper_loss: 0.0
+average reward score: 3.677734375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 422|ppo_ep: 1|act_loss: 0.060577392578125|cri_loss: 0.1014404296875|unsuper_loss: 0.0
+average reward score: 3.255859375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 423|ppo_ep: 1|act_loss: 0.1339111328125|cri_loss: 0.17919921875|unsuper_loss: 0.0
+average reward score: 3.36328125
+-------------------------------------------------------------------------------------
+[2023-05-10 20:29:28,691] [INFO] [loss_scaler.py:181:update_scale] [deepspeed] OVERFLOW! Rank 0 Skipping step. Attempted loss scale: 8192, reducing to 4096
+epoch: 0|step: 424|ppo_ep: 1|act_loss: 0.06781005859375|cri_loss: 0.179443359375|unsuper_loss: 0.0
+average reward score: 3.65234375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 425|ppo_ep: 1|act_loss: 0.021484375|cri_loss: 0.113525390625|unsuper_loss: 0.0
+average reward score: 3.36328125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 426|ppo_ep: 1|act_loss: -0.0543212890625|cri_loss: 0.05743408203125|unsuper_loss: 0.0
+average reward score: 3.5
+-------------------------------------------------------------------------------------
+epoch: 0|step: 427|ppo_ep: 1|act_loss: -0.14453125|cri_loss: -0.01483154296875|unsuper_loss: 0.0
+average reward score: 3.37109375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 428|ppo_ep: 1|act_loss: 0.175048828125|cri_loss: 0.1571044921875|unsuper_loss: 0.0
+average reward score: 3.1796875
+-------------------------------------------------------------------------------------
+[2023-05-10 20:33:56,062] [INFO] [logging.py:96:log_dist] [Rank 0] step=430, skipped=9, lr=[3.0362661185162015e-06], mom=[(0.9, 0.95)]
+[2023-05-10 20:33:56,063] [INFO] [timer.py:199:stop] epoch=0/micro_step=430/global_step=430, RunningAvgSamplesPerSec=39.86125847623873, CurrSamplesPerSec=40.86167410269174, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 20:33:56,460] [INFO] [logging.py:96:log_dist] [Rank 0] step=430, skipped=10, lr=[1.5873208737682702e-06, 1.5873208737682702e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 429|ppo_ep: 1|act_loss: 0.1116943359375|cri_loss: 0.1226806640625|unsuper_loss: 0.0
+average reward score: 3.61328125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 430|ppo_ep: 1|act_loss: 0.134765625|cri_loss: 0.213623046875|unsuper_loss: 0.0
+average reward score: 3.453125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 431|ppo_ep: 1|act_loss: -0.0450439453125|cri_loss: 0.02899169921875|unsuper_loss: 0.0
+average reward score: 3.509765625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 432|ppo_ep: 1|act_loss: -0.0111083984375|cri_loss: 0.1058349609375|unsuper_loss: 0.0
+average reward score: 3.33203125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 433|ppo_ep: 1|act_loss: -0.116455078125|cri_loss: 0.022216796875|unsuper_loss: 0.0
+average reward score: 3.591796875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 434|ppo_ep: 1|act_loss: 0.1336669921875|cri_loss: 0.1485595703125|unsuper_loss: 0.0
+average reward score: 3.08984375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 435|ppo_ep: 1|act_loss: -0.0113525390625|cri_loss: 0.027099609375|unsuper_loss: 0.0
+average reward score: 3.30078125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 436|ppo_ep: 1|act_loss: 0.1168212890625|cri_loss: 0.164794921875|unsuper_loss: 0.0
+average reward score: 3.5625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 437|ppo_ep: 1|act_loss: 0.09619140625|cri_loss: 0.1143798828125|unsuper_loss: 0.0
+average reward score: 3.326171875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 438|ppo_ep: 1|act_loss: 0.09393310546875|cri_loss: 0.142333984375|unsuper_loss: 0.0
+average reward score: 3.50390625
+-------------------------------------------------------------------------------------
+[2023-05-10 20:42:50,156] [INFO] [logging.py:96:log_dist] [Rank 0] step=440, skipped=9, lr=[2.7674319748040415e-06], mom=[(0.9, 0.95)]
+[2023-05-10 20:42:50,156] [INFO] [timer.py:199:stop] epoch=0/micro_step=440/global_step=440, RunningAvgSamplesPerSec=39.853400611971345, CurrSamplesPerSec=40.61729160210722, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 20:42:50,486] [INFO] [logging.py:96:log_dist] [Rank 0] step=440, skipped=10, lr=[1.4476630939291631e-06, 1.4476630939291631e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 439|ppo_ep: 1|act_loss: 0.07708740234375|cri_loss: 0.09991455078125|unsuper_loss: 0.0
+average reward score: 3.298828125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 440|ppo_ep: 1|act_loss: 0.1922607421875|cri_loss: 0.1494140625|unsuper_loss: 0.0
+average reward score: 3.013671875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 441|ppo_ep: 1|act_loss: 0.2125244140625|cri_loss: 0.1739501953125|unsuper_loss: 0.0
+average reward score: 3.28125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 442|ppo_ep: 1|act_loss: 0.21044921875|cri_loss: 0.261962890625|unsuper_loss: 0.0
+average reward score: 3.3828125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 443|ppo_ep: 1|act_loss: 0.19775390625|cri_loss: 0.212646484375|unsuper_loss: 0.0
+average reward score: 3.107421875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 444|ppo_ep: 1|act_loss: 0.1805419921875|cri_loss: 0.180908203125|unsuper_loss: 0.0
+average reward score: 3.1875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 445|ppo_ep: 1|act_loss: 0.019317626953125|cri_loss: 0.0765380859375|unsuper_loss: 0.0
+average reward score: 3.515625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 446|ppo_ep: 1|act_loss: 0.181884765625|cri_loss: 0.14990234375|unsuper_loss: 0.0
+average reward score: 3.416015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 447|ppo_ep: 1|act_loss: 0.1142578125|cri_loss: 0.1346435546875|unsuper_loss: 0.0
+average reward score: 3.5625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 448|ppo_ep: 1|act_loss: -0.13671875|cri_loss: -0.0167236328125|unsuper_loss: 0.0
+average reward score: 3.453125
+-------------------------------------------------------------------------------------
+[2023-05-10 20:51:47,781] [INFO] [logging.py:96:log_dist] [Rank 0] step=450, skipped=9, lr=[2.5061930312242508e-06], mom=[(0.9, 0.95)]
+[2023-05-10 20:51:47,781] [INFO] [timer.py:199:stop] epoch=0/micro_step=450/global_step=450, RunningAvgSamplesPerSec=39.84170897963363, CurrSamplesPerSec=40.65381848559388, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 20:51:48,110] [INFO] [logging.py:96:log_dist] [Rank 0] step=450, skipped=10, lr=[1.3118898560883817e-06, 1.3118898560883817e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 449|ppo_ep: 1|act_loss: -0.0936279296875|cri_loss: 0.0426025390625|unsuper_loss: 0.0
+average reward score: 3.095703125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 450|ppo_ep: 1|act_loss: 0.0250244140625|cri_loss: 0.1173095703125|unsuper_loss: 0.0
+average reward score: 3.47265625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 451|ppo_ep: 1|act_loss: -0.099609375|cri_loss: 0.00787353515625|unsuper_loss: 0.0
+average reward score: 3.384765625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 452|ppo_ep: 1|act_loss: -0.107421875|cri_loss: 0.055908203125|unsuper_loss: 0.0
+average reward score: 3.564453125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 453|ppo_ep: 1|act_loss: -0.0511474609375|cri_loss: 0.048828125|unsuper_loss: 0.0
+average reward score: 3.326171875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 454|ppo_ep: 1|act_loss: -0.13720703125|cri_loss: -0.02960205078125|unsuper_loss: 0.0
+average reward score: 3.361328125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 455|ppo_ep: 1|act_loss: 0.1810302734375|cri_loss: 0.27880859375|unsuper_loss: 0.0
+average reward score: 3.400390625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 456|ppo_ep: 1|act_loss: -0.10205078125|cri_loss: 0.0213623046875|unsuper_loss: 0.0
+average reward score: 3.60546875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 457|ppo_ep: 1|act_loss: 0.1005859375|cri_loss: 0.1357421875|unsuper_loss: 0.0
+average reward score: 3.4609375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 458|ppo_ep: 1|act_loss: 0.1263427734375|cri_loss: 0.126953125|unsuper_loss: 0.0
+average reward score: 3.37890625
+-------------------------------------------------------------------------------------
+[2023-05-10 21:00:37,879] [INFO] [logging.py:96:log_dist] [Rank 0] step=460, skipped=9, lr=[2.2535136116944675e-06], mom=[(0.9, 0.95)]
+[2023-05-10 21:00:37,880] [INFO] [timer.py:199:stop] epoch=0/micro_step=460/global_step=460, RunningAvgSamplesPerSec=39.83810450937108, CurrSamplesPerSec=40.30733073082074, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 21:00:38,426] [INFO] [logging.py:96:log_dist] [Rank 0] step=460, skipped=10, lr=[1.180502346550047e-06, 1.180502346550047e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 459|ppo_ep: 1|act_loss: 0.0257568359375|cri_loss: 0.11004638671875|unsuper_loss: 0.0
+average reward score: 3.43359375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 460|ppo_ep: 1|act_loss: 0.300048828125|cri_loss: 0.3525390625|unsuper_loss: 0.0
+average reward score: 3.478515625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 461|ppo_ep: 1|act_loss: 0.2105712890625|cri_loss: 0.2015380859375|unsuper_loss: 0.0
+average reward score: 3.181640625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 462|ppo_ep: 1|act_loss: 0.1363525390625|cri_loss: 0.15771484375|unsuper_loss: 0.0
+average reward score: 3.0234375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 463|ppo_ep: 1|act_loss: -0.0537109375|cri_loss: 0.085693359375|unsuper_loss: 0.0
+average reward score: 3.40234375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 464|ppo_ep: 1|act_loss: -0.0174560546875|cri_loss: 0.0648193359375|unsuper_loss: 0.0
+average reward score: 3.41015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 465|ppo_ep: 1|act_loss: 0.1549072265625|cri_loss: 0.1566162109375|unsuper_loss: 0.0
+average reward score: 2.87890625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 466|ppo_ep: 1|act_loss: 0.09478759765625|cri_loss: 0.147216796875|unsuper_loss: 0.0
+average reward score: 3.408203125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 467|ppo_ep: 1|act_loss: 0.068115234375|cri_loss: 0.141357421875|unsuper_loss: 0.0
+average reward score: 3.166015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 468|ppo_ep: 1|act_loss: -0.019775390625|cri_loss: 0.0543212890625|unsuper_loss: 0.0
+average reward score: 3.537109375
+-------------------------------------------------------------------------------------
+[2023-05-10 21:09:33,230] [INFO] [logging.py:96:log_dist] [Rank 0] step=470, skipped=9, lr=[2.0103264439481902e-06], mom=[(0.9, 0.95)]
+[2023-05-10 21:09:33,230] [INFO] [timer.py:199:stop] epoch=0/micro_step=470/global_step=470, RunningAvgSamplesPerSec=39.844315141935006, CurrSamplesPerSec=40.548476521243145, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 21:09:33,657] [INFO] [logging.py:96:log_dist] [Rank 0] step=470, skipped=10, lr=[1.0539855623677753e-06, 1.0539855623677753e-06], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 469|ppo_ep: 1|act_loss: 0.30517578125|cri_loss: 0.2213134765625|unsuper_loss: 0.0
+average reward score: 3.12109375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 470|ppo_ep: 1|act_loss: 0.11212158203125|cri_loss: 0.1962890625|unsuper_loss: 0.0
+average reward score: 3.40625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 471|ppo_ep: 1|act_loss: 0.037811279296875|cri_loss: 0.0784912109375|unsuper_loss: 0.0
+average reward score: 3.57421875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 472|ppo_ep: 1|act_loss: 0.1650390625|cri_loss: 0.191650390625|unsuper_loss: 0.0
+average reward score: 3.4453125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 473|ppo_ep: 1|act_loss: 0.009521484375|cri_loss: 0.079833984375|unsuper_loss: 0.0
+average reward score: 3.240234375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 474|ppo_ep: 1|act_loss: -0.0439453125|cri_loss: 0.0650634765625|unsuper_loss: 0.0
+average reward score: 3.48828125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 475|ppo_ep: 1|act_loss: 0.220703125|cri_loss: 0.1822509765625|unsuper_loss: 0.0
+average reward score: 3.390625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 476|ppo_ep: 1|act_loss: -0.0250244140625|cri_loss: 0.07757568359375|unsuper_loss: 0.0
+average reward score: 3.45703125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 477|ppo_ep: 1|act_loss: -0.0260009765625|cri_loss: 0.04833984375|unsuper_loss: 0.0
+average reward score: 2.880859375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 478|ppo_ep: 1|act_loss: 0.05157470703125|cri_loss: 0.13818359375|unsuper_loss: 0.0
+average reward score: 3.19921875
+-------------------------------------------------------------------------------------
+[2023-05-10 21:18:32,242] [INFO] [logging.py:96:log_dist] [Rank 0] step=480, skipped=9, lr=[1.7775292165118915e-06], mom=[(0.9, 0.95)]
+[2023-05-10 21:18:32,242] [INFO] [timer.py:199:stop] epoch=0/micro_step=480/global_step=480, RunningAvgSamplesPerSec=39.80956909195669, CurrSamplesPerSec=32.66800209709634, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 21:18:32,575] [INFO] [logging.py:96:log_dist] [Rank 0] step=480, skipped=10, lr=[9.328065210516562e-07, 9.328065210516562e-07], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 479|ppo_ep: 1|act_loss: 0.21826171875|cri_loss: 0.1876220703125|unsuper_loss: 0.0
+average reward score: 2.982421875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 480|ppo_ep: 1|act_loss: -0.1097412109375|cri_loss: 0.0308837890625|unsuper_loss: 0.0
+average reward score: 3.546875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 481|ppo_ep: 1|act_loss: -0.13427734375|cri_loss: 0.06005859375|unsuper_loss: 0.0
+average reward score: 3.607421875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 482|ppo_ep: 1|act_loss: 0.0537109375|cri_loss: 0.2196044921875|unsuper_loss: 0.0
+average reward score: 3.482421875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 483|ppo_ep: 1|act_loss: 0.048828125|cri_loss: 0.089111328125|unsuper_loss: 0.0
+average reward score: 3.451171875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 484|ppo_ep: 1|act_loss: -0.034912109375|cri_loss: 0.0712890625|unsuper_loss: 0.0
+average reward score: 3.626953125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 485|ppo_ep: 1|act_loss: -0.094482421875|cri_loss: 0.0594482421875|unsuper_loss: 0.0
+average reward score: 3.55859375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 486|ppo_ep: 1|act_loss: -0.09307861328125|cri_loss: 0.0069580078125|unsuper_loss: 0.0
+average reward score: 3.54296875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 487|ppo_ep: 1|act_loss: 0.039031982421875|cri_loss: 0.0750732421875|unsuper_loss: 0.0
+average reward score: 3.087890625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 488|ppo_ep: 1|act_loss: -0.0181884765625|cri_loss: 0.09014892578125|unsuper_loss: 0.0
+average reward score: 3.482421875
+-------------------------------------------------------------------------------------
+[2023-05-10 21:27:24,692] [INFO] [logging.py:96:log_dist] [Rank 0] step=490, skipped=9, lr=[1.555981265024046e-06], mom=[(0.9, 0.95)]
+[2023-05-10 21:27:24,693] [INFO] [timer.py:199:stop] epoch=0/micro_step=490/global_step=490, RunningAvgSamplesPerSec=39.806901486226764, CurrSamplesPerSec=40.62455729772808, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 21:27:25,021] [INFO] [logging.py:96:log_dist] [Rank 0] step=490, skipped=10, lr=[8.17412536643985e-07, 8.17412536643985e-07], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 489|ppo_ep: 1|act_loss: 0.0345458984375|cri_loss: 0.1102294921875|unsuper_loss: 0.0
+average reward score: 3.53125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 490|ppo_ep: 1|act_loss: 0.15869140625|cri_loss: 0.1502685546875|unsuper_loss: 0.0
+average reward score: 3.287109375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 491|ppo_ep: 1|act_loss: 0.0001220703125|cri_loss: 0.07415771484375|unsuper_loss: 0.0
+average reward score: 3.33203125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 492|ppo_ep: 1|act_loss: 0.08673095703125|cri_loss: 0.128173828125|unsuper_loss: 0.0
+average reward score: 3.37109375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 493|ppo_ep: 1|act_loss: 0.141357421875|cri_loss: 0.17333984375|unsuper_loss: 0.0
+average reward score: 3.35546875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 494|ppo_ep: 1|act_loss: 0.2020263671875|cri_loss: 0.1761474609375|unsuper_loss: 0.0
+average reward score: 3.255859375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 495|ppo_ep: 1|act_loss: 0.03125|cri_loss: 0.0692138671875|unsuper_loss: 0.0
+average reward score: 3.2578125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 496|ppo_ep: 1|act_loss: 0.192626953125|cri_loss: 0.1695556640625|unsuper_loss: 0.0
+average reward score: 3.01953125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 497|ppo_ep: 1|act_loss: 0.171630859375|cri_loss: 0.192626953125|unsuper_loss: 0.0
+average reward score: 3.396484375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 498|ppo_ep: 1|act_loss: 0.064453125|cri_loss: 0.08624267578125|unsuper_loss: 0.0
+average reward score: 2.91015625
+-------------------------------------------------------------------------------------
+[2023-05-10 21:36:20,834] [INFO] [logging.py:96:log_dist] [Rank 0] step=500, skipped=9, lr=[1.3465004001280285e-06], mom=[(0.9, 0.95)]
+[2023-05-10 21:36:20,835] [INFO] [timer.py:199:stop] epoch=0/micro_step=500/global_step=500, RunningAvgSamplesPerSec=39.81402275844299, CurrSamplesPerSec=40.44204609724033, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 21:36:21,185] [INFO] [logging.py:96:log_dist] [Rank 0] step=500, skipped=10, lr=[7.082295685273502e-07, 7.082295685273502e-07], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 499|ppo_ep: 1|act_loss: 0.0|cri_loss: 0.0821533203125|unsuper_loss: 0.0
+average reward score: 3.60546875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 500|ppo_ep: 1|act_loss: -0.08056640625|cri_loss: 0.03057861328125|unsuper_loss: 0.0
+average reward score: 3.3125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 501|ppo_ep: 1|act_loss: 0.0310821533203125|cri_loss: 0.059814453125|unsuper_loss: 0.0
+average reward score: 3.16015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 502|ppo_ep: 1|act_loss: -0.0926513671875|cri_loss: 0.034423828125|unsuper_loss: 0.0
+average reward score: 3.4375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 503|ppo_ep: 1|act_loss: 0.0428466796875|cri_loss: 0.11181640625|unsuper_loss: 0.0
+average reward score: 3.541015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 504|ppo_ep: 1|act_loss: -0.02294921875|cri_loss: 0.05645751953125|unsuper_loss: 0.0
+average reward score: 3.291015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 505|ppo_ep: 1|act_loss: -0.08209228515625|cri_loss: 0.0169677734375|unsuper_loss: 0.0
+average reward score: 3.556640625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 506|ppo_ep: 1|act_loss: -0.1572265625|cri_loss: 0.027587890625|unsuper_loss: 0.0
+average reward score: 3.53515625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 507|ppo_ep: 1|act_loss: -0.0452880859375|cri_loss: 0.062744140625|unsuper_loss: 0.0
+average reward score: 3.291015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 508|ppo_ep: 1|act_loss: -0.056640625|cri_loss: 0.04974365234375|unsuper_loss: 0.0
+average reward score: 3.48046875
+-------------------------------------------------------------------------------------
+[2023-05-10 21:45:14,552] [INFO] [logging.py:96:log_dist] [Rank 0] step=510, skipped=9, lr=[1.1498598886482167e-06], mom=[(0.9, 0.95)]
+[2023-05-10 21:45:14,553] [INFO] [timer.py:199:stop] epoch=0/micro_step=510/global_step=510, RunningAvgSamplesPerSec=39.809780109449505, CurrSamplesPerSec=40.92821218871452, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 21:45:14,880] [INFO] [logging.py:96:log_dist] [Rank 0] step=510, skipped=10, lr=[6.056606490602146e-07, 6.056606490602146e-07], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 509|ppo_ep: 1|act_loss: 0.35205078125|cri_loss: 0.35107421875|unsuper_loss: 0.0
+average reward score: 3.26953125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 510|ppo_ep: 1|act_loss: -0.0584716796875|cri_loss: 0.04095458984375|unsuper_loss: 0.0
+average reward score: 3.384765625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 511|ppo_ep: 1|act_loss: -0.0504150390625|cri_loss: 0.0765380859375|unsuper_loss: 0.0
+average reward score: 3.44140625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 512|ppo_ep: 1|act_loss: 0.051239013671875|cri_loss: 0.08837890625|unsuper_loss: 0.0
+average reward score: 3.791015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 513|ppo_ep: 1|act_loss: 0.010986328125|cri_loss: 0.06829833984375|unsuper_loss: 0.0
+average reward score: 3.326171875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 514|ppo_ep: 1|act_loss: 0.035552978515625|cri_loss: 0.0826416015625|unsuper_loss: 0.0
+average reward score: 3.28515625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 515|ppo_ep: 1|act_loss: 0.0377197265625|cri_loss: 0.1036376953125|unsuper_loss: 0.0
+average reward score: 3.337890625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 516|ppo_ep: 1|act_loss: 0.294921875|cri_loss: 0.265380859375|unsuper_loss: 0.0
+average reward score: 2.9453125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 517|ppo_ep: 1|act_loss: 0.2135009765625|cri_loss: 0.2025146484375|unsuper_loss: 0.0
+average reward score: 3.23828125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 518|ppo_ep: 1|act_loss: 0.0772705078125|cri_loss: 0.1043701171875|unsuper_loss: 0.0
+average reward score: 3.30078125
+-------------------------------------------------------------------------------------
+[2023-05-10 21:54:10,223] [INFO] [logging.py:96:log_dist] [Rank 0] step=520, skipped=9, lr=[9.667855991928558e-07], mom=[(0.9, 0.95)]
+[2023-05-10 21:54:10,224] [INFO] [timer.py:199:stop] epoch=0/micro_step=520/global_step=520, RunningAvgSamplesPerSec=39.7946308709328, CurrSamplesPerSec=40.67689536265845, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 21:54:10,569] [INFO] [logging.py:96:log_dist] [Rank 0] step=520, skipped=10, lr=[5.10084395844121e-07, 5.10084395844121e-07], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 519|ppo_ep: 1|act_loss: 0.0543212890625|cri_loss: 0.07891845703125|unsuper_loss: 0.0
+average reward score: 3.37890625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 520|ppo_ep: 1|act_loss: 0.00921630859375|cri_loss: 0.057830810546875|unsuper_loss: 0.0
+average reward score: 3.390625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 521|ppo_ep: 1|act_loss: 0.1605224609375|cri_loss: 0.182373046875|unsuper_loss: 0.0
+average reward score: 3.44140625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 522|ppo_ep: 1|act_loss: -0.109619140625|cri_loss: 0.0732421875|unsuper_loss: 0.0
+average reward score: 3.451171875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 523|ppo_ep: 1|act_loss: 0.018310546875|cri_loss: 0.129638671875|unsuper_loss: 0.0
+average reward score: 3.19921875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 524|ppo_ep: 1|act_loss: 0.0653076171875|cri_loss: 0.1195068359375|unsuper_loss: 0.0
+average reward score: 3.25
+-------------------------------------------------------------------------------------
+epoch: 0|step: 525|ppo_ep: 1|act_loss: 0.0382080078125|cri_loss: 0.0843505859375|unsuper_loss: 0.0
+average reward score: 3.2890625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 526|ppo_ep: 1|act_loss: 0.171875|cri_loss: 0.1943359375|unsuper_loss: 0.0
+average reward score: 2.9921875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 527|ppo_ep: 1|act_loss: 0.023193359375|cri_loss: 0.07440185546875|unsuper_loss: 0.0
+average reward score: 3.359375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 528|ppo_ep: 1|act_loss: 0.1402587890625|cri_loss: 0.142822265625|unsuper_loss: 0.0
+average reward score: 3.337890625
+-------------------------------------------------------------------------------------
+[2023-05-10 22:03:05,078] [INFO] [logging.py:96:log_dist] [Rank 0] step=530, skipped=9, lr=[7.979533227202442e-07], mom=[(0.9, 0.95)]
+[2023-05-10 22:03:05,078] [INFO] [timer.py:199:stop] epoch=0/micro_step=530/global_step=530, RunningAvgSamplesPerSec=39.79127619968283, CurrSamplesPerSec=40.347207091512935, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 22:03:05,489] [INFO] [logging.py:96:log_dist] [Rank 0] step=530, skipped=10, lr=[4.218536141142768e-07, 4.218536141142768e-07], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 529|ppo_ep: 1|act_loss: 0.006103515625|cri_loss: 0.09490966796875|unsuper_loss: 0.0
+average reward score: 3.349609375
+-------------------------------------------------------------------------------------
+[2023-05-10 22:03:59,050] [INFO] [loss_scaler.py:188:update_scale] [deepspeed] OVERFLOW! Rank 0 Skipping step. Attempted loss scale: 8192, but hysteresis is 2. Reducing hysteresis to 1
+epoch: 0|step: 530|ppo_ep: 1|act_loss: -0.035888671875|cri_loss: 0.07330322265625|unsuper_loss: 0.0
+average reward score: 3.40625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 531|ppo_ep: 1|act_loss: 0.0618896484375|cri_loss: 0.251953125|unsuper_loss: 0.0
+average reward score: 3.494140625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 532|ppo_ep: 1|act_loss: -0.0570068359375|cri_loss: 0.03228759765625|unsuper_loss: 0.0
+average reward score: 3.07421875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 533|ppo_ep: 1|act_loss: -0.05078125|cri_loss: 0.088134765625|unsuper_loss: 0.0
+average reward score: 3.34375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 534|ppo_ep: 1|act_loss: 0.0018310546875|cri_loss: 0.06732177734375|unsuper_loss: 0.0
+average reward score: 3.12109375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 535|ppo_ep: 1|act_loss: -0.0133056640625|cri_loss: 0.10174560546875|unsuper_loss: 0.0
+average reward score: 3.58984375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 536|ppo_ep: 1|act_loss: 0.123046875|cri_loss: 0.1878662109375|unsuper_loss: 0.0
+average reward score: 3.5078125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 537|ppo_ep: 1|act_loss: -0.010009765625|cri_loss: 0.08221435546875|unsuper_loss: 0.0
+average reward score: 3.400390625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 538|ppo_ep: 1|act_loss: 0.05621337890625|cri_loss: 0.138671875|unsuper_loss: 0.0
+average reward score: 3.470703125
+-------------------------------------------------------------------------------------
+[2023-05-10 22:12:00,807] [INFO] [logging.py:96:log_dist] [Rank 0] step=540, skipped=9, lr=[6.439862779589517e-07], mom=[(0.9, 0.95)]
+[2023-05-10 22:12:00,807] [INFO] [timer.py:199:stop] epoch=0/micro_step=540/global_step=540, RunningAvgSamplesPerSec=39.79234455858139, CurrSamplesPerSec=40.0402163079384, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 22:12:01,160] [INFO] [logging.py:96:log_dist] [Rank 0] step=540, skipped=11, lr=[3.489960518496521e-07, 3.489960518496521e-07], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 539|ppo_ep: 1|act_loss: 0.08709716796875|cri_loss: 0.08740234375|unsuper_loss: 0.0
+average reward score: 3.25390625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 540|ppo_ep: 1|act_loss: 0.1055908203125|cri_loss: 0.1375732421875|unsuper_loss: 0.0
+average reward score: 3.0546875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 541|ppo_ep: 1|act_loss: -0.1160888671875|cri_loss: 0.005615234375|unsuper_loss: 0.0
+average reward score: 3.439453125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 542|ppo_ep: 1|act_loss: -0.0506591796875|cri_loss: 0.06201171875|unsuper_loss: 0.0
+average reward score: 3.142578125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 543|ppo_ep: 1|act_loss: -0.057373046875|cri_loss: 0.03643798828125|unsuper_loss: 0.0
+average reward score: 3.173828125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 544|ppo_ep: 1|act_loss: -0.0438232421875|cri_loss: 0.069091796875|unsuper_loss: 0.0
+average reward score: 3.46484375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 545|ppo_ep: 1|act_loss: -0.025390625|cri_loss: 0.1177978515625|unsuper_loss: 0.0
+average reward score: 3.408203125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 546|ppo_ep: 1|act_loss: 0.12127685546875|cri_loss: 0.1962890625|unsuper_loss: 0.0
+average reward score: 3.40234375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 547|ppo_ep: 1|act_loss: -0.1529541015625|cri_loss: 0.0|unsuper_loss: 0.0
+average reward score: 3.51171875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 548|ppo_ep: 1|act_loss: 0.07421875|cri_loss: 0.134765625|unsuper_loss: 0.0
+average reward score: 3.39453125
+-------------------------------------------------------------------------------------
+[2023-05-10 22:20:54,330] [INFO] [logging.py:96:log_dist] [Rank 0] step=550, skipped=9, lr=[5.054528108904628e-07], mom=[(0.9, 0.95)]
+[2023-05-10 22:20:54,331] [INFO] [timer.py:199:stop] epoch=0/micro_step=550/global_step=550, RunningAvgSamplesPerSec=39.78325564573181, CurrSamplesPerSec=40.548954280295234, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 22:20:54,643] [INFO] [loss_scaler.py:181:update_scale] [deepspeed] OVERFLOW! Rank 0 Skipping step. Attempted loss scale: 8192, reducing to 4096
+[2023-05-10 22:20:54,644] [INFO] [logging.py:96:log_dist] [Rank 0] step=550, skipped=12, lr=[2.825703504066404e-07, 2.825703504066404e-07], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 549|ppo_ep: 1|act_loss: 0.20458984375|cri_loss: 0.23681640625|unsuper_loss: 0.0
+average reward score: 3.43359375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 550|ppo_ep: 1|act_loss: 0.08367919921875|cri_loss: 0.12890625|unsuper_loss: 0.0
+average reward score: 3.72265625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 551|ppo_ep: 1|act_loss: -0.079833984375|cri_loss: 0.0582275390625|unsuper_loss: 0.0
+average reward score: 3.4140625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 552|ppo_ep: 1|act_loss: 0.1075439453125|cri_loss: 0.1361083984375|unsuper_loss: 0.0
+average reward score: 3.205078125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 553|ppo_ep: 1|act_loss: 0.208740234375|cri_loss: 0.274169921875|unsuper_loss: 0.0
+average reward score: 3.142578125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 554|ppo_ep: 1|act_loss: 0.0877685546875|cri_loss: 0.128662109375|unsuper_loss: 0.0
+average reward score: 3.580078125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 555|ppo_ep: 1|act_loss: 0.034881591796875|cri_loss: 0.0914306640625|unsuper_loss: 0.0
+average reward score: 3.279296875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 556|ppo_ep: 1|act_loss: 0.00262451171875|cri_loss: 0.043487548828125|unsuper_loss: 0.0
+average reward score: 3.41796875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 557|ppo_ep: 1|act_loss: 0.0010986328125|cri_loss: 0.0765380859375|unsuper_loss: 0.0
+average reward score: 3.533203125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 558|ppo_ep: 1|act_loss: -0.0438232421875|cri_loss: 0.04071044921875|unsuper_loss: 0.0
+average reward score: 3.34375
+-------------------------------------------------------------------------------------
+[2023-05-10 22:29:52,128] [INFO] [logging.py:96:log_dist] [Rank 0] step=560, skipped=9, lr=[3.8286429678623064e-07], mom=[(0.9, 0.95)]
+[2023-05-10 22:29:52,129] [INFO] [timer.py:199:stop] epoch=0/micro_step=560/global_step=560, RunningAvgSamplesPerSec=39.79294192743956, CurrSamplesPerSec=39.802121214367794, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 22:29:52,466] [INFO] [logging.py:96:log_dist] [Rank 0] step=560, skipped=12, lr=[2.1654847134761875e-07, 2.1654847134761875e-07], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 559|ppo_ep: 1|act_loss: 0.10418701171875|cri_loss: 0.128662109375|unsuper_loss: 0.0
+average reward score: 3.611328125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 560|ppo_ep: 1|act_loss: -0.03369140625|cri_loss: 0.05963134765625|unsuper_loss: 0.0
+average reward score: 3.4921875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 561|ppo_ep: 1|act_loss: -0.0166015625|cri_loss: 0.03289794921875|unsuper_loss: 0.0
+average reward score: 3.16796875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 562|ppo_ep: 1|act_loss: -0.0341796875|cri_loss: 0.0501708984375|unsuper_loss: 0.0
+average reward score: 3.021484375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 563|ppo_ep: 1|act_loss: 0.1597900390625|cri_loss: 0.165283203125|unsuper_loss: 0.0
+average reward score: 3.078125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 564|ppo_ep: 1|act_loss: -0.065185546875|cri_loss: 0.012451171875|unsuper_loss: 0.0
+average reward score: 3.353515625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 565|ppo_ep: 1|act_loss: -0.0543212890625|cri_loss: 0.086669921875|unsuper_loss: 0.0
+average reward score: 3.365234375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 566|ppo_ep: 1|act_loss: -0.02734375|cri_loss: 0.05950927734375|unsuper_loss: 0.0
+average reward score: 2.947265625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 567|ppo_ep: 1|act_loss: -0.0740966796875|cri_loss: 0.07177734375|unsuper_loss: 0.0
+average reward score: 3.138671875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 568|ppo_ep: 1|act_loss: 0.226318359375|cri_loss: 0.35498046875|unsuper_loss: 0.0
+average reward score: 3.703125
+-------------------------------------------------------------------------------------
+[2023-05-10 22:38:50,847] [INFO] [logging.py:96:log_dist] [Rank 0] step=570, skipped=9, lr=[2.766732525434626e-07], mom=[(0.9, 0.95)]
+[2023-05-10 22:38:50,848] [INFO] [timer.py:199:stop] epoch=0/micro_step=570/global_step=570, RunningAvgSamplesPerSec=39.7840238658712, CurrSamplesPerSec=40.55298505478462, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 22:38:51,189] [INFO] [logging.py:96:log_dist] [Rank 0] step=570, skipped=12, lr=[1.5895560709651897e-07, 1.5895560709651897e-07], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 569|ppo_ep: 1|act_loss: -0.0872802734375|cri_loss: 0.02117919921875|unsuper_loss: 0.0
+average reward score: 3.28515625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 570|ppo_ep: 1|act_loss: -0.0203857421875|cri_loss: 0.0623779296875|unsuper_loss: 0.0
+average reward score: 3.18359375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 571|ppo_ep: 1|act_loss: -0.0869140625|cri_loss: 0.0399169921875|unsuper_loss: 0.0
+average reward score: 3.357421875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 572|ppo_ep: 1|act_loss: -0.030029296875|cri_loss: 0.110107421875|unsuper_loss: 0.0
+average reward score: 3.40625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 573|ppo_ep: 1|act_loss: 0.019378662109375|cri_loss: 0.0802001953125|unsuper_loss: 0.0
+average reward score: 3.44921875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 574|ppo_ep: 1|act_loss: 0.17431640625|cri_loss: 0.2117919921875|unsuper_loss: 0.0
+average reward score: 3.412109375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 575|ppo_ep: 1|act_loss: -0.0086669921875|cri_loss: 0.059326171875|unsuper_loss: 0.0
+average reward score: 3.443359375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 576|ppo_ep: 1|act_loss: 0.08599853515625|cri_loss: 0.157958984375|unsuper_loss: 0.0
+average reward score: 3.267578125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 577|ppo_ep: 1|act_loss: -0.0706787109375|cri_loss: 0.044677734375|unsuper_loss: 0.0
+average reward score: 3.5078125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 578|ppo_ep: 1|act_loss: 0.254638671875|cri_loss: 0.260009765625|unsuper_loss: 0.0
+average reward score: 3.041015625
+-------------------------------------------------------------------------------------
+[2023-05-10 22:47:51,146] [INFO] [logging.py:96:log_dist] [Rank 0] step=580, skipped=9, lr=[1.8727166628765905e-07], mom=[(0.9, 0.95)]
+[2023-05-10 22:47:51,147] [INFO] [timer.py:199:stop] epoch=0/micro_step=580/global_step=580, RunningAvgSamplesPerSec=39.74644540959601, CurrSamplesPerSec=37.46828471800186, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 22:47:51,556] [INFO] [logging.py:96:log_dist] [Rank 0] step=580, skipped=12, lr=[1.1000435297209955e-07, 1.1000435297209955e-07], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 579|ppo_ep: 1|act_loss: -0.0982666015625|cri_loss: 0.02105712890625|unsuper_loss: 0.0
+average reward score: 3.353515625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 580|ppo_ep: 1|act_loss: 0.0716552734375|cri_loss: 0.12744140625|unsuper_loss: 0.0
+average reward score: 3.517578125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 581|ppo_ep: 1|act_loss: 0.06317138671875|cri_loss: 0.146240234375|unsuper_loss: 0.0
+average reward score: 3.69921875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 582|ppo_ep: 1|act_loss: -0.0380859375|cri_loss: 0.02685546875|unsuper_loss: 0.0
+average reward score: 3.1171875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 583|ppo_ep: 1|act_loss: 0.0843505859375|cri_loss: 0.1270751953125|unsuper_loss: 0.0
+average reward score: 2.904296875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 584|ppo_ep: 1|act_loss: 0.17431640625|cri_loss: 0.22412109375|unsuper_loss: 0.0
+average reward score: 3.24609375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 585|ppo_ep: 1|act_loss: 0.235595703125|cri_loss: 0.253173828125|unsuper_loss: 0.0
+average reward score: 3.626953125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 586|ppo_ep: 1|act_loss: -0.093994140625|cri_loss: 0.01556396484375|unsuper_loss: 0.0
+average reward score: 3.541015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 587|ppo_ep: 1|act_loss: -0.0828857421875|cri_loss: 0.0426025390625|unsuper_loss: 0.0
+average reward score: 3.4609375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 588|ppo_ep: 1|act_loss: -0.045166015625|cri_loss: 0.0526123046875|unsuper_loss: 0.0
+average reward score: 3.333984375
+-------------------------------------------------------------------------------------
+[2023-05-10 22:56:49,706] [INFO] [logging.py:96:log_dist] [Rank 0] step=590, skipped=9, lr=[1.14989550407936e-07], mom=[(0.9, 0.95)]
+[2023-05-10 22:56:49,707] [INFO] [timer.py:199:stop] epoch=0/micro_step=590/global_step=590, RunningAvgSamplesPerSec=39.756113678260284, CurrSamplesPerSec=40.4869887118965, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 22:56:50,314] [INFO] [logging.py:96:log_dist] [Rank 0] step=590, skipped=12, lr=[6.987540510068696e-08, 6.987540510068696e-08], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 589|ppo_ep: 1|act_loss: 0.0806884765625|cri_loss: 0.159912109375|unsuper_loss: 0.0
+average reward score: 3.27734375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 590|ppo_ep: 1|act_loss: 0.136474609375|cri_loss: 0.12255859375|unsuper_loss: 0.0
+average reward score: 3.126953125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 591|ppo_ep: 1|act_loss: 0.106201171875|cri_loss: 0.1961669921875|unsuper_loss: 0.0
+average reward score: 3.59375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 592|ppo_ep: 1|act_loss: -0.026611328125|cri_loss: 0.0914306640625|unsuper_loss: 0.0
+average reward score: 3.267578125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 593|ppo_ep: 1|act_loss: -0.0587158203125|cri_loss: 0.0087890625|unsuper_loss: 0.0
+average reward score: 3.2890625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 594|ppo_ep: 1|act_loss: 0.1561279296875|cri_loss: 0.1783447265625|unsuper_loss: 0.0
+average reward score: 3.265625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 595|ppo_ep: 1|act_loss: -0.085693359375|cri_loss: 0.0565185546875|unsuper_loss: 0.0
+average reward score: 3.498046875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 596|ppo_ep: 1|act_loss: -0.02490234375|cri_loss: 0.02947998046875|unsuper_loss: 0.0
+average reward score: 3.076171875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 597|ppo_ep: 1|act_loss: 0.11651611328125|cri_loss: 0.15380859375|unsuper_loss: 0.0
+average reward score: 3.64453125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 598|ppo_ep: 1|act_loss: 0.017822265625|cri_loss: 0.0802001953125|unsuper_loss: 0.0
+average reward score: 3.4609375
+-------------------------------------------------------------------------------------
+[2023-05-10 23:05:49,795] [INFO] [logging.py:96:log_dist] [Rank 0] step=600, skipped=9, lr=[6.009372336636974e-08], mom=[(0.9, 0.95)]
+[2023-05-10 23:05:49,796] [INFO] [timer.py:199:stop] epoch=0/micro_step=600/global_step=600, RunningAvgSamplesPerSec=39.76059687791315, CurrSamplesPerSec=40.84593105618434, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 23:05:50,141] [INFO] [logging.py:96:log_dist] [Rank 0] step=600, skipped=12, lr=[3.8716893403845104e-08, 3.8716893403845104e-08], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 599|ppo_ep: 1|act_loss: -0.100830078125|cri_loss: 0.0322265625|unsuper_loss: 0.0
+average reward score: 3.509765625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 600|ppo_ep: 1|act_loss: 0.2496337890625|cri_loss: 0.26904296875|unsuper_loss: 0.0
+average reward score: 3.548828125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 601|ppo_ep: 1|act_loss: -0.033447265625|cri_loss: 0.1077880859375|unsuper_loss: 0.0
+average reward score: 3.546875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 602|ppo_ep: 1|act_loss: -0.03851318359375|cri_loss: 0.0399169921875|unsuper_loss: 0.0
+average reward score: 3.16015625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 603|ppo_ep: 1|act_loss: -0.094970703125|cri_loss: 0.071533203125|unsuper_loss: 0.0
+average reward score: 3.435546875
+-------------------------------------------------------------------------------------
+epoch: 0|step: 604|ppo_ep: 1|act_loss: -0.0797119140625|cri_loss: 0.03997802734375|unsuper_loss: 0.0
+average reward score: 3.40234375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 605|ppo_ep: 1|act_loss: 0.08642578125|cri_loss: 0.10595703125|unsuper_loss: 0.0
+average reward score: 3.259765625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 606|ppo_ep: 1|act_loss: -0.10498046875|cri_loss: 0.064697265625|unsuper_loss: 0.0
+average reward score: 3.39453125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 607|ppo_ep: 1|act_loss: -0.10888671875|cri_loss: -0.00274658203125|unsuper_loss: 0.0
+average reward score: 3.12890625
+-------------------------------------------------------------------------------------
+[2023-05-10 23:13:53,263] [INFO] [loss_scaler.py:188:update_scale] [deepspeed] OVERFLOW! Rank 0 Skipping step. Attempted loss scale: 32768, but hysteresis is 2. Reducing hysteresis to 1
+epoch: 0|step: 608|ppo_ep: 1|act_loss: 0.0025634765625|cri_loss: 0.10870361328125|unsuper_loss: 0.0
+average reward score: 3.56640625
+-------------------------------------------------------------------------------------
+[2023-05-10 23:14:47,285] [INFO] [logging.py:96:log_dist] [Rank 0] step=610, skipped=10, lr=[2.5721576484676806e-08], mom=[(0.9, 0.95)]
+[2023-05-10 23:14:47,286] [INFO] [timer.py:199:stop] epoch=0/micro_step=610/global_step=610, RunningAvgSamplesPerSec=39.74851442613675, CurrSamplesPerSec=40.513141336871776, MemAllocated=17.48GB, MaxMemAllocated=52.77GB
+[2023-05-10 23:14:47,633] [INFO] [logging.py:96:log_dist] [Rank 0] step=610, skipped=12, lr=[1.6643834799248692e-08, 1.6643834799248692e-08], mom=[(0.9, 0.95), (0.9, 0.95)]
+epoch: 0|step: 609|ppo_ep: 1|act_loss: -0.10498046875|cri_loss: 0.0496826171875|unsuper_loss: 0.0
+average reward score: 3.298828125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 610|ppo_ep: 1|act_loss: -0.04736328125|cri_loss: 0.0482177734375|unsuper_loss: 0.0
+average reward score: 3.474609375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 611|ppo_ep: 1|act_loss: 0.1129150390625|cri_loss: 0.1678466796875|unsuper_loss: 0.0
+average reward score: 3.03125
+-------------------------------------------------------------------------------------
+epoch: 0|step: 612|ppo_ep: 1|act_loss: 0.03131103515625|cri_loss: 0.144775390625|unsuper_loss: 0.0
+average reward score: 3.30859375
+-------------------------------------------------------------------------------------
+epoch: 0|step: 613|ppo_ep: 1|act_loss: -0.0198974609375|cri_loss: 0.0791015625|unsuper_loss: 0.0
+average reward score: 3.50390625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 614|ppo_ep: 1|act_loss: -0.0462646484375|cri_loss: 0.04107666015625|unsuper_loss: 0.0
+average reward score: 3.62890625
+-------------------------------------------------------------------------------------
+epoch: 0|step: 615|ppo_ep: 1|act_loss: -0.11181640625|cri_loss: 0.0643310546875|unsuper_loss: 0.0
+average reward score: 3.53125
+-------------------------------------------------------------------------------------
+[2023-05-10 23:21:01,885] [INFO] [loss_scaler.py:181:update_scale] [deepspeed] OVERFLOW! Rank 0 Skipping step. Attempted loss scale: 32768, reducing to 16384
+epoch: 0|step: 616|ppo_ep: 1|act_loss: 0.0177001953125|cri_loss: 0.09759521484375|unsuper_loss: 0.0
+average reward score: 3.3828125
+-------------------------------------------------------------------------------------
+saving model ...
+[2023-05-10 23:21:43,433] [INFO] [launch.py:460:main] Process 12268 exits successfully.
+[2023-05-10 23:21:43,435] [INFO] [launch.py:460:main] Process 12265 exits successfully.
+[2023-05-10 23:21:43,435] [INFO] [launch.py:460:main] Process 12269 exits successfully.
+[2023-05-10 23:21:44,436] [INFO] [launch.py:460:main] Process 12267 exits successfully.
+[2023-05-10 23:21:44,436] [INFO] [launch.py:460:main] Process 12263 exits successfully.
+[2023-05-10 23:21:44,436] [INFO] [launch.py:460:main] Process 12266 exits successfully.
+[2023-05-10 23:21:44,437] [INFO] [launch.py:460:main] Process 12264 exits successfully.
+[2023-05-10 23:21:45,438] [INFO] [launch.py:460:main] Process 12261 exits successfully.

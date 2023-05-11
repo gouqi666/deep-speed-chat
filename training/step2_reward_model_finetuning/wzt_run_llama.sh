@@ -3,7 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 # DeepSpeed Team
-OUTPUT=$1
+OUTPUT='./llama-7b'
 ZERO_STAGE=$2
 if [ "$OUTPUT" == "" ]; then
     OUTPUT=./output
