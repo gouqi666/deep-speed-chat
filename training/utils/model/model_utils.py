@@ -12,6 +12,7 @@ from transformers import (
 
 from transformers.deepspeed import HfDeepSpeedConfig
 
+from .llama_reward_model import LlamaRewardModel
 from .reward_model import RewardModel
 
 
@@ -34,9 +35,9 @@ def create_hf_model(model_class,
         model = model_class.from_config(model_config)
     else:
         if os.environ['TRAIN_LLAMA'] == '1':
-            from transformers import LlamaConfig
+            from transformers import LlamaConfig, LlamaForCausalLM
             config = LlamaConfig.from_pretrained(model_name_or_path)
-            model = model_class(config).to(torch.float16)
+            model = LlamaForCausalLM(config).to(torch.float16)
             model.load_state_dict(torch.load(os.path.join(model_name_or_path, 'llama_model.pt'), map_location='cpu'),strict=False)
         else:
             model = model_class.from_pretrained(
@@ -62,7 +63,8 @@ def create_critic_model(model_name_or_path,
     # we did not see this in other models but not sure if it is a general rule
     critic_model = create_hf_model(AutoModel, model_name_or_path, tokenizer,
                                    ds_config, rlhf_training)
-    critic_model = RewardModel(
+    reward_model_class = LlamaRewardModel if os.environ['TRAIN_LLAMA'] == '1' else RewardModel
+    critic_model = reward_model_class(
         critic_model,
         tokenizer,
         num_padding_at_beginning=num_padding_at_beginning)

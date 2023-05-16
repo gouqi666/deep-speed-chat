@@ -8,31 +8,21 @@ from torch import nn
 
 ## Note that the following code is modified from
 ## https://github.com/CarperAI/trlx/blob/main/examples/summarize_rlhf/reward_model/reward_model.py
-class RewardModel(nn.Module):
+class LlamaRewardModel(nn.Module):
 
     def __init__(self, base_model, tokenizer, num_padding_at_beginning=0):
         super().__init__()
         self.config = base_model.config
-        self.num_padding_at_beginning = num_padding_at_beginning
-        if hasattr(self.config, "word_embed_proj_dim"):
-            # `OPT` models use word_embed_proj_dim as final output
-            # https://github.com/huggingface/transformers/blob/main/src/transformers/models/opt/modeling_opt.py#L497
-            self.v_head = nn.Linear(self.config.word_embed_proj_dim,
-                                    1,
-                                    bias=False)
-        else:
-            # `gpt-neo(x)` models use `hidden_size` attribute names instead of `n_embd``
-            self.config.n_embd = self.config.hidden_size if hasattr(
-                self.config, "hidden_size") else self.config.n_embd
-            self.v_head = nn.Linear(self.config.n_embd, 1, bias=False)
-        self.rwtranrsformer = base_model
+        self.config.n_embd = self.config.hidden_size 
+        self.v_head = nn.Linear(self.config.n_embd, 1, bias=False)
+        self.rwtransformer = base_model
         self.PAD_ID = tokenizer.pad_token_id
 
     def gradient_checkpointing_enable(self):
-        self.rwtranrsformer.gradient_checkpointing_enable()
+        self.rwtransformer.gradient_checkpointing_enable()
 
     def gradient_checkpointing_disable(self):
-        self.rwtranrsformer.gradient_checkpointing_disable()
+        self.rwtransformer.gradient_checkpointing_disable()
 
     def forward(self,
                 input_ids=None,
@@ -44,7 +34,7 @@ class RewardModel(nn.Module):
                 use_cache=False):
         loss = None
 
-        transformer_outputs = self.rwtranrsformer(
+        transformer_outputs = self.rwtransformer(
             input_ids,
             past_key_values=past_key_values,
             attention_mask=attention_mask,
@@ -76,29 +66,16 @@ class RewardModel(nn.Module):
             chosen_reward = chosen_rewards[i]
             rejected_reward = rejected_rewards[i]
 
-            c_inds = (chosen_id == self.PAD_ID).nonzero()
-            c_ind = c_inds[self.num_padding_at_beginning].item() if len(
-                c_inds
-            ) > self.num_padding_at_beginning else seq_len  # OPT model pads the first token, so we need to use the seoncd padding token as the end of the sequence
+            # 使用的left paddding/truncate
             check_divergence = (chosen_id != rejected_id).nonzero()
-
             if len(check_divergence) == 0:
-                end_ind = rejected_reward.size(-1)
-                divergence_ind = end_ind - 1
-                r_ind = c_ind
+                divergence_ind = 0
             else:
-                # Check if there is any padding otherwise take length of sequence
-                r_inds = (rejected_id == self.PAD_ID).nonzero()
-                r_ind = r_inds[self.num_padding_at_beginning].item(
-                ) if len(r_inds) > self.num_padding_at_beginning else seq_len
-                end_ind = max(c_ind, r_ind)
                 divergence_ind = check_divergence[0]
-            assert divergence_ind > 0
-            c_truncated_reward = chosen_reward[divergence_ind:end_ind]
-            r_truncated_reward = rejected_reward[divergence_ind:end_ind]
-            chosen_mean_scores.append(
-                chosen_reward[c_ind - 1])  #use the end score for refrnence
-            rejected_mean_scores.append(rejected_reward[r_ind - 1])
+            c_truncated_reward = chosen_reward[divergence_ind:]
+            r_truncated_reward = rejected_reward[divergence_ind:]
+            chosen_mean_scores.append(chosen_reward[-1])  #use the end score for refrnence
+            rejected_mean_scores.append(rejected_reward[-1])
 
             loss += -torch.log(
                 torch.sigmoid(c_truncated_reward - r_truncated_reward)).mean()
@@ -123,7 +100,7 @@ class RewardModel(nn.Module):
                       prompt_length=0,
                       use_cache=False):
 
-        transformer_outputs = self.rwtranrsformer(
+        transformer_outputs = self.rwtransformer(
             input_ids,
             past_key_values=past_key_values,
             attention_mask=attention_mask,
