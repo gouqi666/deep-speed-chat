@@ -3,11 +3,12 @@
 
 # DeepSpeed Team
 import argparse
+import json
 import logging
 import torch
 import sys
 import os
-
+from tqdm import tqdm
 from transformers import (
     AutoConfig,
     AutoModelForCausalLM,
@@ -38,7 +39,7 @@ def parse_args():
     parser.add_argument(
         "--num_beams",
         type=int,
-        default=1,
+        default=3,
         help='Specify num of beams',
     )
     parser.add_argument(
@@ -75,6 +76,19 @@ def parse_args():
                         type=str,
                         default="English",
                         choices=["English", "Chinese", "Japanese"])
+
+    parser.add_argument("--dataset-name",
+                        type=str,
+                        default="Dahoas/synthetic-instruct-gptj-pairwise",
+                        )
+    parser.add_argument("--output-path",
+                        type=str,
+                        default="./output",
+                        )
+    parser.add_argument("--local-data-files",
+                        type=str,
+                        default="/home/gq/deeplang/deep-speed-chat/datasets/synthetic-instruct-gptj-pairwise",
+                       )
 
     args = parser.parse_args()
 
@@ -131,25 +145,38 @@ def print_utils(gen_output):
 
 
 def prompt_eval(args, model_baseline, model_fintuned, tokenizer, device,
-                prompts):
-    for prompt in prompts:
-        inputs = tokenizer(prompt, return_tensors="pt").to(device)
-        print("==========Baseline: Greedy=========")
+                prompt_dataset):
+    result = []
+    eval_dataset = prompt_dataset.get_eval_data()
+    for i,data in tqdm(enumerate(eval_dataset)):
+        if i > 100:
+            break
+        item = {}
+        item['prompt'] = prompt_dataset.get_prompt(data)
+        prompt_len = len(item['prompt'])
+        item['chosen'] = prompt_dataset.get_chosen(data)
+        item['rejected'] = prompt_dataset.get_rejected(data)
+        inputs = tokenizer(item['prompt'],return_tensors="pt").to(device)
         r_base = generate(model_baseline,
                           tokenizer,
                           inputs,
-                          num_beams=1,
+                          num_beams=args.num_beams,
                           num_return_sequences=args.num_return_sequences,
                           max_new_tokens=args.max_new_tokens)
-        print_utils(r_base)
-        print("==========finetune: Greedy=========")
+
+        item['before_ppo'] = r_base[0][prompt_len:]
+
         r_finetune_g = generate(model_fintuned,
                                 tokenizer,
                                 inputs,
-                                num_beams=1,
+                                num_beams=args.num_beams,
                                 num_return_sequences=args.num_return_sequences,
                                 max_new_tokens=args.max_new_tokens)
-        print_utils(r_finetune_g)
+        item['after_ppo'] = r_finetune_g[0][prompt_len:]
+        result.append(item)
+    return result
+
+        # print_utils(r_finetune_g)
         # Note: we use the above simplest greedy search as the baseline. Users can also use other baseline methods,
         # such as beam search, multinomial sampling, and beam-search multinomial sampling.
         # We provide examples as below for users to try.
@@ -188,25 +215,34 @@ def prompt_eval(args, model_baseline, model_fintuned, tokenizer, device,
         #                                             num_return_sequences=args.num_return_sequences,
         #                                             max_new_tokens=args.max_new_tokens)
         # print_utils(r_finetune_c)
-        print("====================prompt end=============================")
-        print()
-        print()
 
+def create_eval_prompt(args):
+    from utils.data.data_utils import get_raw_dataset
+    raw_dataset = get_raw_dataset(args.dataset_name, args.output_path, 1234, -1, local_path=args.local_data_files)
+    return raw_dataset
 
 def main():
     args = parse_args()
 
     device = torch.device("cuda:0")
     config = AutoConfig.from_pretrained(args.model_name_or_path_baseline)
-    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path_baseline,
-                                              fast_tokenizer=True)
-
+    from transformers import LlamaTokenizer
+    tokenizer = LlamaTokenizer.from_pretrained(args.model_name_or_path_baseline, padding_side='right', truncation_side='right')
+    tokenizer.pad_token = tokenizer.eos_token
     model_baseline = create_hf_model(AutoModelForCausalLM,
                                      args.model_name_or_path_baseline,
                                      tokenizer, None)
     model_fintuned = create_hf_model(AutoModelForCausalLM,
                                      args.model_name_or_path_finetune,
-                                     tokenizer, None)
+                                     tokenizer, ds_config=None, rlhf_training=True)
+
+    model_ckpt_path = os.path.join(args.model_name_or_path_finetune, 'pytorch_model.bin')
+    assert os.path.exists(
+        model_ckpt_path
+    ), f"Cannot find model checkpoint at {model_ckpt_path}"
+
+    model_fintuned.load_state_dict(
+        torch.load(model_ckpt_path, map_location='cpu'),strict=False)
 
     model_baseline.to(device)
     model_fintuned.to(device)
@@ -216,6 +252,7 @@ def main():
     # Finetuned models have less such issue. Thus following prompts all end with ":"
     # to make it a more meaningful comparison.
     if args.language == "English":
+        prompt_dataset = create_eval_prompt(args)
         prompts = [
             "Human: Please tell me about Microsoft in a few sentence? Assistant:",
             "Human: Explain the moon landing to a 6 year old in a few sentences. Assistant:",
@@ -242,9 +279,10 @@ def main():
             "Human: 鳥が冬に南に移動するのはなぜですか? Assistant:"
         ]
 
-    prompt_eval(args, model_baseline, model_fintuned, tokenizer, device,
-                prompts)
-
+    result = prompt_eval(args, model_baseline, model_fintuned, tokenizer, device,
+                prompt_dataset)
+    with open(os.path.join('/home/gq/deeplang/deep-speed-chat/training/step3_rlhf_finetuning/output/llama-7b/actor','rl_hf_pair_result_beam3.json'),'w') as fp:
+        json.dump(result,fp,indent=2)
 
 if __name__ == "__main__":
     main()

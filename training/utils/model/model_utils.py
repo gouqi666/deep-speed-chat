@@ -8,6 +8,9 @@ import torch
 from transformers import (
     AutoConfig,
     AutoModel,
+    LlamaConfig,
+    LlamaForCausalLM,
+    LlamaModel
 )
 
 from transformers.deepspeed import HfDeepSpeedConfig
@@ -16,27 +19,28 @@ from .llama_reward_model import LlamaRewardModel
 from .reward_model import RewardModel
 
 
-def create_hf_model(model_class,
+def  create_hf_model(model_class,
                     model_name_or_path,
                     tokenizer,
                     ds_config=None,
                     rlhf_training=False):
-    model_config = AutoConfig.from_pretrained(model_name_or_path)
-    model_config.dropout = 0.0
     # Note: dschf is defined in function scope to avoid global effects
     # https://huggingface.co/docs/transformers/main_classes/deepspeed#nontrainer-deepspeed-integration
-    if ds_config is not None and ds_config["zero_optimization"]["stage"] == 3:
-        dschf = HfDeepSpeedConfig(ds_config)
-    else:
-        dschf = None
+
+    # if ds_config is not None and ds_config["zero_optimization"]["stage"] == 3:
+    #     dschf = HfDeepSpeedConfig(ds_config)
+    # else:
+    #     dschf = None
+
+    model_config = AutoConfig.from_pretrained(model_name_or_path)
+    model_config.dropout = 0.0
     print(f'rlhf_training: {rlhf_training}')
     if rlhf_training:
-        # the weight loading is handled by create critic model
         model = model_class.from_config(model_config)
     else:
         if os.environ['TRAIN_LLAMA'] == '1':
-            from transformers import LlamaConfig, LlamaForCausalLM
             config = LlamaConfig.from_pretrained(model_name_or_path)
+            # model = LlamaForCausalLM.from_pretrained(model_name_or_path)
             model = LlamaForCausalLM(config).to(torch.float16)
             model.load_state_dict(torch.load(os.path.join(model_name_or_path, 'llama_model.pt'), map_location='cpu'),strict=False)
         else:
@@ -63,19 +67,24 @@ def create_critic_model(model_name_or_path,
     # we did not see this in other models but not sure if it is a general rule
     critic_model = create_hf_model(AutoModel, model_name_or_path, tokenizer,
                                    ds_config, rlhf_training)
+
     reward_model_class = LlamaRewardModel if os.environ['TRAIN_LLAMA'] == '1' else RewardModel
     critic_model = reward_model_class(
         critic_model,
         tokenizer,
         num_padding_at_beginning=num_padding_at_beginning)
 
+    #
     if rlhf_training:
         # critic model needs to load the weight here
+
         model_ckpt_path = os.path.join(model_name_or_path, 'pytorch_model.bin')
         assert os.path.exists(
             model_ckpt_path
         ), f"Cannot find model checkpoint at {model_ckpt_path}"
+
         critic_model.load_state_dict(
-            torch.load(model_ckpt_path, map_location='cpu'))
+            torch.load(model_ckpt_path, map_location='cpu'),strict=False)
+
 
     return critic_model

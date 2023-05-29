@@ -4,7 +4,7 @@
 # DeepSpeed Team
 import torch
 from torch import nn
-
+from ..utils import print_rank_0
 
 ## Note that the following code is modified from
 ## https://github.com/CarperAI/trlx/blob/main/examples/summarize_rlhf/reward_model/reward_model.py
@@ -31,6 +31,7 @@ class LlamaRewardModel(nn.Module):
                 position_ids=None,
                 head_mask=None,
                 inputs_embeds=None,
+                prompt_length=None,
                 use_cache=False):
         loss = None
 
@@ -65,21 +66,31 @@ class LlamaRewardModel(nn.Module):
             rejected_id = rejected_ids[i]
             chosen_reward = chosen_rewards[i]
             rejected_reward = rejected_rewards[i]
-
             # 使用的left paddding/truncate
-            check_divergence = (chosen_id != rejected_id).nonzero()
-            if len(check_divergence) == 0:
-                divergence_ind = 0
-            else:
-                divergence_ind = check_divergence[0]
-            c_truncated_reward = chosen_reward[divergence_ind:]
-            r_truncated_reward = rejected_reward[divergence_ind:]
-            chosen_mean_scores.append(chosen_reward[-1])  #use the end score for refrnence
-            rejected_mean_scores.append(rejected_reward[-1])
+            divergence_ind = prompt_length[i] - 1
+            # check_divergence = (chosen_id != rejected_id).nonzero()
+            chosen_end = (chosen_id != self.PAD_ID).nonzero()[-1] + 1
+
+            rejected_end = (rejected_id != self.PAD_ID).nonzero()[-1] + 1
+            # if len(check_divergence) == 0:
+            #     divergence_ind = 0
+            # else:
+            #     divergence_ind = check_divergence[0]
+            if divergence_ind == chosen_end:
+                print_rank_0(divergence_ind)
+                print_rank_0(chosen_end)
+                print_rank_0(rejected_end)
+                print_rank_0(chosen_id)
+                print_rank_0(rejected_id)
+                exit()
+            c_truncated_reward = chosen_reward[divergence_ind:chosen_end]
+            r_truncated_reward = rejected_reward[divergence_ind:rejected_end]
+            chosen_mean_scores.append(c_truncated_reward.mean())  #use the end score for refernence
+            rejected_mean_scores.append(r_truncated_reward.mean())
+
 
             loss += -torch.log(
-                torch.sigmoid(c_truncated_reward - r_truncated_reward)).mean()
-
+                torch.sigmoid(c_truncated_reward[-1] - r_truncated_reward[-1]))
         loss = loss / bs
         chosen_mean_scores = torch.stack(chosen_mean_scores)
         rejected_mean_scores = torch.stack(rejected_mean_scores)
@@ -104,7 +115,6 @@ class LlamaRewardModel(nn.Module):
             input_ids,
             past_key_values=past_key_values,
             attention_mask=attention_mask,
-            head_mask=head_mask,
             inputs_embeds=inputs_embeds,
             use_cache=use_cache)
         hidden_states = transformer_outputs[0]

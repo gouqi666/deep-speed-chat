@@ -9,7 +9,7 @@ ACTOR_ZERO_STAGE=$3
 CRITIC_ZERO_STAGE=$4
 OUTPUT=$5
 if [ "$OUTPUT" == "" ]; then
-    OUTPUT=./output
+    OUTPUT=./llama-7b
 fi
 if [ "$ACTOR_ZERO_STAGE" == "" ]; then
     ACTOR_ZERO_STAGE=3
@@ -25,8 +25,8 @@ Actor_Lr=9.65e-6
 Critic_Lr=5e-6
 
 deepspeed --master_port 12346 main.py \
-   --data_path Dahoas/rm-static Dahoas/full-hh-rlhf Dahoas/synthetic-instruct-gptj-pairwise yitingxie/rlhf-reward-datasets openai/webgpt_comparisons stanfordnlp/SHP \
-   --data_split 2,4,4 \
+   --data_path Dahoas/synthetic-instruct-gptj-pairwise \
+   --data_split 1,5,5 \
    --actor_model_name_or_path $ACTOR_MODEL_PATH \
    --critic_model_name_or_path $CRITIC_MODEL_PATH \
    --num_padding_at_beginning 1 \

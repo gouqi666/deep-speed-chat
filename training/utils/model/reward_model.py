@@ -38,6 +38,7 @@ class RewardModel(nn.Module):
                 input_ids=None,
                 past_key_values=None,
                 attention_mask=None,
+                prompt_length=None,
                 position_ids=None,
                 head_mask=None,
                 inputs_embeds=None,
@@ -71,38 +72,40 @@ class RewardModel(nn.Module):
         # Compute pairwise loss. Only backprop on the different tokens before padding
         loss = 0
         for i in range(bs):
+            if prompt_length[i] >= seq_len:
+                continue
             chosen_id = chosen_ids[i]
             rejected_id = rejected_ids[i]
             chosen_reward = chosen_rewards[i]
             rejected_reward = rejected_rewards[i]
+            divergence_ind = prompt_length[i] - 1
+            # check_divergence = (chosen_id != rejected_id).nonzero()
+            chosen_end = self.num_padding_at_beginning + (chosen_id != self.PAD_ID).nonzero()[-1] + 1
 
-            c_inds = (chosen_id == self.PAD_ID).nonzero()
-            c_ind = c_inds[self.num_padding_at_beginning].item() if len(
-                c_inds
-            ) > self.num_padding_at_beginning else seq_len  # OPT model pads the first token, so we need to use the seoncd padding token as the end of the sequence
-            check_divergence = (chosen_id != rejected_id).nonzero()
+            rejected_end = self.num_padding_at_beginning + (rejected_id != self.PAD_ID).nonzero()[-1] + 1
 
-            if len(check_divergence) == 0:
-                end_ind = rejected_reward.size(-1)
-                divergence_ind = end_ind - 1
-                r_ind = c_ind
-            else:
-                # Check if there is any padding otherwise take length of sequence
-                r_inds = (rejected_id == self.PAD_ID).nonzero()
-                r_ind = r_inds[self.num_padding_at_beginning].item(
-                ) if len(r_inds) > self.num_padding_at_beginning else seq_len
-                end_ind = max(c_ind, r_ind)
-                divergence_ind = check_divergence[0]
-            assert divergence_ind > 0
-            c_truncated_reward = chosen_reward[divergence_ind:end_ind]
-            r_truncated_reward = rejected_reward[divergence_ind:end_ind]
-            chosen_mean_scores.append(
-                chosen_reward[c_ind - 1])  #use the end score for refrnence
-            rejected_mean_scores.append(rejected_reward[r_ind - 1])
+            try:
+                assert chosen_end > divergence_ind
+                assert  rejected_end > divergence_ind
+
+            except Exception as e:
+                print(divergence_ind,chosen_end,rejected_end)
+                print(chosen_id,rejected_id)
+                exit()
+
+            # if len(check_divergence) == 0:
+            #     divergence_ind = 0
+            # else:
+            #     divergence_ind = check_divergence[0]
+
+            c_truncated_reward = chosen_reward[divergence_ind:chosen_end]
+            r_truncated_reward = rejected_reward[divergence_ind:rejected_end]
+            chosen_mean_scores.append(c_truncated_reward.mean())  #use the end score for refernence
+            rejected_mean_scores.append(r_truncated_reward.mean())
+
 
             loss += -torch.log(
-                torch.sigmoid(c_truncated_reward - r_truncated_reward)).mean()
-
+                torch.sigmoid(chosen_mean_scores[-1] - rejected_mean_scores[-1]))
         loss = loss / bs
         chosen_mean_scores = torch.stack(chosen_mean_scores)
         rejected_mean_scores = torch.stack(rejected_mean_scores)

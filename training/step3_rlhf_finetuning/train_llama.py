@@ -20,17 +20,17 @@ import argparse
 import os
 import random
 import torch
-from torch.utils.data import DataLoader, RandomSampler
+from torch.utils.data import DataLoader, RandomSampler,SequentialSampler
 from torch.utils.data.distributed import DistributedSampler
 from torch.utils.tensorboard import SummaryWriter
-
+import json
 from transformers import (
     AutoTokenizer,
     LlamaTokenizer,
     SchedulerType,
     default_data_collator,
 )
-
+from tqdm import tqdm
 import deepspeed
 
 from ppo_trainer import DeepSpeedPPOTrainer, DeepSpeedPPOTrainerUnsupervised
@@ -307,7 +307,7 @@ def parse_args():
 
 def create_datasets(args, tokenizer, train_phase=3 ):
     unsupervised_training_enabled = args.unsupervised_dataset_name and args.unsupervised_dataset_config_name
-    prompt_train_dataset, _ = create_prompt_dataset(
+    prompt_train_dataset, prompt_eval_dataset = create_prompt_dataset(
         args.local_rank, args.data_path, args.data_split,
         args.data_output_path, train_phase, args.seed, tokenizer,
         args.max_prompt_seq_len, args = args)
@@ -322,11 +322,14 @@ def create_datasets(args, tokenizer, train_phase=3 ):
                                      tokenizer=tokenizer)
     if args.local_rank == -1:
         prompt_train_sampler = RandomSampler(prompt_train_dataset)
+        prompt_eval_sampler = RandomSampler(prompt_eval_dataset)
         if unsupervised_training_enabled:
             unsupervised_train_sampler = RandomSampler(
                 unsupervised_train_dataset)
     else:
         prompt_train_sampler = DistributedSampler(prompt_train_dataset)
+        prompt_eval_sampler = DistributedSampler(prompt_eval_dataset) # SequentialSampler
+
         if unsupervised_training_enabled:
             unsupervised_train_sampler = DistributedSampler(
                 unsupervised_train_dataset)
@@ -335,6 +338,13 @@ def create_datasets(args, tokenizer, train_phase=3 ):
         collate_fn=data_collator,
         sampler=prompt_train_sampler,
         batch_size=args.per_device_train_batch_size)
+
+    prompt_eval_dataloader = DataLoader(
+        prompt_eval_dataset,
+        collate_fn=data_collator,
+        sampler=prompt_eval_sampler,
+        batch_size=args.per_device_train_batch_size)
+
     if unsupervised_training_enabled:
         unsupervised_train_dataloader = DataLoader(
             unsupervised_train_dataset,
@@ -350,7 +360,7 @@ def create_datasets(args, tokenizer, train_phase=3 ):
         args.ppo_epochs / args.gradient_accumulation_steps
     num_total_iters = int(args.num_train_epochs * num_update_steps_per_epoch)
 
-    return prompt_train_dataloader, unsupervised_train_dataloader, num_total_iters
+    return prompt_train_dataloader,prompt_eval_dataloader, unsupervised_train_dataloader, num_total_iters
 
 
 def main():
@@ -401,7 +411,7 @@ def main():
                                                   fast_tokenizer=True)
     reward_tokenizer.pad_token = reward_tokenizer.eos_token
 
-    prompt_train_dataloader, unsupervised_train_dataloader, num_total_iters = create_datasets(
+    prompt_train_dataloader, prompt_eval_dataloader, unsupervised_train_dataloader, num_total_iters = create_datasets(
         args=args, tokenizer=actor_tokenizer, train_phase=3)
 
     # RLHF engine is responsible for creating models, loading checkpoints, ds-initialize models/optims/lr-schedulers
@@ -412,6 +422,9 @@ def main():
         reward_tokenizer=reward_tokenizer,
         num_total_iters=num_total_iters,
         args=args)
+
+
+
 
     args.end_of_conversation_token = "<|endoftext|>"
 
@@ -424,6 +437,53 @@ def main():
     unsup_mini_dataset = MiniDataset(args.generation_batch_numbers,
                                      args.per_device_mini_train_batch_size)
 
+    def evaluation(model,eval_dataloader,tokenizer):
+        prompts = []
+        seq = []
+        model.eval()
+        for i, batch_prompt in tqdm(enumerate(eval_dataloader)):
+            if i > 5:
+                break
+            batch_prompt = to_device(batch_prompt, device)
+            prompts = batch_prompt['prompt']
+            attention_mask = batch_prompt['prompt_att_mask']
+            length = prompts.size(-1)
+            if length > args.max_prompt_seq_len:
+                prompts = prompts[:, length - args.max_prompt_seq_len:]
+                raise ValueError("Prompt length is too long")
+            with torch.no_grad():
+                output = model.module.generate(prompts,
+                                               attention_mask=attention_mask,
+                                               max_length=512,
+                                               min_length=512,
+                                           )
+            seq.append(output)
+        seq = torch.cat(seq, dim=0)
+        seq_list = [torch.zeros_like(seq) for _ in range(torch.distributed.get_world_size())]
+        torch.distributed.all_gather(seq_list, seq)
+        result = []
+        if args.global_rank == 0:
+            for seq in seq_list:
+                item = {}
+                prompt_length = prompts.shape[1]
+                prompt_seq = seq[:, :prompt_length]
+                ans_seq = seq[:, prompt_length:]
+                prompt_decoded = [tokenizer.decode(item.tolist(), skip_special_tokens=True) for item in prompt_seq]
+                ans_decoded = [tokenizer.decode(item.tolist()) for item in ans_seq]
+                ans_decoded = [sent.split(tokenizer.eos_token)[0].strip() for sent in ans_decoded]
+                # prompts.append(prompt_decoded)
+                item['prompt'] = prompt_decoded
+                item['ans'] = ans_decoded
+                result.append(item)
+        return result
+    print_rank_0("***** Running Evaluation *****", args.global_rank)
+    result = evaluation(trainer.actor_model,prompt_eval_dataloader,actor_tokenizer)
+    if args.global_rank == 0:
+        if not os.path.exists('/home/gq/deeplang/deep-speed-chat/training/step3_rlhf_finetuning/output/llama-7b/actor'):
+            os.makedirs('/home/gq/deeplang/deep-speed-chat/training/step3_rlhf_finetuning/output/llama-7b/actor')
+        with open(os.path.join('/home/gq/deeplang/deep-speed-chat/training/step3_rlhf_finetuning/output/llama-7b/actor','before_ppo.json'),'w') as fp:
+            json.dump(result,fp,indent=2)
+    torch.distributed.barrier()
     # Train!
     print_rank_0("***** Running training *****", args.global_rank)
     global_steps = 0
@@ -462,8 +522,8 @@ def main():
                     for i, (exp_data, unsup_data) in enumerate(
                             zip(exp_dataset, unsup_dataset)):
                         actor_loss, critic_loss = trainer.train_rlhf(exp_data)
-                        critic_loss += actor_loss.item()
-                        actor_loss += critic_loss.item()
+                        actor_loss += actor_loss.item()
+                        critic_loss += critic_loss.item()
                         average_reward += exp_data["rewards"].mean()
 
                         if unsupervised_training_enabled:
@@ -497,6 +557,13 @@ def main():
             global_steps += 1
             if args.actor_gradient_checkpointing:
                 rlhf_engine.actor.gradient_checkpointing_disable()
+
+
+    print_rank_0("***** Running Evaluation *****", args.global_rank)
+    result = evaluation(trainer.actor_model,prompt_eval_dataloader,actor_tokenizer)
+    if args.global_rank == 0:
+        with open(os.path.join('/home/gq/deeplang/deep-speed-chat/training/step3_rlhf_finetuning/output/llama-7b/actor',f'after_ppo_epoch_{epoch}.json'),'w') as fp:
+            json.dump(result,fp,indent=2)
 
     if args.output_dir is not None:
         print_rank_0('saving model ...',rank = args.global_rank)

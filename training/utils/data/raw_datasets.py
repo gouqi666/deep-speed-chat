@@ -53,7 +53,10 @@ class SingleTurnRLHFDataset(PromptRawDataset):
         
         train_path = os.path.join(local_path, "train.json")
         test_path = os.path.join(local_path, "test.json")
-        self.raw_datasets = load_dataset("json", data_files={'train':train_path,'test':test_path})
+        # if
+        self.raw_datasets = load_dataset("json", data_files={'train':train_path,'test':test_path}, field='data')
+        # if 'data' in self.raw_datasets:
+        #     self.raw_datasets = self.raw_datasets['data']
 
         self.sft_format = "Below is an instruction that describes a task. Write a response that appropriately completes the request.\n\n### Instruction:\n{}\n\n### Response:\n"
 
@@ -145,35 +148,37 @@ class DahoasFullhhrlhfDataset(PromptRawDataset):
 # English dataset
 class DahoasSyntheticinstructgptjpairwiseDataset(PromptRawDataset):
 
-    def __init__(self, output_path, seed, local_rank):
+    def __init__(self, output_path, seed, local_rank,local_path = None):
         super().__init__(output_path, seed, local_rank)
         self.dataset_name = "Dahoas/synthetic-instruct-gptj-pairwise"
         self.dataset_name_clean = "Dahoas_synthetic_instruct_gptj_pairwise"
-        self.raw_datasets = load_dataset(
-            "Dahoas/synthetic-instruct-gptj-pairwise")
+        train_path = os.path.join(local_path, "train.json")
+        test_path = os.path.join(local_path, "test.json")
+        self.raw_datasets = load_dataset("json", data_files={'train': train_path, 'test': test_path})
+        self.sft_format = "Below is an instruction that describes a task. Write a response that appropriately completes the request.\n\n### Instruction:\n{}\n\n### Response:\n"
 
     def get_train_data(self):
         from .data_utils import get_raw_dataset_split_index
         dataset = self.raw_datasets["train"]
-        index = get_raw_dataset_split_index(self.local_rank, self.output_path,
-                                            self.dataset_name_clean,
-                                            self.seed, "train_eval", "9,1", 0,
-                                            len(dataset))
-        dataset = Subset(dataset, index)
+        # index = get_raw_dataset_split_index(self.local_rank, self.output_path,
+        #                                     self.dataset_name_clean,
+        #                                     self.seed, "train_eval", "9,1", 0,
+        #                                     len(dataset))
+        # dataset = Subset(dataset, index)
         return dataset
 
     def get_eval_data(self):
         from .data_utils import get_raw_dataset_split_index
-        dataset = self.raw_datasets["train"]
-        index = get_raw_dataset_split_index(self.local_rank, self.output_path,
-                                            self.dataset_name_clean,
-                                            self.seed, "train_eval", "9,1", 1,
-                                            len(dataset))
-        dataset = Subset(dataset, index)
+        dataset = self.raw_datasets["test"]
+        # index = get_raw_dataset_split_index(self.local_rank, self.output_path,
+        #                                     self.dataset_name_clean,
+        #                                     self.seed, "train_eval", "9,1", 1,
+        #                                     len(dataset))
+        # dataset = Subset(dataset, index)
         return dataset
 
     def get_prompt(self, sample):
-        return " Human: " + sample['prompt'] + " Assistant:"
+        return self.sft_format.format(sample['prompt'])
 
     def get_chosen(self, sample):
         return " " + sample['chosen']
@@ -182,11 +187,10 @@ class DahoasSyntheticinstructgptjpairwiseDataset(PromptRawDataset):
         return " " + sample['rejected']
 
     def get_prompt_and_chosen(self, sample):
-        return " Human: " + sample['prompt'] + " Assistant: " + sample['chosen']
+        return self.sft_format.format(sample['prompt']) + sample['chosen']
 
     def get_prompt_and_rejected(self, sample):
-        return " Human: " + sample['prompt'] + " Assistant: " + sample[
-            'rejected']
+        return self.sft_format.format(sample['prompt']) + sample['rejected']
 
 
 # English dataset

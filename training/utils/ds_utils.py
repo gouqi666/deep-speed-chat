@@ -38,6 +38,19 @@ def get_train_ds_config(offload,
             "enabled": True,
             "loss_scale_window": 100
         },
+        # "fp16": {
+        #     "enabled": True,
+        #     "auto_cast": True,
+        #     "loss_scale": 0,
+        #     "initial_scale_power": 16,
+        #     "loss_scale_window": 1000,
+        #     "hysteresis": 2,
+        #     "min_loss_scale": 1
+        # },
+        # "bf16": {
+        #     "enabled": True,
+        #     "loss_scale_window": 100
+        # },
         "gradient_clipping": 1.0,
         "prescale_gradients": False,
         "wall_clock_breakdown": False,

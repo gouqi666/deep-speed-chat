@@ -74,7 +74,11 @@ class DeepSpeedPPOTrainer():
             seq = self.actor_model.module.generate(prompts,
                                                    attention_mask = attention_mask,
                                                    max_length=max_min_length,
-                                                   min_length=max_min_length)
+                                                   min_length=max_min_length,
+                                                   do_sample=True,
+                                                   top_p=0.95,
+                                                   top_k=30,
+                                                   )
 
         # Filter out seq with no asnwers (or very short). This happens when users directly use the pre-training ckpt without supervised finetuning
         # NOTE: this will causes each GPU has different number of examples
@@ -127,14 +131,14 @@ class DeepSpeedPPOTrainer():
         # decoded = self.reward_tokenizer.decode(masked_seq.tolist())
 
         with torch.no_grad():
-            output = self.actor_model(seq, attention_mask=attention_mask)
-            output_ref = self.ref_model(seq, attention_mask=attention_mask)
+            output = self.actor_model(seq.long(), attention_mask=attention_mask.long())
+            output_ref = self.ref_model(seq.long(), attention_mask=attention_mask.long())
             reward_score = self.reward_model.forward_value(
-                reward_input_ids, reward_attention_mask,
+                reward_input_ids.long(), reward_attention_mask.long(),
                 prompt_length=self.prompt_length)['chosen_end_scores'].detach(
                 )
             values = self.critic_model.forward_value(
-                reward_input_ids, reward_attention_mask, return_value_only=True).detach()[:, :-1]
+                reward_input_ids.long(), reward_attention_mask.long(), return_value_only=True).detach()[:, :-1]
 
         # if args.global_rank == 0:
         #     # print(decoded)

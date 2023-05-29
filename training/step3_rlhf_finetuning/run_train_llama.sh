@@ -5,13 +5,13 @@
 # DeepSpeed Team
 export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 export TRAIN_LLAMA='1'
-ACTOR_MODEL_PATH="/nfs2/wzt/models/llama-7b"
-CRITIC_MODEL_PATH="/nfs2/wzt/deep-speed-chat/training/step2_reward_model_finetuning/output"
+ACTOR_MODEL_PATH="/mnt/data01/shenyan/ckpt/llama_hf/llama-sft-7b"
+CRITIC_MODEL_PATH="/home/gq/deeplang/deep-speed-chat/training/step2_reward_model_finetuning/output/llama-7b"
 ACTOR_ZERO_STAGE=$3
 CRITIC_ZERO_STAGE=$4
 OUTPUT=$5
 if [ "$OUTPUT" == "" ]; then
-    OUTPUT=./output
+    OUTPUT=./output/llama-7b
 fi
 if [ "$ACTOR_ZERO_STAGE" == "" ]; then
     ACTOR_ZERO_STAGE=3
@@ -25,15 +25,14 @@ Num_Padding_at_Beginning=1 # this is model related
 
 Actor_Lr=9.65e-6
 Critic_Lr=5e-6
-
 deepspeed --master_port 12346 train_llama.py \
-   --data_path single_turn_rlhf \
-   --local_data_files /nfs2/wzt/deep-speed-chat/datasets/single_turn_rlhf \
+   --data_path Dahoas/synthetic-instruct-gptj-pairwise \
+   --local_data_files /home/gq/deeplang/deep-speed-chat/datasets/synthetic-instruct-gptj-pairwise \
    --data_split 2,4,4 \
    --actor_model_name_or_path $ACTOR_MODEL_PATH \
    --critic_model_name_or_path $CRITIC_MODEL_PATH \
    --num_padding_at_beginning 1 \
-   --per_device_train_batch_size 4 \
+   --per_device_train_batch_size 2 \
    --per_device_mini_train_batch_size 4 \
    --generation_batch_numbers 1 \
    --ppo_epochs 1 \

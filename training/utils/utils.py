@@ -154,3 +154,23 @@ def save_zero_three_model(model_ema, global_rank, save_dir, zero_stage=0):
         if global_rank == 0:
             torch.save(output_state_dict, output_model_file)
         del output_state_dict
+
+
+def draw(chosen_score,reject_score,output_path=None):
+    import numpy as np
+    import matplotlib.pyplot as plt
+    chosen_score = [c.item() for x in chosen_score for c in x]
+    reject_score = [c.item() for x in reject_score for c in x]
+    print('draw:',len(chosen_score),len(reject_score))
+    # print(chosen_score)
+    plt.hist(chosen_score, bins=25, density=True, alpha=0.6, color='g')
+    plt.hist(reject_score, bins=25, density=True, alpha=0.6, color='r')
+    # plt.annotate('Function 1', xy=(2, 0.5), xytext=(3, 0.8), arrowprops=dict(facecolor='red', shrink=0.05))
+    def get_mean_std(score):
+        mean = sum(score) / len(score)
+        std = np.sqrt(sum((np.array(score) - mean) ** 2) / len(score))
+        return mean,std
+    c_mean,c_std = get_mean_std(chosen_score)
+    r_mean,r_std = get_mean_std(reject_score)
+    plt.legend([f'chosen:N({c_mean:.2},{c_std:.2})',f'reject:N({r_mean:.2},{r_std:.2})'])
+    plt.savefig(output_path)

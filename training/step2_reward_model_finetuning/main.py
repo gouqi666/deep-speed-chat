@@ -7,7 +7,7 @@ import argparse
 import os
 import math
 import sys
-
+from tqdm import tqdm
 import torch
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
 from torch.utils.data.distributed import DistributedSampler
@@ -25,7 +25,7 @@ sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
 from utils.model.model_utils import create_critic_model
 from utils.data.data_utils import create_prompt_dataset, DataCollatorReward
-from utils.utils import print_rank_0, to_device, save_hf_format, set_random_seed, get_all_reduce_mean, get_optimizer_grouped_parameters, save_zero_three_model
+from utils.utils import print_rank_0, to_device, save_hf_format, set_random_seed, get_all_reduce_mean, get_optimizer_grouped_parameters, save_zero_three_model,draw
 from utils.ds_utils import get_train_ds_config
 from utils.module.lora import convert_linear_layer_to_lora, convert_lora_to_linear_layer, only_optimize_lora_parameters
 
@@ -53,7 +53,7 @@ def parse_args():
     parser.add_argument(
         '--data_output_path',
         type=str,
-        default='/tmp/data_files/',
+        default='./output/llama-7b/data_files/',
         help='Where to store the data-related files such as shuffle index.')
     parser.add_argument(
         "--model_name_or_path",
@@ -65,7 +65,7 @@ def parse_args():
     parser.add_argument(
         "--num_padding_at_beginning",
         type=int,
-        default=1,
+        default=0,
         help=
         "OPT model has a fixed number (1) of padding tokens at the beginning of the input. "
         "We did not see this in other models but keep it as an option for now.",
@@ -201,13 +201,14 @@ def main():
     # If passed along, set the training seed now.
     set_random_seed(args.seed)
     torch.distributed.barrier()
-
-    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path,
-                                              fast_tokenizer=True)
+    from transformers import LlamaTokenizer
+    tokenizer = LlamaTokenizer.from_pretrained(args.model_name_or_path, padding_side='right', truncation_side = 'right')
     tokenizer.pad_token = tokenizer.eos_token
 
-    rm_model = create_critic_model(args.model_name_or_path, tokenizer,
-                                   ds_config, args.num_padding_at_beginning)
+    rm_model = create_critic_model(args.model_name_or_path, tokenizer,ds_config)
+    # eval
+    # rm_model = create_critic_model(args.model_name_or_path, tokenizer, ds_config,
+    #                             num_padding_at_beginning=args.num_padding_at_beginning,  rlhf_training=True)
 
     if args.lora_dim > 0:
         rm_model = convert_linear_layer_to_lora(rm_model,
@@ -221,15 +222,14 @@ def main():
         args.local_rank, args.data_path, args.data_split,
         args.data_output_path, train_phase, args.seed, tokenizer,
         args.max_seq_len, args = args)
-
+    # raw_dataset = get_raw_dataset(args.dataset_name, args.output_path, 1234, -1, local_path=args.local_data_files)
+    print_rank_0('222:', len(train_dataset))
     # DataLoaders creation:
     data_collator = DataCollatorReward()
     if args.local_rank == -1:
         train_sampler = RandomSampler(train_dataset)
-        eval_sampler = SequentialSampler(eval_dataset)
     else:
         train_sampler = DistributedSampler(train_dataset)
-        eval_sampler = DistributedSampler(eval_dataset)
     train_dataloader = DataLoader(train_dataset,
                                   collate_fn=data_collator,
                                   sampler=train_sampler,
@@ -239,13 +239,15 @@ def main():
                                  collate_fn=data_collator,
                                  sampler=eval_sampler,
                                  batch_size=args.per_device_eval_batch_size)
-
+    print('242:',len(eval_dataloader))
     def evaluation_reward(model, eval_dataloader):
         model.eval()
         correct_predictions = 0
         total_predictions = 0
         scores = 0
-        for step, batch in enumerate(eval_dataloader):
+        chosen_scores = []
+        reject_scores = []
+        for step, batch in tqdm(enumerate(eval_dataloader),desc='eval...'):
             batch = to_device(batch, device)
             with torch.no_grad():
                 outputs = model(**batch)
@@ -253,18 +255,28 @@ def main():
             chosen = outputs["chosen_mean_scores"]
             rejected = outputs["rejected_mean_scores"]
             correct_predictions += (chosen > rejected).sum()
+            chosen_scores.append(chosen)
+            reject_scores.append(rejected)
             total_predictions += chosen.shape[0]
             scores += outputs["chosen_mean_scores"].mean().float()
-            if step == 99:  # For faster evaluation and debugging
-                break
-            acc = correct_predictions / total_predictions
-            scores = scores / (step + 1)
+            # if step == 99:  # For faster evaluation and debugging
+            #     break
+        chosen_scores = torch.cat(chosen_scores,dim=0)
+        reject_scores = torch.cat(reject_scores,dim=0)
+        acc = correct_predictions / total_predictions
+        scores = scores / (step + 1)
+
         try:
             acc = get_all_reduce_mean(acc).item()
             scores = get_all_reduce_mean(scores).item()
+            chosen_list = [torch.zeros_like(chosen_scores) for _ in range(torch.distributed.get_world_size())]
+            reject_list = [torch.zeros_like(reject_scores) for _ in range(torch.distributed.get_world_size())]
+            torch.distributed.all_gather(chosen_list, chosen_scores)
+            torch.distributed.all_gather(reject_list, reject_scores)
         except:
             pass
-        return scores, acc
+        return scores, acc, chosen_list, reject_list
+
 
     # Split weights in two groups, one with weight decay and the other not.
     optimizer_grouped_parameters = get_optimizer_grouped_parameters(
@@ -299,14 +311,15 @@ def main():
     # Train!
     print_rank_0("***** Running training *****", args.global_rank)
 
-    print_rank_0(
-        f"***** Evaluating reward, Epoch {0}/{args.num_train_epochs} *****",
-        args.global_rank)
-    reward_score, acc = evaluation_reward(rm_model, eval_dataloader)
+    reward_score, acc, chosen_list, reject_list = evaluation_reward(rm_model, eval_dataloader)
     print_rank_0(
         f"chosen_last_scores (higher is better) : {reward_score}, acc (higher is better) : {acc}",
         args.global_rank)
-
+    if args.global_rank == 0:
+        if not os.path.exists(os.path.join(args.output_dir,'img')):
+            os.makedirs(os.path.join(args.output_dir,'img'))
+    torch.distributed.barrier()
+    draw(chosen_list, reject_list, output_path=os.path.join(args.output_dir,'img/score_distribution_init'))
     for epoch in range(args.num_train_epochs):
         print_rank_0(
             f"Beginning of Epoch {epoch+1}/{args.num_train_epochs}, Total Micro Batches {len(train_dataloader)}",
@@ -317,6 +330,7 @@ def main():
             batch = to_device(batch, device)
             outputs = rm_model(**batch, use_cache=False)
             loss = outputs["loss"]
+            assert torch.isnan(loss).sum() == 0, print(loss)
             rm_model.backward(loss)
             rm_model.step()
             mean_loss += loss.item()
@@ -327,10 +341,11 @@ def main():
         print_rank_0(
             f"***** Evaluating reward, Epoch {epoch+1}/{args.num_train_epochs} *****",
             args.global_rank)
-        reward_score, acc = evaluation_reward(rm_model, eval_dataloader)
+        reward_score, acc, chosen_list, reject_list = evaluation_reward(rm_model, eval_dataloader)
         print_rank_0(
             f"chosen_last_scores (higher is better) : {reward_score}, acc (higher is better) : {acc}",
             args.global_rank)
+        draw(chosen_list,reject_list,output_path=os.path.join(args.output_dir,f'img/score_distribution_epoch{epoch}'))
         rm_model.tput_timer.update_epoch_count()
 
     if args.output_dir is not None:
