@@ -55,11 +55,11 @@ class DeepSpeedPPOTrainer():
         self.reward_tokenizer = self.rlhf_engine.reward_tokenizer
         self.args = args
         self.max_answer_seq_len = args.max_answer_seq_len
-        self.end_of_conversation_token_id = self.tokenizer(
-            args.end_of_conversation_token)['input_ids'][-1]
-
+        # self.end_of_conversation_token_id = self.tokenizer(
+        #     args.end_of_conversation_token)['input_ids'][-1]
+        self.end_of_conversation_token_id = self.tokenizer.encode(args.end_of_conversation_token)[-1]
         # Those value can be changed
-        self.kl_ctl = 0.02
+        self.kl_ctl = 0 # 0.02
         self.clip_reward_value = 5
         self.cliprange = 0.2
         self.cliprange_value = 0.2
@@ -74,15 +74,18 @@ class DeepSpeedPPOTrainer():
             seq = self.actor_model.module.generate(prompts,
                                                    attention_mask = attention_mask,
                                                    max_length=max_min_length,
-                                                   min_length=max_min_length,
+                                                   # min_length=max_min_length,
                                                    do_sample=True,
+                                                   temperature=1.1,
                                                    top_p=0.95,
-                                                   top_k=30,
+                                                   synced_gpus=True
                                                    )
 
         # Filter out seq with no asnwers (or very short). This happens when users directly use the pre-training ckpt without supervised finetuning
         # NOTE: this will causes each GPU has different number of examples
         batch_size = seq.shape[0]
+
+
         prompt_length = prompts.shape[1]
         ans = seq[:, prompt_length:]
         self.prompt_length = prompt_length
@@ -114,10 +117,13 @@ class DeepSpeedPPOTrainer():
         ans_decoded = [self.tokenizer.decode(item.tolist()) for item in ans_seq]
         ans_decoded = [sent.split(self.tokenizer.eos_token)[0].strip() for sent in ans_decoded]
 
-
         # prompt_reward_input = self.reward_tokenizer(prompt_decoded, return_tensors='pt', padding='max_length', max_length=self.prompt_length, truncation=True, add_special_tokens = False)
         # ans_reward_input = self.reward_tokenizer(ans_decoded, return_tensors='pt', padding='max_length', max_length=self.max_answer_seq_len, truncation=True, add_special_tokens = False)
-        reward_input = [ prompt + ans for prompt, ans in zip(prompt_decoded, ans_decoded)]
+
+        # reward_input = [prompt + ans for prompt, ans in zip(prompt_decoded, ans_decoded)]
+        prefix_user = "Human:"
+        prefix_bot = "\n\nAssistant:"
+        reward_input = [prefix_user+prompt+prefix_bot+ans for prompt, ans in zip(prompt_decoded, ans_decoded)]
         reward_input = self.reward_tokenizer(reward_input,
                                              return_tensors='pt',
                                              padding='max_length',
@@ -137,8 +143,11 @@ class DeepSpeedPPOTrainer():
                 reward_input_ids.long(), reward_attention_mask.long(),
                 prompt_length=self.prompt_length)['chosen_end_scores'].detach(
                 )
+            # values = self.critic_model.forward_value(
+            #     reward_input_ids.long(), reward_attention_mask.long(), return_value_only=True).detach()[:, :-1]
+            # critic 和 actor 同一个初始化
             values = self.critic_model.forward_value(
-                reward_input_ids.long(), reward_attention_mask.long(), return_value_only=True).detach()[:, :-1]
+                seq, attention_mask.long(), return_value_only=True).detach()[:, :-1]
 
         # if args.global_rank == 0:
         #     # print(decoded)
@@ -156,14 +165,16 @@ class DeepSpeedPPOTrainer():
             'value': values,
             'rewards': reward_score,
             'input_ids': seq,
-            "attention_mask": attention_mask
+            "attention_mask": attention_mask,
+            'reward_input_ids': reward_input_ids,
+            'reward_attention_mask': reward_attention_mask
         }
 
     def compute_rewards(self, prompts, log_probs, ref_log_probs, reward_score,
                         action_mask):
 
         kl_divergence_estimate = -self.kl_ctl * (log_probs - ref_log_probs)
-        rewards = kl_divergence_estimate
+        rewards = kl_divergence_estimate # batch_size * seq_len
         start = prompts.shape[1] - 1
         ends = start + action_mask[:, start:].sum(1)
         reward_clip = torch.clamp(reward_score, -self.clip_reward_value,
@@ -180,36 +191,46 @@ class DeepSpeedPPOTrainer():
         prompts = inputs['prompts']
         log_probs = inputs['logprobs']
         ref_log_probs = inputs['ref_logprobs']
-        reward_score = inputs['rewards']
-        values = inputs['value']
+        reward_score = inputs['rewards'] # detached
+        values = inputs['value'] # detached
         attention_mask = inputs['attention_mask']
         seq = inputs['input_ids']
+
+
 
         start = prompts.size()[-1] - 1
         action_mask = attention_mask[:, 1:]
 
         old_values = values
-        with torch.no_grad():
+        with torch.no_grad(): # KL penalty detached
             old_rewards = self.compute_rewards(prompts, log_probs,
                                                ref_log_probs, reward_score,
                                                action_mask)
             advantages, returns = self.get_advantages_and_returns(
                 old_values, old_rewards, start)
-
         ### process the new outputs
         batch = {'input_ids': seq, "attention_mask": attention_mask}
         actor_prob = self.actor_model(**batch, use_cache=False).logits
         actor_log_prob = gather_log_probs(actor_prob[:, :-1, :],
-                                          inputs['input_ids'][:, 1:])
+                                          seq[:, 1:])
+
         actor_loss = self.actor_loss_fn(actor_log_prob[:, start:],
                                         log_probs[:, start:],
                                         advantages,
                                         action_mask[:, start:])
         self.actor_model.backward(actor_loss)
         self.actor_model.step()
+        reward_batch = {'input_ids': inputs['reward_input_ids'],'attention_mask':inputs['reward_attention_mask']}
+
+        # value = self.critic_model.forward_value(**reward_batch,
+        #                                         return_value_only=True,
+        #                                         use_cache=False)[:, :-1]
+
+
         value = self.critic_model.forward_value(**batch,
                                                 return_value_only=True,
                                                 use_cache=False)[:, :-1]
+
         critic_loss = self.critic_loss_fn(value[:, start:],
                                           old_values[:,start:],
                                           returns,
@@ -236,6 +257,9 @@ class DeepSpeedPPOTrainer():
             old_values - self.cliprange_value,
             old_values + self.cliprange_value,
         )
+        length = returns.size()[-1]
+        values = values[:,:length]
+        values_clipped = values_clipped[:,:length]
         vf_loss1 = (values - returns)**2
         vf_loss2 = (values_clipped - returns)**2
         vf_loss = 0.5 * torch.sum(
@@ -246,14 +270,15 @@ class DeepSpeedPPOTrainer():
         # Adopted from https://github.com/CarperAI/trlx/blob/main/trlx/models/modeling_ppo.py#L134
         lastgaelam = 0
         advantages_reversed = []
-        length = rewards.size()[-1]
+
+        length = rewards.size()[-1] # 这里的length是batch的最后一个，更精确的话可以去掉padding
         for t in reversed(range(start, length)):
             nextvalues = values[:, t + 1] if t < length - 1 else 0.0
             delta = rewards[:, t] + self.gamma * nextvalues - values[:, t]
             lastgaelam = delta + self.gamma * self.lam * lastgaelam
             advantages_reversed.append(lastgaelam)
-        advantages = torch.stack(advantages_reversed[::-1], dim=1)
-        returns = advantages + values[:, start:]
+        advantages = torch.stack(advantages_reversed[::-1], dim=1) # b * t
+        returns = advantages + values[:, start: length]
         return advantages.detach(), returns
 
     def _validate_training_mode(self):

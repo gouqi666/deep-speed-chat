@@ -11,7 +11,7 @@ from tqdm import tqdm
 import torch
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
 from torch.utils.data.distributed import DistributedSampler
-
+import numpy as np
 from transformers import (
     AutoTokenizer,
     SchedulerType,
@@ -205,17 +205,17 @@ def main():
     tokenizer = LlamaTokenizer.from_pretrained(args.model_name_or_path, padding_side='right', truncation_side = 'right')
     tokenizer.pad_token = tokenizer.eos_token
 
-    rm_model = create_critic_model(args.model_name_or_path, tokenizer,ds_config)
+    rm_model_ = create_critic_model(args.model_name_or_path, tokenizer,ds_config)
     # eval
-    # rm_model = create_critic_model(args.model_name_or_path, tokenizer, ds_config,
+    # rm_model_ = create_critic_model(args.model_name_or_path, tokenizer, None ,
     #                             num_padding_at_beginning=args.num_padding_at_beginning,  rlhf_training=True)
 
     if args.lora_dim > 0:
-        rm_model = convert_linear_layer_to_lora(rm_model,
+        rm_model = convert_linear_layer_to_lora(rm_model_,
                                                 args.lora_module_name,
                                                 args.lora_dim)
         if args.only_optimize_lora:
-            rm_model = only_optimize_lora_parameters(rm_model)
+            rm_model_ = only_optimize_lora_parameters(rm_model)
 
     train_phase = 2
     train_dataset, eval_dataset = create_prompt_dataset(
@@ -223,7 +223,8 @@ def main():
         args.data_output_path, train_phase, args.seed, tokenizer,
         args.max_seq_len, args = args)
     # raw_dataset = get_raw_dataset(args.dataset_name, args.output_path, 1234, -1, local_path=args.local_data_files)
-    print_rank_0('222:', len(train_dataset))
+    print_rank_0('Train Dataset Length:', len(train_dataset))
+    print_rank_0('Eval Dataset Length:', len(eval_dataset))
     # DataLoaders creation:
     data_collator = DataCollatorReward()
     if args.local_rank == -1:
@@ -239,7 +240,6 @@ def main():
                                  collate_fn=data_collator,
                                  sampler=eval_sampler,
                                  batch_size=args.per_device_eval_batch_size)
-    print('242:',len(eval_dataloader))
     def evaluation_reward(model, eval_dataloader):
         model.eval()
         correct_predictions = 0
@@ -266,21 +266,21 @@ def main():
         acc = correct_predictions / total_predictions
         scores = scores / (step + 1)
 
-        try:
-            acc = get_all_reduce_mean(acc).item()
-            scores = get_all_reduce_mean(scores).item()
-            chosen_list = [torch.zeros_like(chosen_scores) for _ in range(torch.distributed.get_world_size())]
-            reject_list = [torch.zeros_like(reject_scores) for _ in range(torch.distributed.get_world_size())]
-            torch.distributed.all_gather(chosen_list, chosen_scores)
-            torch.distributed.all_gather(reject_list, reject_scores)
-        except:
-            pass
-        return scores, acc, chosen_list, reject_list
+        # try:
+        #     acc = get_all_reduce_mean(acc).item()
+        #     scores = get_all_reduce_mean(scores).item()
+        #     chosen_list = [torch.zeros_like(chosen_scores) for _ in range(torch.distributed.get_world_size())]
+        #     reject_list = [torch.zeros_like(reject_scores) for _ in range(torch.distributed.get_world_size())]
+        #     torch.distributed.all_gather(chosen_list, chosen_scores)
+        #     torch.distributed.all_gather(reject_list, reject_scores)
+        # except:
+        #     pass
+        return scores, acc, chosen_scores, reject_scores
 
 
     # Split weights in two groups, one with weight decay and the other not.
     optimizer_grouped_parameters = get_optimizer_grouped_parameters(
-        rm_model, args.weight_decay)
+        rm_model_, args.weight_decay)
 
     AdamOptimizer = DeepSpeedCPUAdam if args.offload else FusedAdam
     optimizer = AdamOptimizer(optimizer_grouped_parameters,
@@ -298,19 +298,16 @@ def main():
     )
 
     rm_model, optimizer, _, lr_scheduler = deepspeed.initialize(
-        model=rm_model,
+        model=rm_model_,
         optimizer=optimizer,
         args=args,
         config=ds_config,
         lr_scheduler=lr_scheduler,
         dist_init_required=True)
-
     if args.gradient_checkpointing:
         rm_model.gradient_checkpointing_enable()
-
     # Train!
     print_rank_0("***** Running training *****", args.global_rank)
-
     reward_score, acc, chosen_list, reject_list = evaluation_reward(rm_model, eval_dataloader)
     print_rank_0(
         f"chosen_last_scores (higher is better) : {reward_score}, acc (higher is better) : {acc}",
@@ -318,24 +315,35 @@ def main():
     if args.global_rank == 0:
         if not os.path.exists(os.path.join(args.output_dir,'img')):
             os.makedirs(os.path.join(args.output_dir,'img'))
+        draw(chosen_list, reject_list, output_path=os.path.join(args.output_dir, 'img/score_distribution_init'))
     torch.distributed.barrier()
-    draw(chosen_list, reject_list, output_path=os.path.join(args.output_dir,'img/score_distribution_init'))
     for epoch in range(args.num_train_epochs):
         print_rank_0(
             f"Beginning of Epoch {epoch+1}/{args.num_train_epochs}, Total Micro Batches {len(train_dataloader)}",
             args.global_rank)
         rm_model.train()
         mean_loss = 0
+        chosen_mean_score = []
+        rejected_mean_score = []
         for step, batch in enumerate(train_dataloader):
             batch = to_device(batch, device)
             outputs = rm_model(**batch, use_cache=False)
             loss = outputs["loss"]
+            chosen_mean_score.extend(outputs['chosen_mean_scores'].tolist())
+            rejected_mean_score.extend(outputs['rejected_mean_scores'].tolist())
             assert torch.isnan(loss).sum() == 0, print(loss)
             rm_model.backward(loss)
             rm_model.step()
             mean_loss += loss.item()
         print_rank_0(
             f"Epoch {epoch+1}/{args.num_train_epochs} with loss {mean_loss/(step+1)}",
+            args.global_rank)
+        print_rank_0(
+            f"Epoch {epoch+1} / Chosen_mean_score: {sum(chosen_mean_score)/len(chosen_mean_score)}, Rejected_mean_score:{sum(rejected_mean_score)/len(rejected_mean_score)}",
+            args.global_rank)
+        total_score = chosen_mean_score + rejected_mean_score
+        print_rank_0(
+            f"Epoch {epoch+1} / Total_score_mean: {sum(total_score)/len(total_score)}, variance:{np.var(total_score)}",
             args.global_rank)
         # Evaluate reward_loss on the validation set.
         print_rank_0(
@@ -345,6 +353,7 @@ def main():
         print_rank_0(
             f"chosen_last_scores (higher is better) : {reward_score}, acc (higher is better) : {acc}",
             args.global_rank)
+
         draw(chosen_list,reject_list,output_path=os.path.join(args.output_dir,f'img/score_distribution_epoch{epoch}'))
         rm_model.tput_timer.update_epoch_count()
 

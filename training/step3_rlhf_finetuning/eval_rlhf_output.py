@@ -60,27 +60,52 @@ def load_stuff(model_name_or_path, num_padding_at_beginning):
     #                                           fast_tokenizer=True)
     tokenizer = LlamaTokenizer.from_pretrained(model_name_or_path, padding_side='right', truncation_side='right')
     tokenizer.pad_token = tokenizer.eos_token
-    from utils.ds_utils import get_eval_ds_config
-    ds_eval_config = get_eval_ds_config(offload=False, stage=0)
-    print(ds_eval_config)
-    model = create_critic_model(model_name_or_path, tokenizer,ds_config=ds_eval_config,
+    model = create_critic_model(model_name_or_path, tokenizer,ds_config=None,
                                 num_padding_at_beginning=num_padding_at_beginning, rlhf_training=True)
     return model, tokenizer
 
 from tqdm import tqdm
 if __name__ == "__main__":
     os.environ['TRAIN_LLAMA'] = '1'
-    data_path = '/home/gq/deeplang/deep-speed-chat/training/step3_rlhf_finetuning/output/llama-7b/actor/rl_hf_pair_result_beam3.json'
-    with open(data_path,'r',encoding='utf-8') as f:
-        data = json.load(f)
-
-    model_path = '/home/gq/deeplang/deep-speed-chat/training/step2_reward_model_finetuning/output/llama-7b-v2'
+    data_path = '/mnt/gouqi/deep-speed-chat/training/step3_rlhf_finetuning/output/llama-7b/actor'
+    before_ppo_path = os.path.join(data_path,'before_ppo.json')
+    after_ppo_path = os.path.join(data_path,'after_ppo_epoch_0.json')
+    with open(before_ppo_path,'r',encoding='utf-8') as f:
+        before_ppo_data = json.load(f)
+    with open(after_ppo_path, 'r', encoding='utf-8') as f:
+        after_ppo_data = json.load(f)
+    dct = {}
+    sft_format = "Below is an instruction that describes a task. Write a response that appropriately completes the request.\n\n### Instruction:\n{}\n\n### Response:\n"
+    with open('/mnt/gouqi/deep-speed-chat/datasets/synthetic-instruct-gptj-pairwise/test.json', 'r', encoding='utf-8') as f:
+        for line in f.readlines():
+            item = json.loads(line)
+            dct[sft_format.format(item['prompt'])] = [item['chosen'], item['rejected']]
+    data = []
+    for before,after in zip(before_ppo_data,after_ppo_data):
+        for i in range(len(before['prompt'])):
+            item = {}
+            assert before['prompt'][i] == after['prompt'][i]
+            item['prompt'] = before['prompt'][i]
+            item['before_ppo'] = before['ans'][i]
+            item['after_ppo'] = after['ans'][i]
+            try:
+                item['chosen'] = dct[item['prompt']][0]
+                item['rejected'] = dct[item['prompt']][1]
+            except Exception as e:
+                print(item['prompt'])
+                print('not found chosen')
+                exit()
+            data.append(item)
+    model_path = '/mnt/gouqi/deep-speed-chat/training/step2_reward_model_finetuning/output/llama-7b'
     rm_model, tokenizer = load_stuff(model_path,1)
     device = torch.device("cuda:0")
     rm_model.to(device)
     print(device)
     rm_model.eval()
-
+    chosen_scores = []
+    rejected_scores = []
+    before_ppo_scores = []
+    after_ppo_scores = []
     for sent in tqdm(data):
         prompt = sent['prompt']
         good_ans = sent['after_ppo']
@@ -116,8 +141,18 @@ if __name__ == "__main__":
             outputs = rm_model(**batch)
         sent['chosen_score'] = outputs["chosen_mean_scores"].item()
         sent['rejected_score'] = outputs["rejected_mean_scores"].item()
-
-    with open(os.path.join('/home/gq/deeplang/deep-speed-chat/training/step3_rlhf_finetuning/output/llama-7b/actor/','eval_rlhf.json'),'w',encoding='utf-8') as f:
+        chosen_scores.append(sent['chosen_score'])
+        rejected_scores.append(sent['rejected_score'])
+        before_ppo_scores.append(sent['before_score'])
+        after_ppo_scores.append(sent['after_score'])
+    print('Total Length:',len(chosen_scores))
+    print('chosen_score:',sum(chosen_scores) / len(chosen_scores))
+    print('rejected_score:',sum(rejected_scores) / len(rejected_scores))
+    print('before_ppo_score:',sum(before_ppo_scores) / len(before_ppo_scores))
+    print('after_ppo_score:',sum(after_ppo_scores) / len(after_ppo_scores))
+    print('after > before:',sum([after_ppo_scores[i] > before_ppo_scores[i] for i in range(len(chosen_scores))]))
+    print('chosen > rejected:',sum([chosen_scores[i] > rejected_scores[i] for i in range(len(chosen_scores))]))
+    with open(os.path.join('/mnt/gouqi/deep-speed-chat/training/step3_rlhf_finetuning/output/llama-7b/actor','eval_rlhf.json'),'w',encoding='utf-8') as f:
         json.dump(data,f,ensure_ascii=False,indent=4)
         
 

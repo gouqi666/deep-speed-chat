@@ -17,7 +17,9 @@ from . import raw_datasets
 
 
 def get_raw_dataset(dataset_name, output_path, seed, local_rank, local_path = None):
-    if dataset_name == "single_turn_rlhf":
+    if dataset_name == "MossSftDataset":
+        return raw_datasets.MossSftDataset(output_path, seed, local_rank, local_path)
+    elif dataset_name == "single_turn_rlhf":
         return raw_datasets.SingleTurnRLHFDataset(output_path, seed, local_rank, local_path)
     elif dataset_name == "Dahoas/rm-static":
         return raw_datasets.DahoasRmstaticDataset(output_path, seed,
@@ -140,6 +142,7 @@ class PromptDataset(Dataset):
 
 def create_dataset_split(current_dataset, raw_dataset, train_phase, tokenizer,
                          end_of_conversation_token, max_seq_len,args):
+
     prompt_dataset = []
     chosen_dataset = []
     reject_dataset = []
@@ -214,15 +217,15 @@ def create_dataset_split(current_dataset, raw_dataset, train_phase, tokenizer,
             # tokenize the text
             prompt = raw_dataset.get_prompt(tmp_data)
             if prompt is not None:
-                prompt_ids = tokenizer.encode(prompt,add_special_tokens = False)
+                prompt_ids = tokenizer.encode(prompt) #
                 if len(prompt_ids)>max_prompt_len:
                     prompt_ids = prompt_ids[-max_prompt_len:]
                 attention_mask = [1]*len(prompt_ids)
                 prompt_token = {}
-                prompt_token["input_ids"] = torch.LongTensor(prompt_ids).flip(-1)
-                prompt_token["attention_mask"] = torch.LongTensor(attention_mask).flip(-1)
+                prompt_token["input_ids"] = torch.LongTensor(prompt_ids)
+                prompt_token["attention_mask"] = torch.LongTensor(attention_mask)
                 prompt_dataset.append(prompt_token)
-                
+
     return PromptDataset(prompt_dataset, chosen_dataset, reject_dataset,prompt_length,
                          tokenizer.pad_token_id, train_phase)
 
@@ -233,7 +236,6 @@ def create_dataset(local_rank, dataset_name, data_split, output_path,
     raw_dataset = get_raw_dataset(dataset_name, output_path, seed, local_rank, local_path=args.local_data_files)
     train_dataset = raw_dataset.get_train_data()
     print('229:',len(train_dataset))
-
     train_index = get_raw_dataset_split_index(local_rank, output_path,
                                               raw_dataset.dataset_name_clean,
                                               seed, "train", data_split,
@@ -393,12 +395,12 @@ class DataCollatorRLHF:
         length = prompt.size()[-1]
         pad_length = self.max_token_len - length
         if pad_length > 0:
-            batch["prompt"] = F.pad(prompt.flip(-1),
-                                    pad=(pad_length, 0),
+            batch["prompt"] = F.pad(prompt,
+                                    pad=(0,pad_length),
                                     mode='constant',
                                     value=pad_token_id)
-            batch["prompt_att_mask"] = F.pad(prompt_mask.flip(-1),
-                                             pad=(pad_length, 0),
+            batch["prompt_att_mask"] = F.pad(prompt_mask,
+                                             pad=(0,pad_length),
                                              mode='constant',
                                              value=0)
         else:
@@ -466,8 +468,8 @@ class MiniDataset:
 
     def __init__(self, max_size, small_batch_size):
         self.dataset = []
-        self.max_size = max_size
-        self.small_batch_size = small_batch_size
+        self.max_size = max_size  # 1
+        self.small_batch_size = small_batch_size # train_batch_size
 
     def seperate(self):
         small_dataset = []

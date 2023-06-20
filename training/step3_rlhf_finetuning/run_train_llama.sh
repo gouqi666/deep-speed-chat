@@ -5,13 +5,15 @@
 # DeepSpeed Team
 export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 export TRAIN_LLAMA='1'
-ACTOR_MODEL_PATH="/mnt/data01/shenyan/ckpt/llama_hf/llama-sft-7b"
-CRITIC_MODEL_PATH="/home/gq/deeplang/deep-speed-chat/training/step2_reward_model_finetuning/output/llama-7b"
+OMP_NUM_THREADS=1
+MKL_NUM_THREADS=1
+ACTOR_MODEL_PATH="/mnt/data01/shenyan/ckpt/llama_hf/DLM-7b-multiturn"
+CRITIC_MODEL_PATH="/mnt/data01/shenyan/ckpt/llama_hf/Ziya-LLaMA-7B-Reward"
 ACTOR_ZERO_STAGE=$3
 CRITIC_ZERO_STAGE=$4
 OUTPUT=$5
 if [ "$OUTPUT" == "" ]; then
-    OUTPUT=./output/llama-7b
+    OUTPUT=/home/gq/deeplang/deep-speed-chat/training/step3_rlhf_finetuning/output/llama-7b-reward-ziya-v4
 fi
 if [ "$ACTOR_ZERO_STAGE" == "" ]; then
     ACTOR_ZERO_STAGE=3
@@ -25,10 +27,10 @@ Num_Padding_at_Beginning=1 # this is model related
 
 Actor_Lr=9.65e-6
 Critic_Lr=5e-6
-deepspeed --master_port 12346 train_llama.py \
-   --data_path Dahoas/synthetic-instruct-gptj-pairwise \
-   --local_data_files /home/gq/deeplang/deep-speed-chat/datasets/synthetic-instruct-gptj-pairwise \
-   --data_split 2,4,4 \
+deepspeed --master_port 12349 train_llama.py \
+   --data_path MossSftDataset \
+   --local_data_files /home/gq/deeplang/deep-speed-chat/datasets/moss/ \
+   --data_split 0,0,1 \
    --actor_model_name_or_path $ACTOR_MODEL_PATH \
    --critic_model_name_or_path $CRITIC_MODEL_PATH \
    --num_padding_at_beginning 1 \
@@ -50,5 +52,6 @@ deepspeed --master_port 12346 train_llama.py \
    --actor_zero_stage $ACTOR_ZERO_STAGE \
    --critic_zero_stage $CRITIC_ZERO_STAGE \
    --output_dir $OUTPUT \
+   --use_ziya \
    2>&1 | tee $OUTPUT/training.log
 # --data_path Dahoas/rm-static Dahoas/full-hh-rlhf Dahoas/synthetic-instruct-gptj-pairwise yitingxie/rlhf-reward-datasets openai/webgpt_comparisons stanfordnlp/SHP \

@@ -3,6 +3,7 @@
 
 # DeepSpeed Team
 import torch
+import numpy as np
 from torch import nn
 from ..utils import print_rank_0
 
@@ -67,37 +68,32 @@ class LlamaRewardModel(nn.Module):
             chosen_reward = chosen_rewards[i]
             rejected_reward = rejected_rewards[i]
             # 使用的left paddding/truncate
-            divergence_ind = prompt_length[i] - 1
+            divergence_ind = prompt_length[i]
             # check_divergence = (chosen_id != rejected_id).nonzero()
             chosen_end = (chosen_id != self.PAD_ID).nonzero()[-1] + 1
-
             rejected_end = (rejected_id != self.PAD_ID).nonzero()[-1] + 1
-            # if len(check_divergence) == 0:
-            #     divergence_ind = 0
-            # else:
-            #     divergence_ind = check_divergence[0]
-            if divergence_ind == chosen_end:
-                print_rank_0(divergence_ind)
-                print_rank_0(chosen_end)
-                print_rank_0(rejected_end)
-                print_rank_0(chosen_id)
-                print_rank_0(rejected_id)
-                exit()
             c_truncated_reward = chosen_reward[divergence_ind:chosen_end]
             r_truncated_reward = rejected_reward[divergence_ind:rejected_end]
-            chosen_mean_scores.append(c_truncated_reward.mean())  #use the end score for refernence
-            rejected_mean_scores.append(r_truncated_reward.mean())
+            # use the end score for refernence
 
-
+            chosen_mean_scores.append(c_truncated_reward[-1])
+            rejected_mean_scores.append(r_truncated_reward[-1])
             loss += -torch.log(
-                torch.sigmoid(c_truncated_reward[-1] - r_truncated_reward[-1]))
+                torch.sigmoid(c_truncated_reward[-1] - r_truncated_reward[-1])
+            )
+
+            # use the mean score of response
+
+            # loss += -torch.nn.functional.logsigmoid(c_truncated_reward -
+            #                                         r_truncated_reward).mean()
+
         loss = loss / bs
-        chosen_mean_scores = torch.stack(chosen_mean_scores)
-        rejected_mean_scores = torch.stack(rejected_mean_scores)
+        chosen_scores = torch.stack(chosen_mean_scores)
+        rejected_scores = torch.stack(rejected_mean_scores)
         return {
             "loss": loss,
-            "chosen_mean_scores": chosen_mean_scores,
-            "rejected_mean_scores": rejected_mean_scores,
+            "chosen_mean_scores": chosen_scores,
+            "rejected_mean_scores": rejected_scores,
         }
 
     def forward_value(self,
@@ -117,18 +113,26 @@ class LlamaRewardModel(nn.Module):
             attention_mask=attention_mask,
             inputs_embeds=inputs_embeds,
             use_cache=use_cache)
-        hidden_states = transformer_outputs[0]
-        values = self.v_head(hidden_states).squeeze(-1)
+        hidden_states = transformer_outputs[0] # b * sqe_len * hidden_size
+        values = self.v_head(hidden_states).squeeze(-1) # b * seq_len
+
+        # normal
+        mean = 0
+        var = 10
+        values = (values - mean) / np.sqrt(var)
         if return_value_only:
             return values
         else:
+            '''
+            original code, I think the prompt length is not accurate,so I abandoned it.
+            
             # [0 0 0 0 prompt, answer, 0 0 0 0 ] for step 3, we have padding at the beginning
             # [prompt, answer, 0, 0, 0, 0] this is normal
             assert prompt_length > 1, "prompt_length must be greater than 1 to help select the end score"
             bs = values.size(0)
             seq_len = input_ids.shape[1]
             chosen_end_scores = [
-            ]  # we use this name for consistency with the original forwad function
+            ]  # we use this name for consistency with the original forward function
             for i in range(bs):
                 input_id = input_ids[i]
                 value = values[i]
@@ -138,7 +142,26 @@ class LlamaRewardModel(nn.Module):
                 c_ind = c_inds[0].item() + prompt_length if len(
                     c_inds) > 0 else seq_len
                 chosen_end_scores.append(value[c_ind - 1])
+
+            chosen_end_scores = [(x - mean)/np.sqrt(var) for x in chosen_end_scores]
+            # print_rank_0(chosen_end_scores)
             return {
                 "values": values,
                 "chosen_end_scores": torch.stack(chosen_end_scores),
             }
+            '''
+            if attention_mask is None:
+                reward = values[:,-1]
+            else:
+                last_index = attention_mask.cumsum(dim=1).argmax(dim=1) # (bs,)
+                reward = []
+                bs = last_index.size(0)
+                for i in range(bs):
+                    reward.append(values[i,last_index[i]])
+                reward = torch.stack(reward)
+            return {
+                "values": values,
+                "chosen_end_scores": reward,
+            }
+
+

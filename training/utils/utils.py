@@ -57,7 +57,10 @@ def save_hf_format(model, tokenizer, args, sub_folder=""):
             del save_dict[key]
     torch.save(save_dict, output_model_file)
     model_to_save.config.to_json_file(output_config_file)
-    tokenizer.save_vocabulary(output_dir)
+    try:
+        tokenizer.save_vocabulary(output_dir)
+    except Exception as e:
+        pass
 
 
 def set_random_seed(seed):
@@ -140,7 +143,7 @@ def save_zero_three_model(model_ema, global_rank, save_dir, zero_stage=0):
             torch.save(model_to_save.state_dict(), output_model_file)
     else:
         output_state_dict = {}
-        for k, v in model_to_save.named_parameters():
+        for k, v in model_to_save.named_parameters(): #
 
             if hasattr(v, 'ds_id'):
                 with deepspeed.zero.GatheredParameters(_z3_params_to_fetch([v
@@ -159,8 +162,8 @@ def save_zero_three_model(model_ema, global_rank, save_dir, zero_stage=0):
 def draw(chosen_score,reject_score,output_path=None):
     import numpy as np
     import matplotlib.pyplot as plt
-    chosen_score = [c.item() for x in chosen_score for c in x]
-    reject_score = [c.item() for x in reject_score for c in x]
+    chosen_score = chosen_score.tolist()
+    reject_score = reject_score.tolist()
     print('draw:',len(chosen_score),len(reject_score))
     # print(chosen_score)
     plt.hist(chosen_score, bins=25, density=True, alpha=0.6, color='g')

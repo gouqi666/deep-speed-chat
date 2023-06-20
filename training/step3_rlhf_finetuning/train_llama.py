@@ -285,6 +285,9 @@ def parse_args():
     parser.add_argument('--enable_ema',
                         action='store_true',
                         help='Enable EMA checkpoint for the model.')
+    parser.add_argument('--use_ziya',
+                        action='store_true',
+                        help='rope type')
 
     parser = deepspeed.add_config_arguments(parser)
     args = parser.parse_args()
@@ -307,10 +310,12 @@ def parse_args():
 
 def create_datasets(args, tokenizer, train_phase=3 ):
     unsupervised_training_enabled = args.unsupervised_dataset_name and args.unsupervised_dataset_config_name
+    args.data_output_path = os.path.join(args.output_dir,'data')
     prompt_train_dataset, prompt_eval_dataset = create_prompt_dataset(
         args.local_rank, args.data_path, args.data_split,
         args.data_output_path, train_phase, args.seed, tokenizer,
         args.max_prompt_seq_len, args = args)
+    print_rank_0(f'train_dataset:{len(prompt_train_dataset)}')
     if unsupervised_training_enabled:
         unsupervised_train_dataset = get_unsupervised_data(args, tokenizer)
     else:
@@ -322,13 +327,13 @@ def create_datasets(args, tokenizer, train_phase=3 ):
                                      tokenizer=tokenizer)
     if args.local_rank == -1:
         prompt_train_sampler = RandomSampler(prompt_train_dataset)
-        prompt_eval_sampler = RandomSampler(prompt_eval_dataset)
+        prompt_eval_sampler = SequentialSampler(prompt_eval_dataset)
         if unsupervised_training_enabled:
             unsupervised_train_sampler = RandomSampler(
                 unsupervised_train_dataset)
     else:
         prompt_train_sampler = DistributedSampler(prompt_train_dataset)
-        prompt_eval_sampler = DistributedSampler(prompt_eval_dataset) # SequentialSampler
+        prompt_eval_sampler = SequentialSampler(prompt_eval_dataset) # SequentialSampler
 
         if unsupervised_training_enabled:
             unsupervised_train_sampler = DistributedSampler(
@@ -343,7 +348,7 @@ def create_datasets(args, tokenizer, train_phase=3 ):
         prompt_eval_dataset,
         collate_fn=data_collator,
         sampler=prompt_eval_sampler,
-        batch_size=args.per_device_train_batch_size)
+        batch_size=8)
 
     if unsupervised_training_enabled:
         unsupervised_train_dataloader = DataLoader(
@@ -396,8 +401,16 @@ def main():
     # create common tokenizer based on actor model
     from transformers import LlamaForCausalLM,LlamaTokenizer
     import os
+    print('402:',os.environ['TRAIN_LLAMA'],os.environ['TRAIN_LLAMA'] == '1')
     if os.environ['TRAIN_LLAMA'] == '1':
-        actor_tokenizer = LlamaTokenizer.from_pretrained(args.actor_model_name_or_path)
+        # actor_tokenizer = LlamaTokenizer.from_pretrained(args.actor_model_name_or_path)
+        sys.path.append('/home/gq/deeplang/deep-speed-chat/MixedTokenizer')
+        from mixed_tokenizer import MixedLLaMATokenizer
+        tokenizer_dir = "/home/gq/deeplang/deep-speed-chat/MixedTokenizer/tokenizer_files"
+        actor_tokenizer = MixedLLaMATokenizer(
+            "{}/tokenizer_llama_en.model".format(tokenizer_dir),
+            "{}/tokenizer_llama_zh.json".format(tokenizer_dir)
+        )
     else:
         actor_tokenizer = AutoTokenizer.from_pretrained(args.actor_model_name_or_path,
                                               fast_tokenizer=True)
@@ -407,9 +420,12 @@ def main():
     actor_tokenizer.eos_token = '</s>'
     actor_tokenizer.pad_token = actor_tokenizer.eos_token
 
-    reward_tokenizer = AutoTokenizer.from_pretrained(args.critic_model_name_or_path,
-                                                  fast_tokenizer=True)
-    reward_tokenizer.pad_token = reward_tokenizer.eos_token
+    # reward_tokenizer = AutoTokenizer.from_pretrained(args.critic_model_name_or_path,
+    #                                               fast_tokenizer=True)
+    # reward_tokenizer.pad_token = reward_tokenizer.eos_token
+    # ziya
+    reward_tokenizer = LlamaTokenizer.from_pretrained(args.critic_model_name_or_path, add_eos_token=True)
+    # reward_tokenizer.pad_token = reward_tokenizer.eos_token
 
     prompt_train_dataloader, prompt_eval_dataloader, unsupervised_train_dataloader, num_total_iters = create_datasets(
         args=args, tokenizer=actor_tokenizer, train_phase=3)
@@ -419,6 +435,7 @@ def main():
         actor_model_name_or_path=args.actor_model_name_or_path,
         critic_model_name_or_path=args.critic_model_name_or_path,
         actor_tokenizer=actor_tokenizer,
+        critic_tokenizer=actor_tokenizer,
         reward_tokenizer=reward_tokenizer,
         num_total_iters=num_total_iters,
         args=args)
@@ -438,11 +455,12 @@ def main():
                                      args.per_device_mini_train_batch_size)
 
     def evaluation(model,eval_dataloader,tokenizer):
-        prompts = []
+        all_prompts = []
+        prompts_attention_mask = []
         seq = []
         model.eval()
         for i, batch_prompt in tqdm(enumerate(eval_dataloader)):
-            if i > 5:
+            if i > 10:
                 break
             batch_prompt = to_device(batch_prompt, device)
             prompts = batch_prompt['prompt']
@@ -454,35 +472,54 @@ def main():
             with torch.no_grad():
                 output = model.module.generate(prompts,
                                                attention_mask=attention_mask,
-                                               max_length=512,
-                                               min_length=512,
+                                               max_length=args.max_answer_seq_len + prompts.shape[1],
+                                               top_p=0.9,
+                                               num_beams=3,
+                                               do_sample=False,
+                                               synced_gpus=True
                                            )
             seq.append(output)
-        seq = torch.cat(seq, dim=0)
-        seq_list = [torch.zeros_like(seq) for _ in range(torch.distributed.get_world_size())]
-        torch.distributed.all_gather(seq_list, seq)
+            all_prompts.append(prompts)
+            prompts_attention_mask.append(attention_mask)
         result = []
         if args.global_rank == 0:
-            for seq in seq_list:
-                item = {}
-                prompt_length = prompts.shape[1]
-                prompt_seq = seq[:, :prompt_length]
-                ans_seq = seq[:, prompt_length:]
-                prompt_decoded = [tokenizer.decode(item.tolist(), skip_special_tokens=True) for item in prompt_seq]
-                ans_decoded = [tokenizer.decode(item.tolist()) for item in ans_seq]
-                ans_decoded = [sent.split(tokenizer.eos_token)[0].strip() for sent in ans_decoded]
-                # prompts.append(prompt_decoded)
-                item['prompt'] = prompt_decoded
-                item['ans'] = ans_decoded
-                result.append(item)
+            num_batch = len(all_prompts)
+            for i in range(num_batch):
+                # all_prompts[i][all_prompts[i] == tokenizer.pad_token] = 0
+                for j in range(all_prompts[i].size(0)):
+                    cur_len = prompts_attention_mask[i][j].sum()
+                    prompt_decoded = tokenizer.decode(all_prompts[i][j][:cur_len].tolist(), skip_special_tokens=True)
+                    prompt_decoded = prompt_decoded.split(tokenizer.pad_token)[0].strip()
+                    ans_decoded = tokenizer.decode(seq[i][j][all_prompts[i][j].size(0):].tolist())
+                    ans_decoded = ans_decoded.split(tokenizer.eos_token)[0].strip()
+                    item = {}
+                    item['prompt'] = prompt_decoded
+                    item['response'] = ans_decoded
+                    result.append(item)
+
+            # for i in range(nums):
+            #     prompt_length = all_prompts[i].size(0)
+            #     ans_seq = seq_list[i, prompt_length:]
+            #     prompt_decoded = tokenizer.decode(all_prompts[i].tolist(), skip_special_tokens=True)
+            #     prompt_decoded = prompt_decoded.split(tokenizer.pad_token)[0].strip()
+            #     ans_decoded = tokenizer.decode(ans_seq.tolist())
+            #     ans_decoded = ans_decoded.split(tokenizer.eos_token)[0].strip()
+            #     item = {}
+            #     item['prompt'] = prompt_decoded
+            #     item['response'] = ans_decoded
+            #     result.append(item)
+
         return result
+
     print_rank_0("***** Running Evaluation *****", args.global_rank)
     result = evaluation(trainer.actor_model,prompt_eval_dataloader,actor_tokenizer)
+
     if args.global_rank == 0:
-        if not os.path.exists('/home/gq/deeplang/deep-speed-chat/training/step3_rlhf_finetuning/output/llama-7b/actor'):
-            os.makedirs('/home/gq/deeplang/deep-speed-chat/training/step3_rlhf_finetuning/output/llama-7b/actor')
-        with open(os.path.join('/home/gq/deeplang/deep-speed-chat/training/step3_rlhf_finetuning/output/llama-7b/actor','before_ppo.json'),'w') as fp:
-            json.dump(result,fp,indent=2)
+        if not os.path.exists(os.path.join(args.output_dir,'actor')):
+            os.makedirs(os.path.join(args.output_dir,'actor'))
+        with open(os.path.join(args.output_dir,'actor/before_ppo.json'),'w',encoding='utf-8') as fp:
+            json.dump(result,fp,indent=2,ensure_ascii=False)
+
     torch.distributed.barrier()
     # Train!
     print_rank_0("***** Running training *****", args.global_rank)
@@ -555,6 +592,15 @@ def main():
                     "-------------------------------------------------------------------------------------",
                     args.global_rank)
             global_steps += 1
+            if global_steps and global_steps % 100 == 0:
+                print_rank_0("***** Running Evaluation *****", args.global_rank)
+                result = evaluation(trainer.actor_model, prompt_eval_dataloader, actor_tokenizer)
+                if args.global_rank == 0:
+                    with open(
+                        os.path.join(args.output_dir,
+                                     f'after_ppo_epoch_{epoch}_{global_steps}.json'), 'w', encoding='utf-8') as fp:
+                        json.dump(result, fp, indent=2, ensure_ascii=False)
+
             if args.actor_gradient_checkpointing:
                 rlhf_engine.actor.gradient_checkpointing_disable()
 
@@ -562,8 +608,8 @@ def main():
     print_rank_0("***** Running Evaluation *****", args.global_rank)
     result = evaluation(trainer.actor_model,prompt_eval_dataloader,actor_tokenizer)
     if args.global_rank == 0:
-        with open(os.path.join('/home/gq/deeplang/deep-speed-chat/training/step3_rlhf_finetuning/output/llama-7b/actor',f'after_ppo_epoch_{epoch}.json'),'w') as fp:
-            json.dump(result,fp,indent=2)
+        with open(os.path.join(args.output_dir,f'after_ppo_epoch_{epoch}_{global_steps}.json'),'w',encoding='utf-8') as fp:
+            json.dump(result,fp,indent=2,ensure_ascii=False)
 
     if args.output_dir is not None:
         print_rank_0('saving model ...',rank = args.global_rank)

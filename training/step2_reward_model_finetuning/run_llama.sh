@@ -3,8 +3,8 @@
 # SPDX-License-Identifier: Apache-2.0
 #
 # DeepSpeed Team
-OUTPUT='/home/gq/deeplang/deep-speed-chat/training/step2_reward_model_finetuning/output/llama-7b-v2'
-
+OUTPUT='/mnt/gouqi/deep-speed-chat/training/step2_reward_model_finetuning/output/llama-7b'
+# /mnt/data01/shenyan/ckpt/llama_hf/llama-sft-7b/
 export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
 ZERO_STAGE=3
 if [ "$OUTPUT" == "" ]; then
@@ -17,10 +17,10 @@ mkdir -p $OUTPUT
 export TRAIN_LLAMA='1'
 deepspeed --master_port=4243 main.py \
    --data_path Dahoas/synthetic-instruct-gptj-pairwise \
-   --local_data_files /home/gq/deeplang/deep-speed-chat/datasets/synthetic-instruct-gptj-pairwise \
+   --local_data_files /mnt/gouqi/deep-speed-chat/datasets/synthetic-instruct-gptj-pairwise \
    --data_split 2,4,4 \
    --num_padding_at_beginning 1 \
-   --model_name_or_path /mnt/data01/shenyan/ckpt/llama_hf/llama-sft-7b/ \
+   --model_name_or_path /mnt/public/checkpoint/SFT/llama-sft-7b \
    --per_device_train_batch_size 2 \
    --per_device_eval_batch_size 8 \
    --max_seq_len 512 \

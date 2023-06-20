@@ -40,12 +40,12 @@ def log_init(model_name, stime=None):
 class DeepSpeedRLHFEngine():
 
     def __init__(self, actor_model_name_or_path, critic_model_name_or_path,
-                 actor_tokenizer, reward_tokenizer, args, num_total_iters):
+                 actor_tokenizer,critic_tokenizer, reward_tokenizer, args, num_total_iters):
         self.args = args
         self.num_total_iters = num_total_iters
         self.actor_tokenizer = actor_tokenizer
         self.reward_tokenizer = reward_tokenizer
-
+        self.critic_tokenizer = critic_tokenizer
         self.actor = self._init_actor(
             actor_model_name_or_path=actor_model_name_or_path)
         self.ref = self._init_ref(
@@ -54,11 +54,10 @@ class DeepSpeedRLHFEngine():
         if self.args.enable_ema:
             self.actor_ema = self._init_ema(
                 actor_model_name_or_path=actor_model_name_or_path)
-
         self.critic = self._init_critic(
-            critic_model_name_or_path=critic_model_name_or_path)
+            critic_model_name_or_path=actor_model_name_or_path,use_ziya=False)
         self.reward = self._init_reward(
-            critic_model_name_or_path=critic_model_name_or_path)
+            critic_model_name_or_path=critic_model_name_or_path,use_ziya=args.use_ziya)
         if self.args.critic_gradient_checkpointing:
             self.critic.gradient_checkpointing_enable()
 
@@ -86,12 +85,13 @@ class DeepSpeedRLHFEngine():
         # Model
         from transformers import LlamaForCausalLM
         import os
-        model_class = LlamaForCausalLM if os.environ['TRAIN_LLAMA'] == '1' else AutoModelForCausalLM
+        model_class = AutoModelForCausalLM
         actor_model = create_hf_model(
             model_class=model_class,
             model_name_or_path=actor_model_name_or_path,
             tokenizer=self.actor_tokenizer,
             ds_config=ds_config)
+        actor_model.config.rope_type = 'ours'
 
         # LoRA
         if self.args.actor_lora_dim > 0:
@@ -146,11 +146,11 @@ class DeepSpeedRLHFEngine():
 
         from transformers import LlamaForCausalLM
         import os
-        model_class = LlamaForCausalLM if os.environ['TRAIN_LLAMA'] == '1' else AutoModelForCausalLM
+        model_class = AutoModelForCausalLM
         ref_model = create_hf_model(model_class,
                                     actor_model_name_or_path, self.actor_tokenizer,
                                     ds_config)
-
+        ref_model.config.rope_type = 'ours'
         ref_engine, *_ = deepspeed.initialize(model=ref_model,
                                               config=ds_config)
 
@@ -181,7 +181,7 @@ class DeepSpeedRLHFEngine():
         log_init("EMA", stime=stime)
         return ema_engine
 
-    def _init_critic(self, critic_model_name_or_path):
+    def _init_critic(self, critic_model_name_or_path,use_ziya=False):
         stime = log_init("Critic")
         ds_config = get_train_ds_config(offload=self.args.offload,
                                         stage=self.args.critic_zero_stage)
@@ -199,10 +199,11 @@ class DeepSpeedRLHFEngine():
         # Model
         critic_model = create_critic_model(
             model_name_or_path=critic_model_name_or_path,
-            tokenizer=self.reward_tokenizer,
+            tokenizer=self.critic_tokenizer,
             ds_config=ds_eval_config,
             num_padding_at_beginning=self.args.num_padding_at_beginning,
-            rlhf_training=True)
+            rlhf_training=True,
+            use_ziya=use_ziya)
 
         # LoRA
         if self.args.critic_lora_dim > 0:
@@ -237,7 +238,7 @@ class DeepSpeedRLHFEngine():
         log_init("Critic", stime=stime)
         return critic_engine
 
-    def _init_reward(self, critic_model_name_or_path):
+    def _init_reward(self, critic_model_name_or_path,use_ziya=False):
         stime = log_init("Reward")
         # DS Config
         zero_stage = self.args.critic_zero_stage
@@ -263,7 +264,8 @@ class DeepSpeedRLHFEngine():
             tokenizer=self.reward_tokenizer,
             ds_config=ds_eval_config,
             num_padding_at_beginning=self.args.num_padding_at_beginning,
-            rlhf_training=True)
+            rlhf_training=True,
+            use_ziya=use_ziya)
 
         reward_engine, *_ = deepspeed.initialize(model=reward_model,
                                                  config=ds_config)
