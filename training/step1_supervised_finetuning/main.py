@@ -7,17 +7,18 @@ import argparse
 import os
 import math
 import sys
-
+from torch.utils.tensorboard import SummaryWriter
 import torch
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
 from torch.utils.data.distributed import DistributedSampler
-
+from torch.nn import BCEWithLogitsLoss, CrossEntropyLoss, MSELoss
 from transformers import (
     AutoModelForCausalLM,
     AutoTokenizer,
     SchedulerType,
     default_data_collator,
     get_scheduler,
+    LlamaTokenizer
 )
 
 import deepspeed
@@ -42,13 +43,19 @@ def parse_args():
                         help='Path to the training dataset. Accepted format:'
                         '1) a single data path, 2) multiple datasets in the'
                         'form: dataset1-path dataset2-path ...')
+    parser.add_argument('--local_data_files',
+                        nargs='*',
+                        default = []
+                        )
+
     parser.add_argument('--data_split',
-                        type=str,
-                        default='6,2,2',
+                        nargs='*',
+                        default=['3,4,3'],
                         help='Comma-separated list of proportions for training'
                         'phase 1, 2, and 3 data. For example the split `2,4,4`'
                         'will use 60% of data for phase 1, 20% for phase 2'
                         'and 20% for phase 3.')
+
     parser.add_argument(
         '--sft_only_data_path',
         nargs='*',
@@ -87,9 +94,22 @@ def parse_args():
         help="The maximum sequence length.",
     )
     parser.add_argument(
+        "--max_prompt_seq_len",
+        type=int,
+        default=200,
+        help="The maximum sequence length.",
+    )
+    parser.add_argument(
+        "--max_answer_seq_len",
+        type=int,
+        default=512,
+        help="The maximum sequence length.",
+    )
+
+    parser.add_argument(
         "--learning_rate",
         type=float,
-        default=1e-3,
+        default=1e-5,
         help=
         "Initial learning rate (after the potential warmup period) to use.",
     )
@@ -185,6 +205,9 @@ def main():
 
     args.global_rank = torch.distributed.get_rank()
 
+    if args.global_rank == 0:
+        writer = SummaryWriter(log_dir= os.path.join(args.output_dir,'tensorboard'))
+
     ds_config = get_train_ds_config(offload=args.offload,
                                     stage=args.zero_stage)
     ds_config[
@@ -200,13 +223,14 @@ def main():
 
     torch.distributed.barrier()
 
-    tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path,
-                                              fast_tokenizer=True)
-    tokenizer.pad_token = tokenizer.eos_token
-
+    tokenizer = LlamaTokenizer.from_pretrained(args.model_name_or_path,padding_side='left',truncation_side='left')
+    tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+    print(tokenizer)
+    # print(tokenizer.pad_token_id,tokenizer.eos_token_id)
+    # exit()
     model = create_hf_model(AutoModelForCausalLM, args.model_name_or_path,
                             tokenizer, ds_config)
-
+    model.resize_token_embeddings(len(tokenizer))
     if args.lora_dim > 0:
         model = convert_linear_layer_to_lora(model, args.lora_module_name,
                                              args.lora_dim)
@@ -224,7 +248,8 @@ def main():
         args.seed,
         tokenizer,
         args.max_seq_len,
-        sft_only_data_path=args.sft_only_data_path)
+        sft_only_data_path=args.sft_only_data_path,
+        args = args)
 
     # DataLoaders creation:
     if args.local_rank == -1:
@@ -288,7 +313,7 @@ def main():
         config=ds_config,
         lr_scheduler=lr_scheduler,
         dist_init_required=True)
-
+    print(model.module.state_dict())
     if args.gradient_checkpointing:
         model.gradient_checkpointing_enable()
 
@@ -299,19 +324,24 @@ def main():
         args.global_rank)
     perplexity = evaluation(model, eval_dataloader)
     print_rank_0(f"ppl: {perplexity}", args.global_rank)
-
+    global_step = 0
     for epoch in range(args.num_train_epochs):
         print_rank_0(
             f"Beginning of Epoch {epoch+1}/{args.num_train_epochs}, Total Micro Batches {len(train_dataloader)}",
             args.global_rank)
         model.train()
         for step, batch in enumerate(train_dataloader):
+            # print(batch)
+            # exit()
             batch = to_device(batch, device)
             outputs = model(**batch, use_cache=False)
             loss = outputs.loss
             model.backward(loss)
             model.step()
-
+            if args.global_rank == 0:
+                writer.add_scalar('train_loss',loss.detach().cpu().float().numpy(), global_step)
+                print_rank_0(loss)
+            global_step += 1
         # Evaluate perplexity on the validation set.
         print_rank_0(
             f"***** Evaluating perplexity, Epoch {epoch+1}/{args.num_train_epochs} *****",

@@ -43,6 +43,74 @@ class PromptRawDataset(object):
     def get_prompt_and_rejected(self, sample):
         return
 
+class HelpfulRLHFDataset(PromptRawDataset):
+
+    def __init__(self, output_path, seed, local_rank,local_path = None):
+        super().__init__(output_path, seed, local_rank)
+        self.dataset_name = "HelpfulRLHFDataset"
+        self.dataset_name_clean = "HelpfulRLHFDataset"
+        assert local_path
+        print('53-local_path:',local_path)
+        train_path = os.path.join(local_path, "train.jsonl")
+        test_path = os.path.join(local_path, "test.jsonl")
+        raw_datasets = load_dataset('json', data_files={'train':train_path,'test':test_path})
+        self.raw_datasets = raw_datasets
+
+    def get_train_data(self):
+        return self.raw_datasets["train"]
+
+    def get_eval_data(self):
+        return self.raw_datasets["test"]
+
+    def get_prompt(self, sample):
+        return sample['prompt']
+
+    def get_chosen(self, sample):
+        return sample['chosen']
+
+    def get_rejected(self, sample):
+        return sample['rejected']
+
+    def get_prompt_and_chosen(self, sample):
+        return sample['prompt'] + sample['chosen']
+
+    def get_prompt_and_rejected(self, sample):
+        return sample['prompt'] + sample['rejected']
+
+class HarmlessRLHFDataset(PromptRawDataset):
+
+    def __init__(self, output_path, seed, local_rank,local_path = None):
+        super().__init__(output_path, seed, local_rank)
+        self.dataset_name = "HarmlessRLHFDataset"
+        self.dataset_name_clean = "HarmlessRLHFDataset"
+        assert local_path
+        print('53-local_path:',local_path)
+        train_path = os.path.join(local_path, "train.jsonl")
+        test_path = os.path.join(local_path, "test.jsonl")
+        raw_datasets = load_dataset('json', data_files={'train':train_path,'test':test_path})
+        self.raw_datasets = raw_datasets
+
+    def get_train_data(self):
+        return self.raw_datasets["train"]
+
+    def get_eval_data(self):
+        return self.raw_datasets["test"]
+
+    def get_prompt(self, sample):
+        return sample['prompt']
+
+    def get_chosen(self, sample):
+        return sample['chosen']
+
+    def get_rejected(self, sample):
+        return sample['rejected']
+
+    def get_prompt_and_chosen(self, sample):
+        return sample['prompt'] + sample['chosen']
+
+    def get_prompt_and_rejected(self, sample):
+        return sample['prompt'] + sample['rejected']
+
 class SingleTurnRLHFDataset(PromptRawDataset):
 
     def __init__(self, output_path, seed, local_rank, local_path = None):
@@ -50,15 +118,15 @@ class SingleTurnRLHFDataset(PromptRawDataset):
         self.dataset_name = "SingleTurnRLHF"
         self.dataset_name_clean = "SingleTurnRLHF"
         assert local_path
-        
+        print('53-local_path:',local_path)
         train_path = os.path.join(local_path, "train.json")
         test_path = os.path.join(local_path, "test.json")
         # if
         self.raw_datasets = load_dataset("json", data_files={'train':train_path,'test':test_path}, field='data')
         # if 'data' in self.raw_datasets:
         #     self.raw_datasets = self.raw_datasets['data']
-        self.sft_format = "Human:{}\n\nAssistant:"
-        # self.sft_format = "Below is an instruction that describes a task. Write a response that appropriately completes the request.\n\n### Instruction:\n{}\n\n### Response:\n"
+        # self.sft_format = "Human:{}\n\nAssistant:"
+        self.sft_format = "Below is an instruction that describes a task. Write a response that appropriately completes the request.\n\n### Instruction:\n{}\n\n### Response:\n"
 
     def get_train_data(self):
         return self.raw_datasets["train"]
@@ -81,6 +149,45 @@ class SingleTurnRLHFDataset(PromptRawDataset):
     def get_prompt_and_rejected(self, sample):
         return self.get_prompt(sample) + self.get_rejected(sample)
 
+
+class AlpacaGPT4Dataset(PromptRawDataset):
+
+    def __init__(self, output_path, seed, local_rank, local_path = None):
+        super().__init__(output_path, seed, local_rank)
+        self.dataset_name = "AlpacaGPT4"
+        self.dataset_name_clean = "AlpacaGPT4"
+        assert local_path
+        print('53-local_path:',local_path)
+        train_path = os.path.join(local_path, "train.json")
+        test_path = os.path.join(local_path, "test.json")
+        # if
+        self.raw_datasets = load_dataset("json", data_files={'train':train_path})
+        self.raw_datasets = self.raw_datasets['train'].train_test_split(test_size=0.01)
+        # if 'data' in self.raw_datasets:
+        #     self.raw_datasets = self.raw_datasets['data']
+        self.sft_format = "\n\nHuman: {}\n\nAssistant:"
+        # self.sft_format = "Below is an instruction that describes a task. Write a response that appropriately completes the request.\n\n### Instruction:\n{}\n\n### Response:\n"
+
+    def get_train_data(self):
+        return self.raw_datasets["train"]
+
+    def get_eval_data(self):
+        return self.raw_datasets["test"]
+
+    def get_prompt(self, sample):
+        return self.sft_format.format(sample['instruction'] + '\n' + sample['input'])
+
+    def get_chosen(self, sample):
+        return sample['output']
+
+    def get_rejected(self, sample):
+        return sample['output']
+
+    def get_prompt_and_chosen(self, sample):
+        return self.get_prompt(sample) + self.get_chosen(sample)
+
+    def get_prompt_and_rejected(self, sample):
+        return self.get_prompt(sample) + self.get_rejected(sample)
 
 class MossSftDataset(PromptRawDataset):
 
@@ -155,12 +262,16 @@ class DahoasRmstaticDataset(PromptRawDataset):
 # English dataset
 class DahoasFullhhrlhfDataset(PromptRawDataset):
 
-    def __init__(self, output_path, seed, local_rank):
+    def __init__(self, output_path, seed, local_rank,local_path):
         super().__init__(output_path, seed, local_rank)
         self.dataset_name = "Dahoas/full-hh-rlhf"
         self.dataset_name_clean = "Dahoas_full_hh_rlhf"
-        self.raw_datasets = load_dataset("Dahoas/full-hh-rlhf")
-
+        # self.raw_datasets = load_dataset("Dahoas/full-hh-rlhf")
+        assert local_path
+        train_path = os.path.join(local_path, "train.json")
+        test_path =  os.path.join(local_path, "test.json")
+        self.raw_datasets = load_dataset("json", data_files={'train': train_path,'test':test_path})
+        # self.sft_format = "Below is an instruction that describes a task. Write a response that appropriately completes the request.\n\n### Instruction:\n{}\n\n### Response:\n"
     def get_train_data(self):
         return self.raw_datasets["train"]
 

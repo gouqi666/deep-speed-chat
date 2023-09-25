@@ -6,14 +6,15 @@
 import argparse
 import os
 import torch
-from torch.utils.data import DataLoader, RandomSampler,SequentialSampler
+from torch.utils.data import DataLoader, RandomSampler,SequentialSampler,Subset,ConcatDataset
 import sys
 import json
 from tqdm import tqdm
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
-from transformers import AutoTokenizer,AutoModelForSequenceClassification,LlamaTokenizer
+from transformers import AutoTokenizer,AutoModelForSequenceClassification,LlamaTokenizer,AutoConfig,AutoModel
 from utils.model.model_utils import create_critic_model
+from utils.model.llama_reward_model import LlamaRewardModel
 from utils.utils import to_device
 from utils.data.data_utils import create_prompt_dataset, DataCollatorReward,get_raw_dataset,PromptDataset
 
@@ -62,8 +63,8 @@ def prepare_datapair(prompt,
                      tokenizer,
                      max_seq_len=512,
                      end_of_conversation_token=None):
-    chosen_sentence = prompt + good_ans + end_of_conversation_token  # the accept response
-    reject_sentence = prompt + bad_ans + end_of_conversation_token  # the reject response
+    chosen_sentence = prompt + good_ans  # the accept response
+    reject_sentence = prompt + bad_ans   # the reject response
 
     prompt_token = tokenizer(prompt,
                              max_length=max_seq_len,
@@ -97,25 +98,22 @@ def prepare_datapair(prompt,
     batch["attention_mask"] = torch.cat([chosen_token["attention_mask"]] +
                                         [reject_token["attention_mask"]],
                                         dim=0)
-    batch['prompt_length'] = torch.tensor([p_length] * 2)
     return batch
 
 
 def prepare_singlesample(prompt,
                          good_ans,
                          tokenizer,
-                         max_seq_len=512,
+                         max_seq_len=1024,
                          end_of_conversation_token="<|endoftext|>"):
-    chosen_sentence = prompt + good_ans + end_of_conversation_token
-    chosen_token = tokenizer(chosen_sentence,
-                             max_length=max_seq_len,
-                             padding="max_length",
-                             truncation=True,
-                             return_tensors="pt")
-
+    chosen_sentence = prompt + good_ans # + end_of_conversation_token
+    chosen_token = tokenizer.encode(chosen_sentence)
+    pad_len = max_seq_len - len(chosen_token)
+    chosen_token = [tokenizer.pad_token_id] * pad_len + chosen_token
+    attention_mask = [1 if x != tokenizer.pad_token_id else 0 for x in chosen_token]
     batch = {}
-    batch["input_ids"] = chosen_token["input_ids"]
-    batch["attention_mask"] = chosen_token["attention_mask"]
+    batch["input_ids"] = torch.tensor([chosen_token])
+    batch["attention_mask"] = torch.tensor([attention_mask])
 
     return batch
 
@@ -124,12 +122,33 @@ def run_pair_comparison():
     args = parse_args()
     os.environ['TRAIN_LLAMA'] = '1'
     device = torch.device("cuda:0")
-    rm_model, tokenizer = load_ziya_reward_model(args.model_name_or_path)
+
+
+    tokenizer = LlamaTokenizer.from_pretrained(args.model_name_or_path)
+    tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+
+    rm_model = create_critic_model(
+        model_name_or_path=args.model_name_or_path,
+        tokenizer=tokenizer,
+        ds_config=None,
+        num_padding_at_beginning=0,
+        rlhf_training=True)
+
+    # model_config = AutoConfig.from_pretrained(args.model_name_or_path)
+    # rm_model = AutoModel.from_config(model_config)
+    # state_dict = torch.load(os.path.join(args.model_name_or_path,'pytorch_model.bin'),map_location='cpu')
+    # rm_model = LlamaRewardModel(
+    #     rm_model,
+    #     tokenizer,
+    #     num_padding_at_beginning=1)
+    # rm_model.load_state_dict(state_dict, strict=False)
+
     rm_model.to(device)
     rm_model.eval()
+
     sft_format = "Human:{}\n\nAssistant:"
 
-    sft_format = "Below is an instruction that describes a task. Write a response that appropriately completes the request.\n\n### Instruction:\n{}\n\n### Response:\n"
+    # sft_format = "Below is an instruction that describes a task. Write a response that appropriately completes the request.\n\n### Instruction:\n{}\n\n### Response:\n"
     prompt_list = [
         "Please tell me about Microsoftin a few sentence?",
         "Explain the moon landing to a 6 year old in a few sentences.",
@@ -186,19 +205,19 @@ def run_pair_comparison():
                                  bad_ans,
                                  tokenizer,
                                  max_seq_len=512,
-                                 end_of_conversation_token="<|endoftext|>")
+                                 end_of_conversation_token=None) # "<|endoftext|>"
         batch = to_device(batch, device)
         # Run inference
         with torch.no_grad():
-            outputs = rm_model(batch['input_ids'].cuda(), attention_mask = batch['attention_mask'].cuda())
-        if outputs.tolist()[0] > outputs.tolist()[1]:
+            outputs = rm_model.forward_value(batch['input_ids'].cuda(), attention_mask = batch['attention_mask'].cuda())
+        if outputs['chosen_mean_scores'][0] > outputs['rejected_mean_scores'][0]:
             acc += 1
         item = {}
         item['question'] = prompt
         item['chosen'] = good_ans
-        item['chosen_socre'] = outputs.tolist()[0]
+        item['chosen_socre'] = outputs['chosen_mean_scores'][0]
         item['rejected'] = bad_ans
-        item['rejected_score'] = outputs.tolist()[1]
+        item['rejected_score'] = outputs['rejected_mean_scores'][0]
         results.append(item)
     print("==================Eval result============================")
     print(results)
@@ -214,26 +233,107 @@ def run_single_sample():
     args = parse_args()
     device = torch.device("cuda")
 
-    rm_model, tokenizer = load_stuff(args.model_name_or_path,
-                                     args.num_padding_at_beginning)
+    tokenizer = LlamaTokenizer.from_pretrained(args.model_name_or_path)
+    tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+    #
+    rm_model = create_critic_model(
+        model_name_or_path=args.model_name_or_path,
+        tokenizer=tokenizer,
+        ds_config=None,
+        num_padding_at_beginning=0,
+        rlhf_training=True)
 
+
+
+
+
+
+    print(rm_model.state_dict())
+
+    ###
     rm_model.to(device)
+    sft_format = "Human:{}\n\nAssistant:"
+    prompt = "how to kill a person?"
+    prompt = sft_format.format(prompt)
+    prompt = "Human: what is Led Zeppelin?\n\nAssistant: Led Zeppelin were a rock and roll band from the UK in the 1970s, with many big hit songs, including \"Stairway to Heaven\", and they've gone on to have a lasting influence on music, with many of their songs being played at events like weddings and funerals, and even played at US presidential inaugurations.\n\nHuman: Which president's inaugurations?\n\nAssistant: I'm not sure about the exact list of presidents, but I think you'll see a lot of “Stairway to Heaven” at both inaugurations of Barack Obama, and also in the inauguration of George W. Bush, too.\n\nHuman: I thought the band played at the inaugurations - what you meant was one of the band's songs.\n\nAssistant:"
 
-    prompt = "Human: Explain the moon landing to a 6 year old in a few sentences."
-    my_ans = "Assistant: The moon landing was a major milestone in the history of human exploration of the solar system. It was the first time humans had ever set foot on another planet, and it was a major turning point in the history of human civilization. The astronauts, Neil Armstrong, Buzz Aldrin, and Michael Collins, successfully landed the Apollo 11 spacecraft on the moon, marking the first time humans had ever set foot on another"
+    my_ans = "<s> Oh, sorry about that.  I guess I should have been more specific."
 
     batch = prepare_singlesample(prompt,
                                  my_ans,
                                  tokenizer,
-                                 max_seq_len=512,
+                                 max_seq_len=1024,
                                  end_of_conversation_token="<|endoftext|>")
-    batch = to_device(batch, device)
+    #
 
+    test_input_ids = torch.tensor([[32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000,
+        32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000,
+        32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000,
+        32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000,
+        32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000,
+        32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000,
+        32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000,
+        32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000,
+        32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000,
+        32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000,
+        32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000,
+        32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000,
+        32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000,
+        32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000,
+        32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000,
+        32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000,
+        32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000,
+        32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000, 32000,
+        32000, 32000,     1, 29871,    13,    13, 29950,  7889, 29901,   825,
+          338, 28934,  3091, 17344,   262, 29973,    13,    13,  7900, 22137,
+        29901, 28934,  3091, 17344,   262,   892,   263,  7679,   322,  9679,
+         3719,   515,   278, 10261,   297,   278, 29871, 29896, 29929, 29955,
+        29900, 29879, 29892,   411,  1784,  4802,  7124, 12516, 29892,  3704,
+          376,   855,  1466,  1582,   304, 22977,   613,   322,   896, 29915,
+          345,  7695,   373,   304,   505,   263,  1833,   292,  9949,   373,
+         4696, 29892,   411,  1784,   310,  1009, 12516,  1641,  5318,   472,
+         4959,   763, 14837, 29881,   886,   322,  2090,   261,  1338, 29892,
+          322,  1584,  5318,   472,  3148,  6673,   616, 21865,   800, 29889,
+           13,    13, 29950,  7889, 29901,  8449,  6673, 29915, 29879, 21865,
+          800, 29973,    13,    13,  7900, 22137, 29901,   306, 29915, 29885,
+          451,  1854,  1048,   278,  2684,  1051,   310,  2225, 16719, 29892,
+          541,   306,  1348,   366, 29915,   645,  1074,   263,  3287,   310,
+         1346,   855,  1466,  1582,   304, 22977, 30024,   472,  1716, 21865,
+          800,   310,  2261,   547,  4250,  3304, 29892,   322,   884,   297,
+          278, 15069,  2633,   310,  5122,   399, 29889, 24715, 29892,  2086,
+        29889,    13,    13, 29950,  7889, 29901,   306,  2714,   278,  3719,
+         5318,   472,   278, 21865,   800,   448,   825,   366,  6839,   471,
+          697,   310,   278,  3719, 29915, 29879, 12516, 29889,    13,    13,
+         7900, 22137, 29901, 29871,     1,  6439, 29892,  7423,  1048,   393,
+        29889, 29871,   306,  4140,   306,   881,   505,  1063,   901,  2702,
+        29889,     2]])
+    test_mask = torch.tensor([[0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+        0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1]])
+    # batch['input_ids'] = test_input_ids
+    # batch['attention_mask'] = test_mask
+    #
+
+    batch = to_device(batch, device)
     rm_model.eval()
     # Run inference
     with torch.no_grad():
         outputs = rm_model.forward_value(
-            **batch, prompt_length=max(2, args.num_padding_at_beginning)
+            **batch
         )  # we just need to skip the number of padding tokens at the beginning
     print("==================Eval result============================")
     print("prompt: ", prompt)
@@ -243,7 +343,7 @@ def run_single_sample():
     print("my_ans score: ", outputs["chosen_end_scores"].item())
 
 
-def run_file_eval():
+def run_file_eval_ziya():
 
     args = parse_args()
     print(args)
@@ -262,7 +362,6 @@ def run_file_eval():
     prompt_dataset = []
     chosen_dataset = []
     reject_dataset = []
-    prompt_length = []
     for i, tmp_data in enumerate(eval_dataset):
         # tokenize the text
         prompt = raw_dataset.get_prompt(tmp_data)
@@ -306,9 +405,8 @@ def run_file_eval():
 
             chosen_dataset.append(chosen_token)
             reject_dataset.append(reject_token)
-            prompt_length.append(p_length)
 
-    eval_dataset = PromptDataset(prompt_dataset, chosen_dataset, reject_dataset, prompt_length,
+    eval_dataset = PromptDataset(prompt_dataset, chosen_dataset, reject_dataset,
                   tokenizer.pad_token_id, train_phase)
     prompt_eval_sampler = SequentialSampler(eval_dataset)
     data_collator = DataCollatorReward()
@@ -348,9 +446,132 @@ def run_file_eval():
     print(
         f"chosen_last_scores (higher is better) : {reward_score}, acc (higher is better) : {acc}")
 
+def run_file_eval_ours():
+    import numpy as np
+    args = parse_args()
+    print(args)
+    os.environ['TRAIN_LLAMA'] = '1'
+    device = torch.device("cuda:0")
+    args.max_prompt_seq_len = 512
+    args.max_answer_seq_len = 512
 
+    tokenizer = LlamaTokenizer.from_pretrained(args.model_name_or_path)
+    tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+    #
+    print(tokenizer)
+    rm_model = create_critic_model(
+        model_name_or_path=args.model_name_or_path,
+        tokenizer=tokenizer,
+        ds_config=None,
+        num_padding_at_beginning=0,
+        rlhf_training=True)
+    print(rm_model.state_dict())
+    exit()
+    rm_model = rm_model.to(device)
+    args.local_data_files = "/mnt/user/gouqi/deep-speed-chat/datasets/helpful-base"
+    train_phase = 2 # 要修改format
+
+    raw_dataset = get_raw_dataset('HelpfulRLHFDataset', 'tmp_output', 42, -1, local_path=args.local_data_files)
+    eval_dataset = raw_dataset.get_eval_data()
+    index = np.load('/mnt/user/gouqi/deep-speed-chat/output/data_files/fullhh/HelpfulRLHFDataset_seed1234_eval_0,0,1_2.npy', allow_pickle=True).tolist()
+    eval_dataset = Subset(eval_dataset, index)
+    print('Length:',len(eval_dataset))
+
+
+    args.local_data_files = "/mnt/user/gouqi/deep-speed-chat/datasets/harmless-base"
+    raw_dataset = get_raw_dataset('HarmlessRLHFDataset', 'tmp_output', 42, -1, local_path=args.local_data_files)
+    eval_dataset2 = raw_dataset.get_eval_data()
+    index = np.load('/mnt/user/gouqi/deep-speed-chat/output/data_files/fullhh/HarmlessRLHFDataset_seed1234_eval_0,0,1_2.npy', allow_pickle=True).tolist()
+    eval_dataset2 = Subset(eval_dataset2, index)
+    eval_dataset = ConcatDataset([eval_dataset,eval_dataset2])
+    max_seq_len=1024
+    prompt_dataset = []
+    chosen_dataset = []
+    reject_dataset = []
+    human_prompt = "\n\nHuman: "
+    for i, tmp_data in enumerate(eval_dataset):
+        # tokenize the text
+        print(i)
+        prompt = raw_dataset.get_prompt(tmp_data)
+        chosen = raw_dataset.get_chosen(tmp_data)
+        rejected = raw_dataset.get_rejected(tmp_data)
+        prompt_input_ids = tokenizer.encode(prompt)
+        try:
+            while len(prompt_input_ids) > args.max_prompt_seq_len:
+                prompt = human_prompt + human_prompt.join(prompt.split(human_prompt)[2:])
+                prompt_input_ids = tokenizer.encode(prompt)
+        except Exception as e:
+            # prompt_input_ids = prompt_input_ids[-args.max_prompt_seq_len:]
+            continue
+        chosen_token = {}
+        chosen_input_ids = tokenizer.encode(chosen)
+        if len(chosen_input_ids) > args.max_answer_seq_len:
+            continue
+        chosen_token['input_ids'] = prompt_input_ids + chosen_input_ids + [tokenizer.eos_token_id]
+        pad_len = args.max_prompt_seq_len + args.max_answer_seq_len + 1 - len(chosen_token['input_ids'])
+        chosen_token['input_ids'] = [tokenizer.pad_token_id] * pad_len + chosen_token['input_ids']
+
+        rejected_token = {}
+        rejected_input_ids = tokenizer.encode(rejected,padding='max_length',max_length=args.max_answer_seq_len)
+        if len(rejected_input_ids) > args.max_answer_seq_len:
+            rejected_input_ids = rejected_input_ids[:args.max_answer_seq_len]
+        rejected_token['input_ids'] = prompt_input_ids + rejected_input_ids + [tokenizer.eos_token_id]
+        pad_len = args.max_prompt_seq_len + args.max_answer_seq_len + 1 - len(rejected_token['input_ids'])
+        rejected_token['input_ids'] = [tokenizer.pad_token_id] * pad_len + rejected_token['input_ids']
+
+        chosen_token["input_ids"] = torch.tensor(chosen_token["input_ids"])
+        rejected_token["input_ids"] = torch.tensor(rejected_token["input_ids"])
+        chosen_token['attention_mask'] = torch.tensor(
+            [(1 if x != tokenizer.pad_token_id else 0) for x in chosen_token['input_ids']])
+        rejected_token['attention_mask'] = torch.tensor(
+            [(1 if x != tokenizer.pad_token_id else 0) for x in rejected_token['input_ids']])
+
+        chosen_dataset.append(chosen_token)
+        reject_dataset.append(rejected_token)
+
+    eval_dataset = PromptDataset(prompt_dataset, chosen_dataset, reject_dataset,
+                  tokenizer.pad_token_id, train_phase)
+    print(len(eval_dataset))
+    prompt_eval_sampler = SequentialSampler(eval_dataset)
+    data_collator = DataCollatorReward()
+    prompt_eval_dataloader = DataLoader(
+        eval_dataset,
+        collate_fn=data_collator,
+        sampler=prompt_eval_sampler,
+        batch_size=8)
+    print(len(prompt_eval_dataloader))
+    def evaluation_reward(model, eval_dataloader):
+        model.eval()
+        correct_predictions = 0
+        total_predictions = 0
+        scores = 0
+        chosen_scores = []
+        reject_scores = []
+        for step, batch in tqdm(enumerate(eval_dataloader),desc='eval...'):
+            batch = to_device(batch, device)
+            with torch.no_grad():
+                outputs  = model(**batch)
+            chosen = outputs['chosen_mean_scores'].tolist()
+            rejected = outputs['rejected_mean_scores'].tolist()
+            scores += sum(chosen) / len(chosen)
+            correct_predictions += sum([ chosen[i] > rejected[i] for i in range(len(chosen))])
+            chosen_scores.extend(chosen)
+            reject_scores.extend(rejected)
+            print(chosen)
+            print(rejected)
+        acc = correct_predictions / len(chosen_scores)
+        scores = scores / (step + 1)
+        return scores, acc, chosen_scores, reject_scores
+
+    print("***** Running Evaluation *****")
+
+    reward_score, acc, chosen_list, reject_list = evaluation_reward(rm_model, prompt_eval_dataloader)
+    print(
+        f"chosen_last_scores (higher is better) : {reward_score}, acc (higher is better) : {acc}")
 
 if __name__ == "__main__":
-    # run_file_eval()
-    run_pair_comparison()
-    # run_single_sample()
+    from transformers import set_seed
+    set_seed(42)
+    # run_file_eval_ours()
+    # run_pair_comparison()
+    run_single_sample()

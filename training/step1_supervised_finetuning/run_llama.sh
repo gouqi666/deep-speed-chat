@@ -1,35 +1,35 @@
 #!/bin/bash
 # Copyright (c) Microsoft Corporation.
 # SPDX-License-Identifier: Apache-2.0
-#
+
 # DeepSpeed Team
 rm -r /mnt/user/gouqi/deep-speed-chat/output/data_files/AlpacaGPT4
-OUTPUT=/mnt/user/gouqi/deep-speed-chat/training/step2_reward_model_finetuning/outputs/llama2-fullhh-lr5e6
-# /mnt/data01/shenyan/ckpt/llama_hf/llama-sft-7b/
-export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+OUTPUT=/mnt/user/gouqi/deep-speed-chat/training/step1_supervised_finetuning/outputs/llama2-fullhh-test
 ZERO_STAGE=3
+TRAIN_LLAMA=1
+export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
+export TRAIN_LLAMA='1'
 if [ "$OUTPUT" == "" ]; then
     OUTPUT=./output
 fi
 if [ "$ZERO_STAGE" == "" ]; then
-    ZERO_STAGE=0
+    ZERO_STAGE=3
 fi
 mkdir -p $OUTPUT
-export TRAIN_LLAMA='1'
-deepspeed --master_port=12345  main.py \
+#    --sft_only_data_path /mnt/user/gouqi/deep-speed-chat/datasets/alpaca-gpt4 \
+deepspeed main.py \
    --data_path HelpfulRLHFDataset HarmlessRLHFDataset \
    --local_data_files /mnt/user/gouqi/deep-speed-chat/datasets/helpful-base /mnt/user/gouqi/deep-speed-chat/datasets/harmless-base \
+   --data_split 1,0,0 1,0,0 \
    --data_output_path /mnt/user/gouqi/deep-speed-chat/output/data_files/fullhh \
-   --data_split 0,1,0 0,1,0 \
-   --num_padding_at_beginning 1 \
    --model_name_or_path /mnt/public/checkpoint/llama_2/llama2/7B-hf \
-   --per_device_train_batch_size 8 \
-   --per_device_eval_batch_size 8 \
+   --per_device_train_batch_size 16 \
+   --per_device_eval_batch_size 16 \
    --max_prompt_seq_len 512 \
    --max_answer_seq_len 512 \
-   --learning_rate 5e-6 \
+   --learning_rate 5e-5 \
    --weight_decay 0.1 \
-   --num_train_epochs 1 \
+   --num_train_epochs 1  \
    --gradient_accumulation_steps 1 \
    --lr_scheduler_type cosine \
    --num_warmup_steps 500 \

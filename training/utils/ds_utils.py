@@ -13,7 +13,7 @@ def get_train_ds_config(offload,
                         release_inference_cache=False,
                         pin_parameters=True,
                         tp_gather_partition_size=8,
-                        max_out_tokens=512):
+                        max_out_tokens=1024):
 
     device = "cpu" if offload else "none"
     zero_opt_dict = {
@@ -34,10 +34,10 @@ def get_train_ds_config(offload,
         "train_micro_batch_size_per_gpu": MICRO_BATCH_SIZE,
         "steps_per_print": 10,
         "zero_optimization": zero_opt_dict,
-        "fp16": {
-            "enabled": True,
-            "loss_scale_window": 100
-        },
+        # "fp16": {
+        #     "enabled": True,
+        #     "loss_scale_window": 100
+        # },
         # "fp16": {
         #     "enabled": True,
         #     "auto_cast": True,
@@ -47,10 +47,11 @@ def get_train_ds_config(offload,
         #     "hysteresis": 2,
         #     "min_loss_scale": 1
         # },
-        # "bf16": {
-        #     "enabled": True,
-        #     "loss_scale_window": 100
-        # },
+        "bf16": {
+            "enabled": True,
+            "auto_cast": True,
+            "loss_scale_window": 100
+        },
         "gradient_clipping": 1.0,
         "prescale_gradients": False,
         "wall_clock_breakdown": False,
@@ -80,8 +81,9 @@ def get_eval_ds_config(offload, stage=0):
         "train_micro_batch_size_per_gpu": MICRO_BATCH_SIZE,
         "steps_per_print": 10,
         "zero_optimization": zero_opt_dict,
-        "fp16": {
-            "enabled": True
+        "bf16": {
+            "enabled": True,
+            "auto_cast": True
         },
         "gradient_clipping": 1.0,
         "prescale_gradients": False,

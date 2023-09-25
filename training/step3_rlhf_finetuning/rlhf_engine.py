@@ -8,11 +8,10 @@ import deepspeed
 from deepspeed.ops.adam import FusedAdam
 from deepspeed.ops.adam import DeepSpeedCPUAdam
 from transformers import AutoModelForCausalLM, get_scheduler
-
 from utils.ds_utils import get_train_ds_config, get_eval_ds_config
 from utils.module.lora import convert_linear_layer_to_lora, only_optimize_lora_parameters
 from utils.model.model_utils import create_hf_model, create_critic_model
-from utils.utils import get_optimizer_grouped_parameters
+from utils.utils import get_optimizer_grouped_parameters,print_rank_0
 """
 TODOs:
   * support HF models for critic (for debugging), must be a previously saved ckpt from step-2
@@ -55,9 +54,9 @@ class DeepSpeedRLHFEngine():
             self.actor_ema = self._init_ema(
                 actor_model_name_or_path=actor_model_name_or_path)
         self.critic = self._init_critic(
-            critic_model_name_or_path=actor_model_name_or_path,use_ziya=False)
+            critic_model_name_or_path=critic_model_name_or_path)
         self.reward = self._init_reward(
-            critic_model_name_or_path=critic_model_name_or_path,use_ziya=args.use_ziya)
+            critic_model_name_or_path=critic_model_name_or_path)
         if self.args.critic_gradient_checkpointing:
             self.critic.gradient_checkpointing_enable()
 
@@ -73,8 +72,7 @@ class DeepSpeedRLHFEngine():
             release_inference_cache=self.args.release_inference_cache,
             pin_parameters=(not self.args.unpin_actor_parameters),
             tp_gather_partition_size=self.args.tp_gather_partition_size,
-            max_out_tokens=self.args.max_prompt_seq_len +
-            self.args.max_answer_seq_len)
+            max_out_tokens=self.args.max_prompt_seq_len + self.args.max_answer_seq_len)
         ds_config[
             'train_micro_batch_size_per_gpu'] = self.args.per_device_mini_train_batch_size
         #TODO(jeff): we should probably set grad accumlation steps here as well for clarity
@@ -91,8 +89,6 @@ class DeepSpeedRLHFEngine():
             model_name_or_path=actor_model_name_or_path,
             tokenizer=self.actor_tokenizer,
             ds_config=ds_config)
-        actor_model.config.rope_type = 'ours'
-
         # LoRA
         if self.args.actor_lora_dim > 0:
             actor_model = convert_linear_layer_to_lora(
@@ -116,14 +112,12 @@ class DeepSpeedRLHFEngine():
             num_warmup_steps=self.args.num_warmup_steps,
             num_training_steps=self.num_total_iters,
         )
-
         # DeepSpeed Engine
         #TODO: move enable_hybrid_engine and pin_parameters to ds_config
         actor_engine, *_ = deepspeed.initialize(model=actor_model,
                                                 optimizer=optim,
                                                 lr_scheduler=lr_scheduler,
                                                 config=ds_config)
-
         log_init("Actor", stime=stime)
 
         return actor_engine
@@ -148,9 +142,9 @@ class DeepSpeedRLHFEngine():
         import os
         model_class = AutoModelForCausalLM
         ref_model = create_hf_model(model_class,
-                                    actor_model_name_or_path, self.actor_tokenizer,
+                                    actor_model_name_or_path,
+                                    self.actor_tokenizer,
                                     ds_config)
-        ref_model.config.rope_type = 'ours'
         ref_engine, *_ = deepspeed.initialize(model=ref_model,
                                               config=ds_config)
 
@@ -181,10 +175,12 @@ class DeepSpeedRLHFEngine():
         log_init("EMA", stime=stime)
         return ema_engine
 
-    def _init_critic(self, critic_model_name_or_path,use_ziya=False):
+    def _init_critic(self, critic_model_name_or_path):
         stime = log_init("Critic")
+
         ds_config = get_train_ds_config(offload=self.args.offload,
-                                        stage=self.args.critic_zero_stage)
+                                        stage=self.args.critic_zero_stage,
+                                        max_out_tokens=self.args.max_prompt_seq_len + self.args.max_answer_seq_len)
         ds_config[
             'train_micro_batch_size_per_gpu'] = self.args.per_device_mini_train_batch_size
         #TODO(jeff): we should probably set grad accumlation steps here as well for clarity
@@ -200,10 +196,9 @@ class DeepSpeedRLHFEngine():
         critic_model = create_critic_model(
             model_name_or_path=critic_model_name_or_path,
             tokenizer=self.critic_tokenizer,
-            ds_config=ds_eval_config,
+            ds_config=ds_config,
             num_padding_at_beginning=self.args.num_padding_at_beginning,
-            rlhf_training=True,
-            use_ziya=use_ziya)
+            rlhf_training=True)
 
         # LoRA
         if self.args.critic_lora_dim > 0:
@@ -234,11 +229,10 @@ class DeepSpeedRLHFEngine():
                                                  optimizer=optim,
                                                  lr_scheduler=lr_scheduler,
                                                  config=ds_config)
-
         log_init("Critic", stime=stime)
         return critic_engine
 
-    def _init_reward(self, critic_model_name_or_path,use_ziya=False):
+    def _init_reward(self, critic_model_name_or_path):
         stime = log_init("Reward")
         # DS Config
         zero_stage = self.args.critic_zero_stage
@@ -264,11 +258,10 @@ class DeepSpeedRLHFEngine():
             tokenizer=self.reward_tokenizer,
             ds_config=ds_eval_config,
             num_padding_at_beginning=self.args.num_padding_at_beginning,
-            rlhf_training=True,
-            use_ziya=use_ziya)
+            rlhf_training=True)
+
 
         reward_engine, *_ = deepspeed.initialize(model=reward_model,
-                                                 config=ds_config)
-
+                                                 config=ds_eval_config)
         log_init("Reward", stime=stime)
         return reward_engine

@@ -5,19 +5,21 @@
 import torch
 import numpy as np
 from torch import nn
+from transformers import PreTrainedModel
 from ..utils import print_rank_0
 
 ## Note that the following code is modified from
 ## https://github.com/CarperAI/trlx/blob/main/examples/summarize_rlhf/reward_model/reward_model.py
-class LlamaRewardModel(nn.Module):
+class LlamaRewardModel(PreTrainedModel):
 
     def __init__(self, base_model, tokenizer, num_padding_at_beginning=0):
-        super().__init__()
+        super().__init__(base_model.config)
         self.config = base_model.config
         self.config.n_embd = self.config.hidden_size 
         self.v_head = nn.Linear(self.config.n_embd, 1, bias=False)
         self.rwtransformer = base_model
         self.PAD_ID = tokenizer.pad_token_id
+        self.tokenizer = tokenizer
 
     def gradient_checkpointing_enable(self):
         self.rwtransformer.gradient_checkpointing_enable()
@@ -59,41 +61,31 @@ class LlamaRewardModel(nn.Module):
         rejected_ids = input_ids[bs:]
         chosen_rewards = rewards[:bs]
         rejected_rewards = rewards[bs:]
-
+        attention_mask = attention_mask[:bs]
         # Compute pairwise loss. Only backprop on the different tokens before padding
         loss = 0
-        for i in range(bs):
-            chosen_id = chosen_ids[i]
-            rejected_id = rejected_ids[i]
-            chosen_reward = chosen_rewards[i]
-            rejected_reward = rejected_rewards[i]
-            # 使用的left paddding/truncate
-            divergence_ind = prompt_length[i]
-            # check_divergence = (chosen_id != rejected_id).nonzero()
-            chosen_end = (chosen_id != self.PAD_ID).nonzero()[-1] + 1
-            rejected_end = (rejected_id != self.PAD_ID).nonzero()[-1] + 1
-            c_truncated_reward = chosen_reward[divergence_ind:chosen_end]
-            r_truncated_reward = rejected_reward[divergence_ind:rejected_end]
-            # use the end score for refernence
 
-            chosen_mean_scores.append(c_truncated_reward[-1])
-            rejected_mean_scores.append(r_truncated_reward[-1])
-            loss += -torch.log(
-                torch.sigmoid(c_truncated_reward[-1] - r_truncated_reward[-1])
-            )
-
-            # use the mean score of response
-
-            # loss += -torch.nn.functional.logsigmoid(c_truncated_reward -
-            #                                         r_truncated_reward).mean()
-
+        if attention_mask is None:
+            chosen_mean_scores = chosen_rewards[:,-1]
+            rejected_mean_scores = rejected_rewards[:,-1]
+        else:
+            last_index = attention_mask.cumsum(dim=1).argmax(dim=1) # (bs,)
+            chosen_mean_scores = []
+            rejected_mean_scores = []
+            for i in range(bs):
+                chosen_mean_scores.append(chosen_rewards[i,last_index[i]])
+                rejected_mean_scores.append(rejected_rewards[i, last_index[i]])
+            chosen_mean_scores = torch.stack(chosen_mean_scores)
+            rejected_mean_scores = torch.stack(rejected_mean_scores)
+        loss += -torch.log(torch.sigmoid(chosen_mean_scores - rejected_mean_scores)).mean()
+        # loss += -torch.nn.functional.logsigmoid(c_truncated_reward -
+        #                                         r_truncated_reward).mean()
         loss = loss / bs
-        chosen_scores = torch.stack(chosen_mean_scores)
-        rejected_scores = torch.stack(rejected_mean_scores)
+
         return {
             "loss": loss,
-            "chosen_mean_scores": chosen_scores,
-            "rejected_mean_scores": rejected_scores,
+            "chosen_mean_scores": chosen_mean_scores,
+            "rejected_mean_scores": rejected_mean_scores,
         }
 
     def forward_value(self,
@@ -104,7 +96,6 @@ class LlamaRewardModel(nn.Module):
                       head_mask=None,
                       inputs_embeds=None,
                       return_value_only=False,
-                      prompt_length=0,
                       use_cache=False):
 
         transformer_outputs = self.rwtransformer(
@@ -116,10 +107,7 @@ class LlamaRewardModel(nn.Module):
         hidden_states = transformer_outputs[0] # b * sqe_len * hidden_size
         values = self.v_head(hidden_states).squeeze(-1) # b * seq_len
 
-        # normal
-        mean = 0
-        var = 10
-        values = (values - mean) / np.sqrt(var)
+
         if return_value_only:
             return values
         else:
@@ -150,6 +138,12 @@ class LlamaRewardModel(nn.Module):
                 "chosen_end_scores": torch.stack(chosen_end_scores),
             }
             '''
+
+            # normal
+            mean = 0 # 2.86 #
+            var = 1 # 3.82 #
+            # values = (values - mean) / np.sqrt(var)
+
             if attention_mask is None:
                 reward = values[:,-1]
             else:
@@ -158,10 +152,12 @@ class LlamaRewardModel(nn.Module):
                 bs = last_index.size(0)
                 for i in range(bs):
                     reward.append(values[i,last_index[i]])
+                    # reward.append(values[i,-1])
                 reward = torch.stack(reward)
             return {
                 "values": values,
-                "chosen_end_scores": reward,
+                # "chosen_end_scores": reward
+                "chosen_end_scores": (reward - mean) / np.sqrt(var),
             }
 
 

@@ -4,6 +4,7 @@
 
 # DeepSpeed Team
 import argparse
+import json
 import os
 import math
 import sys
@@ -41,11 +42,12 @@ def parse_args():
                         '1) a single data path, 2) multiple datasets in the'
                         'form: dataset1-path dataset2-path ...')
     parser.add_argument('--local_data_files',
-                        default = "",
-                        type = str)
+                        nargs='*',
+                        default = []
+                        )
     parser.add_argument('--data_split',
-                        type=str,
-                        default='6,2,2',
+                        nargs='*',
+                        default=['3,4,3'],
                         help='Comma-separated list of proportions for training'
                         'phase 1, 2, and 3 data. For example the split `2,4,4`'
                         'will use 60% of data for phase 1, 20% for phase 2'
@@ -84,6 +86,18 @@ def parse_args():
     )
     parser.add_argument(
         "--max_seq_len",
+        type=int,
+        default=512,
+        help="The maximum sequence length.",
+    )
+    parser.add_argument(
+        "--max_prompt_seq_len",
+        type=int,
+        default=200,
+        help="The maximum sequence length.",
+    )
+    parser.add_argument(
+        "--max_answer_seq_len",
         type=int,
         default=512,
         help="The maximum sequence length.",
@@ -202,9 +216,8 @@ def main():
     set_random_seed(args.seed)
     torch.distributed.barrier()
     from transformers import LlamaTokenizer
-    tokenizer = LlamaTokenizer.from_pretrained(args.model_name_or_path, padding_side='right', truncation_side = 'right')
-    tokenizer.pad_token = tokenizer.eos_token
-
+    tokenizer = LlamaTokenizer.from_pretrained(args.model_name_or_path)
+    tokenizer.add_special_tokens({'pad_token': '[PAD]'})
     rm_model_ = create_critic_model(args.model_name_or_path, tokenizer,ds_config)
     # eval
     # rm_model_ = create_critic_model(args.model_name_or_path, tokenizer, None ,
@@ -223,8 +236,8 @@ def main():
         args.data_output_path, train_phase, args.seed, tokenizer,
         args.max_seq_len, args = args)
     # raw_dataset = get_raw_dataset(args.dataset_name, args.output_path, 1234, -1, local_path=args.local_data_files)
-    print_rank_0('Train Dataset Length:', len(train_dataset))
-    print_rank_0('Eval Dataset Length:', len(eval_dataset))
+    print_rank_0(f'Train Dataset Length: {len(train_dataset)}')
+    print_rank_0(f'Eval Dataset Length: {len(eval_dataset)}')
     # DataLoaders creation:
     data_collator = DataCollatorReward()
     if args.local_rank == -1:
@@ -327,6 +340,7 @@ def main():
         rejected_mean_score = []
         for step, batch in enumerate(train_dataloader):
             batch = to_device(batch, device)
+
             outputs = rm_model(**batch, use_cache=False)
             loss = outputs["loss"]
             chosen_mean_score.extend(outputs['chosen_mean_scores'].tolist())
@@ -350,6 +364,11 @@ def main():
             f"***** Evaluating reward, Epoch {epoch+1}/{args.num_train_epochs} *****",
             args.global_rank)
         reward_score, acc, chosen_list, reject_list = evaluation_reward(rm_model, eval_dataloader)
+        total_score = chosen_list.tolist() + reject_list.tolist()
+        print_rank_0(
+            f"Epoch {epoch+1} / Total_eval_score_mean: {sum(total_score)/len(total_score)}, variance:{np.var(total_score)}",
+            args.global_rank)
+
         print_rank_0(
             f"chosen_last_scores (higher is better) : {reward_score}, acc (higher is better) : {acc}",
             args.global_rank)
