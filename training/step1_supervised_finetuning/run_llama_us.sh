@@ -4,7 +4,7 @@
 
 # DeepSpeed Team
 rm -r /mnt/user/gouqi/deep-speed-chat/output/data_files/AlpacaGPT4
-OUTPUT=/mnt/user/gouqi/deep-speed-chat/training/step1_supervised_finetuning/outputs/llama2-fullhh-test
+OUTPUT=/mnt/user/gouqi/deep-speed-chat/training/step1_supervised_finetuning/outputs/llama2-fullhh-us-withprompt
 ZERO_STAGE=3
 TRAIN_LLAMA=1
 export CUDA_VISIBLE_DEVICES=0,1,2,3,4,5,6,7
@@ -18,12 +18,12 @@ fi
 mkdir -p $OUTPUT
 #    --sft_only_data_path /mnt/user/gouqi/deep-speed-chat/datasets/alpaca-gpt4 \
 deepspeed main.py \
-   --data_path HelpfulRLHFDataset HarmlessRLHFDataset \
+   --data_path HelpfulUserDataset HarmlessUserDataset \
    --local_data_files /mnt/user/gouqi/deep-speed-chat/datasets/helpful-base /mnt/user/gouqi/deep-speed-chat/datasets/harmless-base \
    --data_split 1,0,0 1,0,0 \
-   --data_output_path /mnt/user/gouqi/deep-speed-chat/output/data_files/fullhh \
+   --data_output_path /mnt/user/gouqi/deep-speed-chat/output/data_files/fullhh-us \
    --model_name_or_path /mnt/public/checkpoint/llama_2/llama2/7B-hf \
-   --per_device_train_batch_size 16 \
+   --per_device_train_batch_size 8 \
    --per_device_eval_batch_size 8 \
    --max_prompt_seq_len 512 \
    --max_answer_seq_len 512 \

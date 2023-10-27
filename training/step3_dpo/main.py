@@ -34,18 +34,16 @@ from transformers import (
 from tqdm import tqdm
 import deepspeed
 
-from ppo_trainer import DeepSpeedPPOTrainer, DeepSpeedPPOTrainerUnsupervised
-from rlhf_engine import DeepSpeedRLHFEngine
+from dpo_trainer import DeepSpeedDPOTrainer, DeepSpeedDPOTrainerUnsupervised
 
 import sys
 
 sys.path.append(
     os.path.abspath(os.path.join(os.path.dirname(__file__), os.path.pardir)))
-from utils.data.data_utils import create_prompt_dataset, MiniDataset, DataCollatorRLHF, get_unsupervised_data
+from utils.data.data_utils import create_prompt_dataset, MiniDataset, DataCollatorRLHF, get_unsupervised_data,DataCollatorDPO
 from utils.utils import print_rank_0, to_device, save_hf_format, set_random_seed, get_all_reduce_mean, moving_average, save_zero_three_model
 from utils.module.lora import convert_lora_to_linear_layer
-
-
+from dpo_engine import DeepSpeedDPOEngine
 def parse_args():
     parser = argparse.ArgumentParser(
         description="(Step 3) RLHF training arguments")
@@ -126,22 +124,16 @@ def parse_args():
         "Batch size (per device) for the training dataloader and generation purpose."
     )
     parser.add_argument(
-        "--per_device_mini_train_batch_size",
+        "--log_interval",
         type=int,
         default=16,
         help=
-        "Mini Batch size (per device) for the training dataloader and training purpose."
+        "log_interval"
     )
-
     parser.add_argument("--generation_batch_numbers",
                         type=int,
                         default=1,
                         help="Generate x batches to go to training mode.")
-    parser.add_argument(
-        "--ppo_epochs",
-        type=int,
-        default=1,
-        help="For generated data, how many ppo training epochs to run.")
     parser.add_argument("--max_prompt_seq_len",
                         type=int,
                         default=256,
@@ -156,16 +148,14 @@ def parse_args():
         default=9.65e-6,
         help="Initial learning rate (after the potential warmup period) to use."
     )
-    parser.add_argument(
-        "--critic_learning_rate",
-        type=float,
-        default=5e-6,
-        help="Initial learning rate (after the potential warmup period) to use."
-    )
     parser.add_argument("--actor_weight_decay",
                         type=float,
                         default=0.1,
                         help="Weight decay to use.")
+    parser.add_argument("--beta",
+                        type=float,
+                        default=0.3,
+                        help="beta")
     parser.add_argument("--critic_weight_decay",
                         type=float,
                         default=0.1,
@@ -318,66 +308,67 @@ def parse_args():
     return args
 
 
-def create_datasets(args, tokenizer, train_phase=3 ):
+def create_datasets(args, tokenizer, train_phase=4):
     unsupervised_training_enabled = args.unsupervised_dataset_name and args.unsupervised_dataset_config_name
-    prompt_train_dataset, prompt_eval_dataset = create_prompt_dataset(
-        args.local_rank, args.data_path, args.data_split,
-        args.data_output_path, train_phase, args.seed, tokenizer,
-        args.max_prompt_seq_len, args = args)
-    print_rank_0(f'train_dataset:{len(prompt_train_dataset)}')
+    train_dataset, eval_dataset = create_prompt_dataset( # 这里train_phase=4代表dpo，但是dataset的splits还是得取2，代表第三阶段得数据集比例
+        args.local_rank,
+        args.data_path,
+        args.data_split,
+        args.data_output_path,
+        train_phase,
+        args.seed,
+        tokenizer,
+        args.max_prompt_seq_len + args.max_answer_seq_len,
+        args = args)
+    print_rank_0(f'train_dataset:{len(train_dataset)}')
     if unsupervised_training_enabled:
         unsupervised_train_dataset = get_unsupervised_data(args, tokenizer)
     else:
         unsupervised_train_dataset = None
 
-    print_rank_0(f'Train Dataset Length: {len(prompt_train_dataset)}')
-    print_rank_0(f'Eval Dataset Length: {len(prompt_eval_dataset)}')
-
-    # DataLoaders creation:
-    data_collator = DataCollatorRLHF(args.max_prompt_seq_len,
-                                     args.inference_tp_size,
-                                     tokenizer=tokenizer)
+    print_rank_0(f'Train Dataset Length: {len(train_dataset)}')
+    print_rank_0(f'Eval Dataset Length: {len(eval_dataset)}')
     if args.local_rank == -1:
-        prompt_train_sampler = RandomSampler(prompt_train_dataset)
-        prompt_eval_sampler = SequentialSampler(prompt_eval_dataset)
+        train_sampler = RandomSampler(train_dataset)
+        eval_sampler = SequentialSampler(eval_dataset)
         if unsupervised_training_enabled:
             unsupervised_train_sampler = RandomSampler(
                 unsupervised_train_dataset)
     else:
-        prompt_train_sampler = DistributedSampler(prompt_train_dataset)
-        prompt_eval_sampler = DistributedSampler(prompt_eval_dataset) # SequentialSampler
+        train_sampler = DistributedSampler(train_dataset)
+        eval_sampler = DistributedSampler(eval_dataset) # SequentialSampler
 
         if unsupervised_training_enabled:
             unsupervised_train_sampler = DistributedSampler(
                 unsupervised_train_dataset)
-    prompt_train_dataloader = DataLoader(
-        prompt_train_dataset,
+    data_collator = DataCollatorDPO()
+    train_dataloader = DataLoader(
+        train_dataset,
         collate_fn=data_collator,
-        sampler=prompt_train_sampler,
+        sampler=train_sampler,
         batch_size=args.per_device_train_batch_size)
 
-    prompt_eval_dataloader = DataLoader(
-        prompt_eval_dataset,
+    eval_dataloader = DataLoader(
+        eval_dataset,
         collate_fn=data_collator,
-        sampler=prompt_eval_sampler,
-        batch_size=args.per_device_train_batch_size)
+        sampler=eval_sampler,
+        batch_size=args.per_device_eval_batch_size)
 
     if unsupervised_training_enabled:
         unsupervised_train_dataloader = DataLoader(
             unsupervised_train_dataset,
-            collate_fn=default_data_collator,
+            collate_fn=data_collator,
             sampler=unsupervised_train_sampler,
             batch_size=args.per_device_train_batch_size)
     else:
         unsupervised_train_dataloader = [None] * len(
-            prompt_train_dataloader)  # basically a dummy dataloader
+            train_dataloader)  # basically a dummy dataloader
 
-    num_update_steps_per_epoch = min(len(prompt_train_dataloader), len(unsupervised_train_dataloader)) * \
-        (args.per_device_train_batch_size / args.per_device_mini_train_batch_size) * \
-        args.ppo_epochs / args.gradient_accumulation_steps
+    num_update_steps_per_epoch = min(len(train_dataloader), len(unsupervised_train_dataloader)) / args.gradient_accumulation_steps
+
     num_total_iters = int(args.num_train_epochs * num_update_steps_per_epoch)
 
-    return prompt_train_dataloader,prompt_eval_dataloader, unsupervised_train_dataloader, num_total_iters
+    return train_dataloader,eval_dataloader, unsupervised_train_dataloader, num_total_iters
 
 
 def main():
@@ -396,7 +387,6 @@ def main():
     import os
     if args.global_rank == 0:
         writer = SummaryWriter(log_dir= os.path.join(args.output_dir,'tensorboard'))
-
     assert not args.offload, "zero-offload is not currently supported but coming soon!"
 
     unsupervised_training_enabled = args.unsupervised_dataset_name and args.unsupervised_dataset_config_name
@@ -408,13 +398,11 @@ def main():
 
     # If passed along, set the training seed now.
     set_random_seed(args.seed)
-    torch.distributed.barrier()
-
     # create common tokenizer based on actor model
     from transformers import LlamaForCausalLM,LlamaTokenizer
     import os
-    actor_tokenizer = LlamaTokenizer.from_pretrained(args.actor_model_name_or_path)
-    actor_tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+    tokenizer = LlamaTokenizer.from_pretrained(args.actor_model_name_or_path)
+    tokenizer.add_special_tokens({'pad_token': '[PAD]'})
     # sys.path.append('/home/gq/deeplang/deep-speed-chat/MixedTokenizer')
     # from mixed_tokenizer import MixedLLaMATokenizer
     # tokenizer_dir = "/home/gq/deeplang/deep-speed-chat/MixedTokenizer/tokenizer_files"
@@ -422,48 +410,20 @@ def main():
     #     "{}/tokenizer_llama_en.model".format(tokenizer_dir),
     #     "{}/tokenizer_llama_zh.json".format(tokenizer_dir)
     # )
-    reward_tokenizer = LlamaTokenizer.from_pretrained(args.critic_model_name_or_path)
-    reward_tokenizer.add_special_tokens({'pad_token': '[PAD]'})
 
-    prompt_train_dataloader, prompt_eval_dataloader, unsupervised_train_dataloader, num_total_iters = create_datasets(
-        args=args, tokenizer=actor_tokenizer, train_phase=3)
-
-    # RLHF engine is responsible for creating models, loading checkpoints, ds-initialize models/optims/lr-schedulers
-    rlhf_engine = DeepSpeedRLHFEngine(
-        actor_model_name_or_path=args.actor_model_name_or_path,
-        critic_model_name_or_path=args.critic_model_name_or_path,
-        actor_tokenizer=actor_tokenizer,
-        critic_tokenizer=reward_tokenizer,
-        reward_tokenizer=reward_tokenizer,
-        num_total_iters=num_total_iters,
-        args=args)
+    train_dataloader, eval_dataloader, unsupervised_train_dataloader, num_total_iters = create_datasets(
+        args=args, tokenizer=tokenizer, train_phase=4)
 
     args.end_of_conversation_token = "<|endoftext|>"
 
-    ppo_trainer = DeepSpeedPPOTrainerUnsupervised if unsupervised_training_enabled else DeepSpeedPPOTrainer
-    trainer = ppo_trainer(rlhf_engine, args)
-
-    # first number is how many experience-batch to generate, second number is the training batch size, which is the micro-batch size used
-    exp_mini_dataset = MiniDataset(args.generation_batch_numbers,
-                                   args.per_device_mini_train_batch_size)
-    unsup_mini_dataset = MiniDataset(args.generation_batch_numbers,
-                                     args.per_device_mini_train_batch_size)
-
-    def prepare_singlesample(prompt,
-                             good_ans,
-                             tokenizer,
-                             max_seq_len=1024,
-                             end_of_conversation_token="<|endoftext|>"):
-        chosen_sentence = prompt + good_ans  # + end_of_conversation_token
-        chosen_token = tokenizer.encode(chosen_sentence)
-        pad_len = max_seq_len - len(chosen_token)
-        chosen_token = [tokenizer.pad_token_id] * pad_len + chosen_token
-        attention_mask = [1 if x != tokenizer.pad_token_id else 0 for x in chosen_token]
-        batch = {}
-        batch["input_ids"] = torch.tensor([chosen_token])
-        batch["attention_mask"] = torch.tensor([attention_mask])
-
-        return batch
+    dpo_trainer = DeepSpeedDPOTrainerUnsupervised if unsupervised_training_enabled else DeepSpeedDPOTrainer
+    dpo_engine = DeepSpeedDPOEngine(
+        actor_model_name_or_path=args.actor_model_name_or_path,
+        critic_model_name_or_path=args.critic_model_name_or_path,
+        tokenizer=tokenizer,
+        num_total_iters=num_total_iters,
+        args=args)
+    trainer = dpo_trainer(dpo_engine, tokenizer, args)
 
     def evaluation(model,eval_dataloader,tokenizer,reward_model):
         all_prompts = []
@@ -474,9 +434,10 @@ def main():
         for i, batch_prompt in tqdm(enumerate(eval_dataloader)):
             if i > 10:
                 break
-            batch_prompt = to_device(batch_prompt, device)
-            prompts = batch_prompt['prompt']
-            attention_mask = batch_prompt['prompt_att_mask']
+            prompts = batch_prompt['prompt_input_ids']
+            prompts = prompts.to(device)
+            attention_mask = batch_prompt['prompt_attention_mask']
+            attention_mask = attention_mask.to(device)
             length = prompts.size(-1)
             if length > args.max_prompt_seq_len:
                 prompts = prompts[:, length - args.max_prompt_seq_len:]
@@ -491,6 +452,21 @@ def main():
                                                synced_gpus=True,
                 )
                 reward_attention_mask = output.not_equal(tokenizer.pad_token_id).long()
+
+
+                # prompt = "Human: what is Led Zeppelin?\n\nAssistant: Led Zeppelin were a rock and roll band from the UK in the 1970s, with many big hit songs, including \"Stairway to Heaven\", and they've gone on to have a lasting influence on music, with many of their songs being played at events like weddings and funerals, and even played at US presidential inaugurations.\n\nHuman: Which president's inaugurations?\n\nAssistant: I'm not sure about the exact list of presidents, but I think you'll see a lot of “Stairway to Heaven” at both inaugurations of Barack Obama, and also in the inauguration of George W. Bush, too.\n\nHuman: I thought the band played at the inaugurations - what you meant was one of the band's songs.\n\nAssistant:"
+                #
+                # my_ans = "<s> Oh, sorry about that.  I guess I should have been more specific."
+                #
+                # batch = prepare_singlesample(prompt,
+                #                              my_ans,
+                #                              tokenizer,
+                #                              max_seq_len=1024,
+                #                              end_of_conversation_token="<|endoftext|>")
+                #
+                # reward  = reward_model.forward_value(**batch)
+                #
+
                 reward = reward_model.forward_value(
                     output.long(),attention_mask=reward_attention_mask)['chosen_end_scores'].detach(
                 )
@@ -549,17 +525,33 @@ def main():
                 total_score.append(item['score'])
                 result.append(item)
 
+            # num_batch = len(all_prompts)
+            # for i in range(num_batch):
+            #     # all_prompts[i][all_prompts[i] == tokenizer.pad_token] = 0
+            #     for j in range(all_prompts[i].size(0)):
+            #         cur_len = all_prompts[i].size(1) # prompts_attention_mask[i][j].sum()
+            #         prompt_decoded = tokenizer.decode(all_prompts[i][j][:cur_len].tolist(), skip_special_tokens=True)
+            #         prompt_decoded = prompt_decoded.split(tokenizer.pad_token)[0].strip()
+            #         ans_decoded = tokenizer.decode(seq[i][j][all_prompts[i][j].size(0):].tolist())
+            #         ans_decoded = ans_decoded.split(tokenizer.eos_token)[0].strip()
+            #         item = {}
+            #         item['prompt'] = prompt_decoded
+            #         item['response'] = ans_decoded
+            #         result.append(item)
+
         return result,total_score
 
     if args.global_rank == 0:
         if not os.path.exists(os.path.join(args.output_dir,'actor')):
             os.makedirs(os.path.join(args.output_dir,'actor'))
 
+
+
     print_rank_0("***** Running Evaluation *****", args.global_rank)
-    result,total_score = evaluation(trainer.actor_model,prompt_eval_dataloader,actor_tokenizer,trainer.reward_model)
+    result,total_score = evaluation(trainer.model,eval_dataloader,tokenizer,trainer.reward_model)
     if args.global_rank == 0:
-        writer.add_scalar('eval_mean_reward', sum(total_score) / len(total_score), 0)
-        with open(os.path.join(args.output_dir,'actor/before_ppo.json'),'w',encoding='utf-8') as fp:
+        writer.add_scalar('eval/mean_reward', sum(total_score) / len(total_score), 0)
+        with open(os.path.join(args.output_dir,'before_dpo.json'),'w',encoding='utf-8') as fp:
             json.dump(result,fp,indent=2,ensure_ascii=False)
 
 
@@ -567,140 +559,89 @@ def main():
     # Train!
     print_rank_0("***** Running training *****", args.global_rank)
     global_steps = 0
+    steps = 0
+    if args.actor_gradient_checkpointing:
+        dpo_engine.actor.gradient_checkpointing_enable()
     for epoch in range(args.num_train_epochs):
         print_rank_0(
-            f"Beginning of Epoch {epoch+1}/{args.num_train_epochs}, Total Generation Batches {min(len(prompt_train_dataloader), len(unsupervised_train_dataloader))}",
+            f"Beginning of Epoch {epoch+1}/{args.num_train_epochs}, Total Generation Batches {min(len(train_dataloader), len(unsupervised_train_dataloader))// args.gradient_accumulation_steps}",
             args.global_rank)
         for step, (batch_prompt, batch_unsupervised) in enumerate(
-                zip(prompt_train_dataloader, unsupervised_train_dataloader)):
+                zip(train_dataloader, unsupervised_train_dataloader)):
+            torch.cuda.empty_cache()
+            batch_prompt.pop('prompt_input_ids')
+            batch_prompt.pop('prompt_attention_mask')
             batch_prompt = to_device(batch_prompt, device)
-            if batch_unsupervised is not None:
-                batch_unsupervised = to_device(batch_unsupervised, device)
-                unsup_dataset = unsup_mini_dataset.add(batch_unsupervised)
-            else:
-                unsup_dataset = unsup_mini_dataset.add(
-                    [[None] * args.per_device_train_batch_size])
-            prompts = batch_prompt['prompt']
-            attention_mask = batch_prompt['prompt_att_mask']
-            length = prompts.size(-1)
-            if length > args.max_prompt_seq_len:
-                prompts = prompts[:, length - args.max_prompt_seq_len:]
-                raise ValueError("Prompt length is too long")
-
-            out = trainer.generate_experience(prompts,attention_mask,args)
-            exp_dataset = exp_mini_dataset.add(out)
-
-            if exp_dataset is not None:
-                inner_iter = 0
-                critic_loss, actor_loss, unsuper_loss = 0, 0, 0
-                average_reward = 0
-                advantages = 0
-                batch_kl_mean = 0
-                if args.actor_gradient_checkpointing:
-                    rlhf_engine.actor.gradient_checkpointing_enable()
-
-                for ppo_ep in range(args.ppo_epochs):
-                    for i, (exp_data, unsup_data) in enumerate(
-                            zip(exp_dataset, unsup_dataset)):
-                        actor_loss, critic_loss,advantages,batch_kl_mean = trainer.train_rlhf(exp_data)
-                        actor_loss += actor_loss.item()
-                        critic_loss += critic_loss.item()
-                        average_reward += exp_data["rewards"].mean()
-                        advantages += advantages.item()
-                        batch_kl_mean += batch_kl_mean.item()
-                        if unsupervised_training_enabled:
-                            unsup_loss = trainer.train_unsupervised(
-                                unsup_data, args.unsup_coef)
-                            unsuper_loss += unsup_loss.item()
-
-                        inner_iter += 1
-                        if args.enable_ema:
-                            moving_average(rlhf_engine.actor,
-                                           rlhf_engine.actor_ema,
-                                           zero_stage=args.actor_zero_stage)
-
-                    random.shuffle(exp_dataset)
-                    random.shuffle(unsup_dataset)
-
-                print_rank_0(
-                    f'epoch: {epoch}|step: {step}|ppo_ep: {ppo_ep+1}|act_loss: {actor_loss/inner_iter}|cri_loss: {critic_loss/inner_iter}|unsuper_loss: {unsuper_loss/inner_iter}',
-                    args.global_rank)
-                if args.global_rank==0:
-                    writer.add_scalar('actor_loss',actor_loss.float()/inner_iter,global_steps)
-                    writer.add_scalar('critic_loss',critic_loss.float()/inner_iter,global_steps)
-                    writer.add_scalar("average_reward_score", average_reward.float()/inner_iter, global_steps)
-                    writer.add_scalar("advantages", advantages.float()/inner_iter, global_steps)
-                    writer.add_scalar("batch_kl_mean", batch_kl_mean.float()/inner_iter, global_steps)
-                    writer.add_scalar("kl_ctl_value", trainer.kl_ctl.value, global_steps)
-                average_reward = get_all_reduce_mean(average_reward).item()
-                print_rank_0(
-                    f"average reward score: {average_reward/inner_iter}",
-                    args.global_rank)
+            loss,metrics = trainer.train_dpo(batch_prompt)
+            steps += 1
+            if steps and steps % args.gradient_accumulation_steps == 0:
+                global_steps += 1
                 print_rank_0(
                     "-------------------------------------------------------------------------------------",
                     args.global_rank)
-            global_steps += 1
-            if global_steps and global_steps % 20 == 0:
-                print_rank_0("***** Running Evaluation *****", args.global_rank)
-                result,total_score = evaluation(trainer.actor_model, prompt_eval_dataloader, actor_tokenizer,trainer.reward_model)
+                print_rank_0(
+                    f'epoch: {epoch}|step: {global_steps}|loss: {loss}',
+                    args.global_rank)
+
                 if args.global_rank == 0:
-                    writer.add_scalar('eval_mean_reward', sum(total_score) / len(total_score), global_steps)
-                    with open(
-                        os.path.join(args.output_dir,
-                                     f'actor/after_ppo_epoch_{epoch}_{global_steps}.json'), 'w', encoding='utf-8') as fp:
-                        json.dump(result, fp, indent=2, ensure_ascii=False)
-            if args.actor_gradient_checkpointing:
-                rlhf_engine.actor.gradient_checkpointing_disable()
+                    prefix = "train"
+                    writer.add_scalar(f"{prefix}/loss", loss, global_steps)
+                    writer.add_scalar(f"{prefix}/chosen_rewards", metrics[f"{prefix}/chosen_rewards"], global_steps)
+                    writer.add_scalar(f"{prefix}/rejected_rewards", metrics[f"{prefix}/rejected_rewards"], global_steps)
+                    writer.add_scalar(f"{prefix}/rewards_accuracies", metrics[f"{prefix}/rewards_accuracies"],
+                                      global_steps)
+                    writer.add_scalar(f"{prefix}/rewards_margins", metrics[f"{prefix}/rewards_margins"], global_steps)
+
+                if global_steps and global_steps % args.log_interval == 0:
+                    print_rank_0("***** Running Evaluation *****", args.global_rank)
+
+                    result,total_score = evaluation(trainer.model, eval_dataloader, tokenizer,trainer.reward_model)
+                    if args.global_rank == 0:
+                        writer.add_scalar('eval/mean_reward', sum(total_score) / len(total_score), global_steps)
+                        with open(
+                            os.path.join(args.output_dir,
+                                         f'after_dpo_epoch_{epoch}_{global_steps}.json'), 'w', encoding='utf-8') as fp:
+                            json.dump(result, fp, indent=2, ensure_ascii=False)
+
 
 
     print_rank_0("***** Running Evaluation *****", args.global_rank)
-    result,total_score = evaluation(trainer.actor_model,prompt_eval_dataloader,actor_tokenizer,trainer.reward_model)
+    result,total_score = evaluation(trainer.model,eval_dataloader,tokenizer,trainer.reward_model)
     if args.global_rank == 0:
-        writer.add_scalar('eval_mean_reward', sum(total_score) / len(total_score), global_steps)
-        with open(os.path.join(args.output_dir,f'actor/after_ppo_epoch_{epoch}_{global_steps}.json'),'w',encoding='utf-8') as fp:
+        writer.add_scalar('eval/mean_reward', sum(total_score) / len(total_score), global_steps)
+        with open(os.path.join(args.output_dir,f'after_dpo_epoch_{epoch}_{global_steps}.json'),'w',encoding='utf-8') as fp:
             json.dump(result,fp,indent=2,ensure_ascii=False)
 
     if args.output_dir is not None:
         print_rank_0('saving model ...',rank = args.global_rank)
-        rlhf_engine.actor = convert_lora_to_linear_layer(rlhf_engine.actor)
-        rlhf_engine.critic = convert_lora_to_linear_layer(rlhf_engine.critic)
+        dpo_engine.actor = convert_lora_to_linear_layer(dpo_engine.actor)
         if args.enable_ema:
-            rlhf_engine.actor_ema = convert_lora_to_linear_layer(
-                rlhf_engine.actor_ema)
+            dpo_engine._ema = convert_lora_to_linear_layer(
+                dpo_engine._ema)
 
         if args.global_rank == 0:
-            save_hf_format(rlhf_engine.actor,
-                           actor_tokenizer,
+            save_hf_format(dpo_engine.actor,
+                           tokenizer,
                            args,
-                           sub_folder='actor')
-            save_hf_format(rlhf_engine.critic,
-                           reward_tokenizer,
-                           args,
-                           sub_folder='critic')
+                           sub_folder='model')
             if args.enable_ema:
-                save_hf_format(rlhf_engine.actor_ema,
-                               reward_tokenizer,
+                save_hf_format(dpo_engine._ema,
+                               tokenizer,
                                args,
-                               sub_folder='actor_ema')
+                               sub_folder='model_ema')
 
         if args.actor_zero_stage == 3:
-            save_zero_three_model(rlhf_engine.actor,
+            save_zero_three_model(dpo_engine.actor,
                                   global_rank=args.global_rank,
                                   save_dir=os.path.join(
-                                      args.output_dir, 'actor'),
+                                      args.output_dir, 'model'),
                                   zero_stage=args.actor_zero_stage)
             if args.enable_ema:
-                save_zero_three_model(rlhf_engine.actor_ema,
+                save_zero_three_model(dpo_engine._ema,
                                       global_rank=args.global_rank,
                                       save_dir=os.path.join(
-                                          args.output_dir, 'actor_ema'),
+                                          args.output_dir, 'model_ema'),
                                       zero_stage=args.actor_zero_stage)
-        if args.critic_zero_stage == 3:
-            save_zero_three_model(rlhf_engine.critic,
-                                  global_rank=args.global_rank,
-                                  save_dir=os.path.join(
-                                      args.output_dir, 'critic'),
-                                  zero_stage=args.critic_zero_stage)
 
 
 if __name__ == "__main__":

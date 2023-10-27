@@ -21,8 +21,12 @@ def get_raw_dataset(dataset_name, output_path, seed, local_rank, local_path = No
         return raw_datasets.PRORLHFDataset(output_path, seed, local_rank, local_path)
     elif dataset_name == "HelpfulRLHFDataset":
         return raw_datasets.HelpfulRLHFDataset(output_path, seed, local_rank, local_path)
+    elif dataset_name == "HelpfulUserDataset":
+        return raw_datasets.HelpfulUserDataset(output_path, seed, local_rank, local_path)
     elif dataset_name == "HarmlessRLHFDataset":
         return raw_datasets.HarmlessRLHFDataset(output_path, seed, local_rank, local_path)
+    elif dataset_name == "HarmlessUserDataset":
+        return raw_datasets.HarmlessUserDataset(output_path, seed, local_rank, local_path)
     elif dataset_name == "AlpacaGPT4Dataset" or 'alpaca-gpt4' in dataset_name:
         return raw_datasets.AlpacaGPT4Dataset(output_path, seed, local_rank, local_path)
     elif dataset_name == "MossSftDataset":
@@ -136,7 +140,9 @@ class PromptDataset(Dataset):
             return {
                 "input_ids": self.chosen_dataset[idx]["input_ids"],
                 "attention_mask": self.chosen_dataset[idx]["attention_mask"],
-                "labels": self.chosen_dataset[idx]["labels"]
+                "labels": self.chosen_dataset[idx]["labels"],
+                "prompt_input_ids": self.prompt_dataset[idx]['input_ids'],
+                "prompt_attention_mask": self.prompt_dataset[idx]['attention_mask']
             }
         elif self.train_phase == 2:
             return self.chosen_dataset[idx]["input_ids"], self.chosen_dataset[idx]["attention_mask"], \
@@ -144,6 +150,10 @@ class PromptDataset(Dataset):
         elif self.train_phase == 3:
             return self.prompt_dataset[idx]["input_ids"],self.prompt_dataset[idx]["attention_mask"], \
                 self.pad_token_id
+        elif self.train_phase == 4: # dpo
+            return self.chosen_dataset[idx]['input_ids'],self.chosen_dataset[idx]['attention_mask'],self.chosen_dataset[idx]['labels'], \
+                    self.reject_dataset[idx]['input_ids'],self.reject_dataset[idx]['attention_mask'],self.reject_dataset[idx]['labels'], \
+                   self.prompt_dataset[idx]['input_ids'],self.prompt_dataset[idx]['attention_mask']
 
 
 def create_dataset_split(current_dataset, raw_dataset, train_phase, tokenizer,
@@ -185,6 +195,13 @@ def create_dataset_split(current_dataset, raw_dataset, train_phase, tokenizer,
             chosen_token["labels"] = torch.tensor(labels)
             chosen_token["attention_mask"] = torch.tensor([(1 if x != tokenizer.pad_token_id else 0) for x in input_ids])
             chosen_dataset.append(chosen_token)
+
+            prompt_token = {}
+            pad_len = args.max_prompt_seq_len - len(prompt_input_ids)
+            prompt_input_ids = [tokenizer.pad_token_id] * pad_len + prompt_input_ids
+            prompt_token['input_ids'] = torch.tensor(prompt_input_ids)
+            prompt_token['attention_mask'] = torch.tensor([(1 if x != tokenizer.pad_token_id else 0) for x in prompt_input_ids])
+            prompt_dataset.append(prompt_token)
     elif train_phase == 2:
         print('176:training_phrase_2')
         for i, tmp_data in enumerate(current_dataset):
@@ -242,7 +259,64 @@ def create_dataset_split(current_dataset, raw_dataset, train_phase, tokenizer,
             prompt_token["input_ids"] = torch.LongTensor(prompt_input_ids)
             prompt_token["attention_mask"] = torch.tensor([(1 if x != tokenizer.pad_token_id else 0) for x in prompt_token["input_ids"]])
             prompt_dataset.append(prompt_token)
+    elif train_phase == 4:
+        print('176:training_phrase_4')
+        for i, tmp_data in enumerate(current_dataset):
+            p_length = 0 # abandoned
+            prompt = raw_dataset.get_prompt(tmp_data)
+            chosen = raw_dataset.get_chosen(tmp_data)
+            rejected = raw_dataset.get_rejected(tmp_data)
+            prompt_input_ids = tokenizer.encode(prompt)
+            try:
+                while len(prompt_input_ids) > args.max_prompt_seq_len:
+                    prompt = human_prompt + human_prompt.join(prompt.split(human_prompt)[2:])
+                    prompt_input_ids = tokenizer.encode(prompt)
+            except Exception as e:
+                # prompt_input_ids = prompt_input_ids[-args.max_prompt_seq_len:]
+                continue
+            context_length = len(prompt_input_ids)
+            chosen_token = {}
+            chosen_input_ids = tokenizer.encode(chosen)
+            if len(chosen_input_ids) > args.max_answer_seq_len:
+                continue
+            chosen_token['input_ids'] = prompt_input_ids + chosen_input_ids + [tokenizer.eos_token_id]
+            labels = [tokenizer.pad_token_id] * context_length + chosen_input_ids + [tokenizer.eos_token_id]
 
+            pad_len = args.max_prompt_seq_len + args.max_answer_seq_len + 1 - len(chosen_token['input_ids'])
+            chosen_token['input_ids'] = [tokenizer.pad_token_id] * pad_len + chosen_token['input_ids']
+            chosen_token['labels'] = [tokenizer.pad_token_id] * pad_len + labels
+            chosen_token['labels'] = [(l if l != tokenizer.pad_token_id else -100) for l in chosen_token['labels']]
+
+            rejected_token = {}
+            rejected_input_ids = tokenizer.encode(rejected)
+            if len(rejected_input_ids) > args.max_answer_seq_len:
+                rejected_input_ids = rejected_input_ids[:args.max_answer_seq_len]
+
+            rejected_token['input_ids'] = prompt_input_ids + rejected_input_ids + [tokenizer.eos_token_id]
+            labels = [tokenizer.pad_token_id] * context_length + rejected_input_ids + [tokenizer.eos_token_id]
+            pad_len = args.max_prompt_seq_len + args.max_answer_seq_len + 1 - len(rejected_token['input_ids'])
+            rejected_token['input_ids'] = [tokenizer.pad_token_id] * pad_len + rejected_token['input_ids']
+            rejected_token['labels'] = [tokenizer.pad_token_id] * pad_len + labels
+            rejected_token['labels'] = [(l if l != tokenizer.pad_token_id else -100) for l in rejected_token['labels']]
+
+            chosen_token["input_ids"] = torch.tensor(chosen_token["input_ids"])
+            rejected_token["input_ids"] = torch.tensor(rejected_token["input_ids"])
+            chosen_token["labels"] = torch.tensor(chosen_token["labels"])
+            rejected_token["labels"] = torch.tensor(rejected_token["labels"])
+            chosen_token['attention_mask'] = torch.tensor([(1 if x != tokenizer.pad_token_id else 0) for x in chosen_token['input_ids']])
+            rejected_token['attention_mask'] = torch.tensor([(1 if x != tokenizer.pad_token_id else 0) for x in rejected_token['input_ids']])
+
+
+            prompt_token = {}
+            pad_len = args.max_prompt_seq_len - len(prompt_input_ids)
+            prompt_input_ids = [tokenizer.pad_token_id] * pad_len + prompt_input_ids
+            prompt_token['input_ids'] = torch.tensor(prompt_input_ids)
+            prompt_token['attention_mask'] = torch.tensor([(1 if x != tokenizer.pad_token_id else 0) for x in prompt_input_ids])
+
+
+            chosen_dataset.append(chosen_token)
+            reject_dataset.append(rejected_token)
+            prompt_dataset.append(prompt_token)
     return PromptDataset(prompt_dataset, chosen_dataset, reject_dataset,
                          tokenizer.pad_token_id, train_phase)
 
@@ -256,7 +330,7 @@ def create_dataset(local_rank, dataset_name, data_split, output_path,
     train_index = get_raw_dataset_split_index(local_rank, output_path,
                                               raw_dataset.dataset_name_clean,
                                               seed, "train", data_split,
-                                              train_phase - 1,
+                                              train_phase - 1 if train_phase <= 3 else 2,
                                               len(train_dataset))
     train_dataset = Subset(train_dataset, train_index)
     train_dataset = create_dataset_split(train_dataset, raw_dataset,
@@ -264,13 +338,14 @@ def create_dataset(local_rank, dataset_name, data_split, output_path,
                                          end_of_conversation_token,
                                          max_seq_len,args)
 
-    print('train Length-261:',len(train_dataset))
+    print('train Length-261:',len(train_index))
 
     eval_dataset = raw_dataset.get_eval_data()
     eval_index = get_raw_dataset_split_index(local_rank, output_path,
                                              raw_dataset.dataset_name_clean,
                                              seed, "eval",
-                                             data_split, train_phase - 1,
+                                             data_split,
+                                             train_phase - 1 if train_phase <= 3 else 2,
                                              len(eval_dataset))
 
 
@@ -398,6 +473,22 @@ class DataCollatorReward:
                                             dim=0)
         return batch
 
+class DataCollatorDPO:
+
+    def __call__(self, data):
+        batch = {}
+        batch["input_ids"] = torch.stack([f[0]
+                                        for f in data] + [f[3] for f in data],
+                                       dim=0)
+        batch["attention_mask"] = torch.stack([f[1] for f in data] +
+                                            [f[4] for f in data],
+                                            dim=0)
+        batch["labels"] = torch.stack([f[2] for f in data] +
+                                            [f[5] for f in data],
+                                            dim=0)
+        batch["prompt_input_ids"] = torch.stack([f[6] for f in data])
+        batch["prompt_attention_mask"] = torch.stack([f[7] for f in data])
+        return batch
 
 class DataCollatorRLHF:
 

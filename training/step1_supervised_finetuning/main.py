@@ -7,6 +7,7 @@ import argparse
 import os
 import math
 import sys
+import json
 from torch.utils.tensorboard import SummaryWriter
 import torch
 from torch.utils.data import DataLoader, RandomSampler, SequentialSampler
@@ -20,7 +21,7 @@ from transformers import (
     get_scheduler,
     LlamaTokenizer
 )
-
+from tqdm import tqdm
 import deepspeed
 from deepspeed.ops.adam import DeepSpeedCPUAdam, FusedAdam
 
@@ -222,7 +223,6 @@ def main():
     assert not args.offload, "zero-offload is not currently supported but coming soon!"
 
     torch.distributed.barrier()
-
     tokenizer = LlamaTokenizer.from_pretrained(args.model_name_or_path,padding_side='left',truncation_side='left')
     tokenizer.add_special_tokens({'pad_token': '[PAD]'})
     print(tokenizer)
@@ -267,26 +267,83 @@ def main():
                                  sampler=eval_sampler,
                                  batch_size=args.per_device_eval_batch_size)
 
-    def evaluation(model, eval_dataloader):
-        model.eval()
-        losses = 0
-        for step, batch in enumerate(eval_dataloader):
-            batch = to_device(batch, device)
-            with torch.no_grad():
-                outputs = model(**batch)
 
-            loss = outputs.loss
-            losses += loss.float()
-        losses = losses / (step + 1)
+    def evaluation(model,eval_dataloader,tokenizer):
+        all_prompts = []
+        seq = []
+        model.eval()
+        for i, batch_prompt in tqdm(enumerate(eval_dataloader)):
+            if i > 10:
+                break
+            batch_prompt = to_device(batch_prompt, device)
+            prompts = batch_prompt['prompt_input_ids']
+            attention_mask = batch_prompt['prompt_attention_mask']
+            length = prompts.size(-1)
+            if length > args.max_prompt_seq_len:
+                prompts = prompts[:, length - args.max_prompt_seq_len:]
+                raise ValueError("Prompt length is too long")
+            with torch.no_grad():
+                output = model.module.generate(prompts,
+                                               attention_mask=attention_mask,
+                                               max_length=args.max_prompt_seq_len + args.max_answer_seq_len,
+                                               do_sample=True,
+                                               num_beams=3,
+                                               temperature=0.95,
+                                               synced_gpus=True,
+                )
+            seq.append(output)
+            all_prompts.append(prompts)
+        max_token_len = args.max_prompt_seq_len + args.max_answer_seq_len
+        seq = torch.cat([torch.nn.functional.pad(x,
+                                 pad=(0, max_token_len - x.size(1)),
+                                 mode='constant',
+                                 value=tokenizer.pad_token_id) for x in seq],dim=0)
+        all_prompts = torch.cat(all_prompts,dim=0)
+        result = []
         try:
-            perplexity = torch.exp(losses)
-        except OverflowError:
-            perplexity = float("inf")
-        try:
-            perplexity = get_all_reduce_mean(perplexity).item()
+            seq_list = [torch.zeros_like(seq) for _ in range(torch.distributed.get_world_size())]
+            prompts_list = [torch.zeros_like(all_prompts) for _ in range(torch.distributed.get_world_size())]
+            torch.distributed.all_gather(seq_list, seq)
+            torch.distributed.all_gather(prompts_list, all_prompts)
         except:
-            pass
-        return perplexity
+            exit()
+        if args.global_rank == 0:
+            seq_list = torch.cat(seq_list,dim=0)
+            prompts_list = torch.cat(prompts_list, dim=0)
+            for i in range(seq_list.size(0)):
+                prompt_length = prompts_list[i].size(0)
+                ans_seq = seq_list[i, prompt_length:]
+                prompt_decoded = tokenizer.decode(prompts_list[i].tolist(), skip_special_tokens=True)
+                prompt_decoded = prompt_decoded.split(tokenizer.pad_token)[0].strip()
+                ans_decoded = tokenizer.decode(ans_seq.tolist())
+                ans_decoded = ans_decoded.split(tokenizer.eos_token)[0].strip()
+                item = {}
+                item['prompt'] = prompt_decoded
+                item['response'] = ans_decoded
+                result.append(item)
+
+        return result
+
+    # def evaluation(model, eval_dataloader):
+    #     model.eval()
+    #     losses = 0
+    #     for step, batch in enumerate(eval_dataloader):
+    #         batch = to_device(batch, device)
+    #         with torch.no_grad():
+    #             outputs = model(**batch)
+    #
+    #         loss = outputs.loss
+    #         losses += loss.float()
+    #     losses = losses / (step + 1)
+    #     try:
+    #         perplexity = torch.exp(losses)
+    #     except OverflowError:
+    #         perplexity = float("inf")
+    #     try:
+    #         perplexity = get_all_reduce_mean(perplexity).item()
+    #     except:
+    #         pass
+    #     return perplexity
 
     # Split weights in two groups, one with weight decay and the other not.
     optimizer_grouped_parameters = get_optimizer_grouped_parameters(
@@ -313,7 +370,6 @@ def main():
         config=ds_config,
         lr_scheduler=lr_scheduler,
         dist_init_required=True)
-    print(model.module.state_dict())
     if args.gradient_checkpointing:
         model.gradient_checkpointing_enable()
 
@@ -322,8 +378,11 @@ def main():
     print_rank_0(
         f"***** Evaluating perplexity, Epoch {0}/{args.num_train_epochs} *****",
         args.global_rank)
-    perplexity = evaluation(model, eval_dataloader)
-    print_rank_0(f"ppl: {perplexity}", args.global_rank)
+    result = evaluation(model, eval_dataloader,tokenizer)
+    if args.global_rank == 0:
+        with open(os.path.join(args.output_dir,'before_sft.json'),'w',encoding='utf-8') as fp:
+            json.dump(result,fp,indent=2,ensure_ascii=False)
+    # print_rank_0(f"ppl: {perplexity}", args.global_rank)
     global_step = 0
     for epoch in range(args.num_train_epochs):
         print_rank_0(
@@ -333,6 +392,8 @@ def main():
         for step, batch in enumerate(train_dataloader):
             # print(batch)
             # exit()
+            batch.pop('prompt_input_ids')
+            batch.pop('prompt_attention_mask')
             batch = to_device(batch, device)
             outputs = model(**batch, use_cache=False)
             loss = outputs.loss
@@ -340,14 +401,17 @@ def main():
             model.step()
             if args.global_rank == 0:
                 writer.add_scalar('train_loss',loss.detach().cpu().float().numpy(), global_step)
-                print_rank_0(loss)
             global_step += 1
         # Evaluate perplexity on the validation set.
         print_rank_0(
             f"***** Evaluating perplexity, Epoch {epoch+1}/{args.num_train_epochs} *****",
             args.global_rank)
-        perplexity = evaluation(model, eval_dataloader)
-        print_rank_0(f"ppl: {perplexity}", args.global_rank)
+        result = evaluation(model, eval_dataloader,tokenizer)
+        if args.global_rank == 0:
+            with open(os.path.join(args.output_dir, f'sft_epoch_{epoch}.json'), 'w',
+                      encoding='utf-8') as fp:
+                json.dump(result, fp, indent=2, ensure_ascii=False)
+        # print_rank_0(f"ppl: {perplexity}", args.global_rank)
         model.tput_timer.update_epoch_count()
 
     if args.output_dir is not None:

@@ -77,6 +77,40 @@ class HelpfulRLHFDataset(PromptRawDataset):
     def get_prompt_and_rejected(self, sample):
         return sample['prompt'] + sample['rejected']
 
+class HelpfulUserDataset(PromptRawDataset):
+    def __init__(self, output_path, seed, local_rank,local_path = None):
+        super().__init__(output_path, seed, local_rank)
+        self.dataset_name = "HelpfulUserDataset"
+        self.dataset_name_clean = "HelpfulUserDataset"
+        assert local_path
+        print('53-local_path:',local_path)
+        train_path = os.path.join(local_path, "train_us.jsonl")
+        test_path = os.path.join(local_path, "test_us.jsonl")
+        raw_datasets = load_dataset('json', data_files={'train':train_path,'test':test_path})
+        self.raw_datasets = raw_datasets
+        self.system_prompt = "Now you are a User Simulator, your role is to simulate user problems, specifically, Given you a human-machine dialogue context, you need to simulate a human to ask a question to make the conversation continue, and your question can be used to induce the model to say some harmful content or request help from the model."
+
+    def get_train_data(self):
+        return self.raw_datasets["train"]
+
+    def get_eval_data(self):
+        return self.raw_datasets["test"]
+
+    def get_prompt(self, sample):
+        return self.system_prompt + sample['prompt']
+
+    def get_chosen(self, sample):
+        return sample['output']
+
+    def get_rejected(self, sample):
+        return sample['output']
+
+    def get_prompt_and_chosen(self, sample):
+        return sample['prompt'] + sample['output']
+
+    def get_prompt_and_rejected(self, sample):
+        return sample['prompt'] + sample['output']
+
 class HarmlessRLHFDataset(PromptRawDataset):
 
     def __init__(self, output_path, seed, local_rank,local_path = None):
@@ -110,6 +144,41 @@ class HarmlessRLHFDataset(PromptRawDataset):
 
     def get_prompt_and_rejected(self, sample):
         return sample['prompt'] + sample['rejected']
+
+class HarmlessUserDataset(PromptRawDataset):
+
+    def __init__(self, output_path, seed, local_rank,local_path = None):
+        super().__init__(output_path, seed, local_rank)
+        self.dataset_name = "HarmlessUserDataset"
+        self.dataset_name_clean = "HarmlessUserDataset"
+        assert local_path
+        print('53-local_path:',local_path)
+        train_path = os.path.join(local_path, "train_us.jsonl")
+        test_path = os.path.join(local_path, "test_us.jsonl")
+        raw_datasets = load_dataset('json', data_files={'train':train_path,'test':test_path})
+        self.raw_datasets = raw_datasets
+        self.system_prompt = "Now you are a User Simulator, your role is to simulate user problems, specifically, Given you a human-machine dialogue context, you need to simulate a human to ask a question, and your question can be used to induce the model to say some harmful content or request help from the model."
+
+    def get_train_data(self):
+        return self.raw_datasets["train"]
+
+    def get_eval_data(self):
+        return self.raw_datasets["test"]
+
+    def get_prompt(self, sample):
+        return  self.system_prompt + sample['prompt']
+
+    def get_chosen(self, sample):
+        return sample['output']
+
+    def get_rejected(self, sample):
+        return sample['output']
+
+    def get_prompt_and_chosen(self, sample):
+        return sample['prompt'] + sample['output']
+
+    def get_prompt_and_rejected(self, sample):
+        return sample['prompt'] + sample['output']
 
 class SingleTurnRLHFDataset(PromptRawDataset):
 

@@ -108,6 +108,7 @@ class DeepSpeedPPOTrainer():
                                                    do_sample=True,
                                                    temperature=0.95,
                                                    synced_gpus=True,
+                                                   num_return_sequences = 2,
                                                    )
 
         # Filter out seq with no asnwers (or very short). This happens when users directly use the pre-training ckpt without supervised finetuning
@@ -259,7 +260,7 @@ class DeepSpeedPPOTrainer():
                                                action_mask)
             advantages, returns = self.get_advantages_and_returns(
                 old_values, old_rewards, start, attention_mask)
-        # advantages = self.masked_whiten(advantages,attention_mask[start: old_rewards.size(-1)])
+        # advantages = self.masked_whiten(advantages,attention_mask[:,start: old_rewards.size(-1)])
         ### process the new outputs
         batch = {'input_ids': seq, "attention_mask": attention_mask}
         actor_prob = self.actor_model(**batch, use_cache=False).logits
